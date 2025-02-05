@@ -4,8 +4,7 @@
 
 # MEMBER 1
 
-NAME: ENGALLA, AL JUBAIL-BENZ L.
+## NAME: ENGALLA, AL JUBAIL-BENZ L.
+## COURSE & YEAR: BSIT-3
 
-COURSE & YEAR: BSIT-3
-
-One sentence. Two sentence. Three sentence. Four sentence. Five sentence.
+## One sentence. Two sentence. Three sentence. Four sentence. Five sentence.

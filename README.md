@@ -1,6 +1,23 @@
-# IT342-SkillMatch
+# SkillMatch
 
-# TEAM MEMBERS:
+# Product Description
+
+SkillMatch is a platform that connects service providers and customers, offering both web and mobile versions. Users can create profiles as either service providers or customers, with service providers showcasing their services and pricing ranges in a detailed portfolio. The platform includes real-time messaging, Google Maps integration for location tracking, a rating system for service providers, and a calendar for scheduling appointments. SkillMatch aims to simplify the process of finding, hiring, and managing service providers, providing a seamless and efficient user experience across devices.
+
+# List of Features
+Feature 1: Profile Creation  
+Feautre 2: Portfolio Showcase   
+Feature 3: Messaging System  
+Feautre 4: Location Provider  
+Feature 5: Rating System   
+Feautre 6: Scheduling System  
+
+# Links
+
+Figma:    
+Diagrams:    
+
+# Developers Profile:
 
 ## Member 1
 

@@ -1,4 +1,4 @@
-# IT342-SkillMatch
+# SkillMatch
 
 # Product Description
 
@@ -14,8 +14,8 @@ Feautre 6: Scheduling System
 
 # Links
 
-Figma  
-Diagrams  
+Figma:    
+Diagrams:    
 
 # Developers Profile:
 

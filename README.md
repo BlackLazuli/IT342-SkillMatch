@@ -7,7 +7,7 @@ SkillMatch is a platform that connects service providers and customers, offering
 # List of Features
 Feature 1: Profile Creation  
 Feautre 2: Portfolio Showcase   
-Feature 3: Messaging System  
+Feature 3: Commenting System  
 Feautre 4: Location Provider  
 Feature 5: Rating System   
 Feautre 6: Scheduling System  

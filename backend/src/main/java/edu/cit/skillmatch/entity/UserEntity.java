@@ -1,6 +1,7 @@
 package edu.cit.skillmatch.entity;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -31,14 +32,30 @@ public class UserEntity {
     private String phoneNumber;
 
     @Column
-    private String location;
+    private Double rating; // Average rating for service providers
 
-    @Column
-    private Double rating; // For service providers
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private LocationEntity location; // One-to-One relationship with LocationEntity
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private PortfolioEntity portfolio; // One-to-One relationship with PortfolioEntity
 
+    @OneToMany(mappedBy = "serviceProvider", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RatingEntity> receivedRatings; // Ratings received by this user
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RatingEntity> givenRatings; // Ratings given by this user
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AppointmentEntity> bookedAppointments; // Appointments where this user is a customer
+
+    @OneToMany(mappedBy = "serviceProvider", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AppointmentEntity> receivedAppointments; // Appointments where this user is a service provider
+
+    @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentEntity> comments; // Comments written by the user
+
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -99,14 +116,6 @@ public class UserEntity {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public Double getRating() {
         return rating;
     }
@@ -115,11 +124,59 @@ public class UserEntity {
         this.rating = rating;
     }
 
+    public LocationEntity getLocation() {
+        return location;
+    }
+
+    public void setLocation(LocationEntity location) {
+        this.location = location;
+    }
+
     public PortfolioEntity getPortfolio() {
         return portfolio;
     }
 
     public void setPortfolio(PortfolioEntity portfolio) {
         this.portfolio = portfolio;
+    }
+
+    public List<RatingEntity> getReceivedRatings() {
+        return receivedRatings;
+    }
+
+    public void setReceivedRatings(List<RatingEntity> receivedRatings) {
+        this.receivedRatings = receivedRatings;
+    }
+
+    public List<RatingEntity> getGivenRatings() {
+        return givenRatings;
+    }
+
+    public void setGivenRatings(List<RatingEntity> givenRatings) {
+        this.givenRatings = givenRatings;
+    }
+
+    public List<AppointmentEntity> getBookedAppointments() {
+        return bookedAppointments;
+    }
+
+    public void setBookedAppointments(List<AppointmentEntity> bookedAppointments) {
+        this.bookedAppointments = bookedAppointments;
+    }
+
+    public List<AppointmentEntity> getReceivedAppointments() {
+        return receivedAppointments;
+    }
+
+    public void setReceivedAppointments(List<AppointmentEntity> receivedAppointments) {
+        this.receivedAppointments = receivedAppointments;
+    }
+
+    public List<CommentEntity> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentEntity> comments) {
+        this.comments = comments;
     }
 }

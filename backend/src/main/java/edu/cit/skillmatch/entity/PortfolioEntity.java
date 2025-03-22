@@ -1,6 +1,7 @@
 package edu.cit.skillmatch.entity;
 
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "portfolios")
@@ -24,6 +25,9 @@ public class PortfolioEntity {
 
     @Column
     private String clientTestimonials;
+
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CommentEntity> comments; // Comments related to the portfolio
 
     public Long getId() {
         return id;
@@ -67,5 +71,13 @@ public class PortfolioEntity {
 
     public void setClientTestimonials(String clientTestimonials) {
         this.clientTestimonials = clientTestimonials;
+    }
+
+    public List<CommentEntity> getComments() {
+        return comments;
+    }
+
+    public void setComments(List<CommentEntity> comments) {
+        this.comments = comments;
     }
 }

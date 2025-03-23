@@ -11,12 +11,8 @@ public class RatingEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
-    private UserEntity customer; // The user giving the rating
-
-    @ManyToOne
-    @JoinColumn(name = "service_provider_id", nullable = false)
-    private UserEntity serviceProvider; // The user receiving the rating
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user; // The user receiving the rating (customer or service provider)
 
     @Column(nullable = false)
     private int rating; // 1 to 5 stars
@@ -35,20 +31,12 @@ public class RatingEntity {
         return id;
     }
 
-    public UserEntity getCustomer() {
-        return customer;
+    public UserEntity getUser() {
+        return user;
     }
 
-    public void setCustomer(UserEntity customer) {
-        this.customer = customer;
-    }
-
-    public UserEntity getServiceProvider() {
-        return serviceProvider;
-    }
-
-    public void setServiceProvider(UserEntity serviceProvider) {
-        this.serviceProvider = serviceProvider;
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 
     public int getRating() {

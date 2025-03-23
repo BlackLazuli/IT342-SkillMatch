@@ -34,18 +34,20 @@ public class AppointmentController {
 
     // Book a new appointment
     @PostMapping("/")
-    public ResponseEntity<AppointmentEntity> bookAppointment(@RequestParam Long userId,
-                                                             @RequestParam String role,
-                                                             @RequestParam String appointmentTime,
-                                                             @RequestParam(required = false) String notes) {
-        LocalDateTime time = LocalDateTime.parse(appointmentTime);
+    public ResponseEntity<AppointmentEntity> bookAppointment(@RequestBody AppointmentEntity appointmentEntity) {
         try {
-            AppointmentEntity booked = appointmentService.bookAppointment(userId, role, time, notes);
+            AppointmentEntity booked = appointmentService.bookAppointment(
+                    appointmentEntity.getUser().getId(),
+                    appointmentEntity.getRole(),
+                    appointmentEntity.getAppointmentTime(),
+                    appointmentEntity.getNotes()
+            );
             return ResponseEntity.ok(booked);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
+    
 
     // Reschedule an appointment
     @PutMapping("/{id}/reschedule")

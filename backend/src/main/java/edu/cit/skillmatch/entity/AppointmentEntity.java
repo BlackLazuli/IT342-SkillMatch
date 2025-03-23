@@ -11,12 +11,11 @@ public class AppointmentEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false)
-    private UserEntity customer; // The user booking the appointment
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserEntity user; // The user booking or providing the appointment
 
-    @ManyToOne
-    @JoinColumn(name = "service_provider_id", nullable = false)
-    private UserEntity serviceProvider; // The service provider
+    @Column(nullable = false)
+    private String role; // "CUSTOMER" or "SERVICE_PROVIDER"
 
     @Column(nullable = false)
     private LocalDateTime appointmentTime;
@@ -40,20 +39,20 @@ public class AppointmentEntity {
         return id;
     }
 
-    public UserEntity getCustomer() {
-        return customer;
+    public UserEntity getUser() {
+        return user;
     }
 
-    public void setCustomer(UserEntity customer) {
-        this.customer = customer;
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 
-    public UserEntity getServiceProvider() {
-        return serviceProvider;
+    public String getRole() {
+        return role;
     }
 
-    public void setServiceProvider(UserEntity serviceProvider) {
-        this.serviceProvider = serviceProvider;
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public LocalDateTime getAppointmentTime() {
@@ -83,5 +82,4 @@ public class AppointmentEntity {
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
-
 }

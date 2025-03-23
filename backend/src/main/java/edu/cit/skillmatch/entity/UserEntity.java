@@ -46,11 +46,8 @@ public class UserEntity {
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RatingEntity> givenRatings; // Ratings given by this user
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AppointmentEntity> bookedAppointments; // Appointments where this user is a customer
-
-    @OneToMany(mappedBy = "serviceProvider", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AppointmentEntity> receivedAppointments; // Appointments where this user is a service provider
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AppointmentEntity> appointments; // All appointments related to the user
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments; // Comments written by the user
@@ -156,20 +153,12 @@ public class UserEntity {
         this.givenRatings = givenRatings;
     }
 
-    public List<AppointmentEntity> getBookedAppointments() {
-        return bookedAppointments;
+    public List<AppointmentEntity> getAppointments() {
+        return appointments;
     }
-
-    public void setBookedAppointments(List<AppointmentEntity> bookedAppointments) {
-        this.bookedAppointments = bookedAppointments;
-    }
-
-    public List<AppointmentEntity> getReceivedAppointments() {
-        return receivedAppointments;
-    }
-
-    public void setReceivedAppointments(List<AppointmentEntity> receivedAppointments) {
-        this.receivedAppointments = receivedAppointments;
+    
+    public void setAppointments(List<AppointmentEntity> appointments) {
+        this.appointments = appointments;
     }
 
     public List<CommentEntity> getComments() {

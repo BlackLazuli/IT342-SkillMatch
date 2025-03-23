@@ -35,25 +35,19 @@ public class UserEntity {
     private Double rating; // Average rating for service providers
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private LocationEntity location; // One-to-One relationship with LocationEntity
+    private LocationEntity location;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private PortfolioEntity portfolio; // One-to-One relationship with PortfolioEntity
+    private PortfolioEntity portfolio;
 
-    @OneToMany(mappedBy = "serviceProvider", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RatingEntity> receivedRatings; // Ratings received by this user
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RatingEntity> ratings; // Ratings received by this user
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<RatingEntity> givenRatings; // Ratings given by this user
-
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AppointmentEntity> bookedAppointments; // Appointments where this user is a customer
-
-    @OneToMany(mappedBy = "serviceProvider", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AppointmentEntity> receivedAppointments; // Appointments where this user is a service provider
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AppointmentEntity> appointments; 
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentEntity> comments; // Comments written by the user
+    private List<CommentEntity> comments;
 
     // Getters and Setters
     public Long getId() {
@@ -140,36 +134,20 @@ public class UserEntity {
         this.portfolio = portfolio;
     }
 
-    public List<RatingEntity> getReceivedRatings() {
-        return receivedRatings;
+    public List<RatingEntity> getRatings() {
+        return ratings;
     }
 
-    public void setReceivedRatings(List<RatingEntity> receivedRatings) {
-        this.receivedRatings = receivedRatings;
+    public void setRatings(List<RatingEntity> ratings) {
+        this.ratings = ratings;
     }
 
-    public List<RatingEntity> getGivenRatings() {
-        return givenRatings;
+    public List<AppointmentEntity> getAppointments() {
+        return appointments;
     }
 
-    public void setGivenRatings(List<RatingEntity> givenRatings) {
-        this.givenRatings = givenRatings;
-    }
-
-    public List<AppointmentEntity> getBookedAppointments() {
-        return bookedAppointments;
-    }
-
-    public void setBookedAppointments(List<AppointmentEntity> bookedAppointments) {
-        this.bookedAppointments = bookedAppointments;
-    }
-
-    public List<AppointmentEntity> getReceivedAppointments() {
-        return receivedAppointments;
-    }
-
-    public void setReceivedAppointments(List<AppointmentEntity> receivedAppointments) {
-        this.receivedAppointments = receivedAppointments;
+    public void setAppointments(List<AppointmentEntity> appointments) {
+        this.appointments = appointments;
     }
 
     public List<CommentEntity> getComments() {

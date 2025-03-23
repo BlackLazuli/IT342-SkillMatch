@@ -21,29 +21,24 @@ public class AppointmentService {
         this.userRepository = userRepository;
     }
 
-    public List<AppointmentEntity> getAppointmentsByServiceProvider(Long serviceProviderId) {
-        return appointmentRepository.findByServiceProviderId(serviceProviderId);
-    }
-
-    public List<AppointmentEntity> getAppointmentsByCustomer(Long customerId) {
-        return appointmentRepository.findByCustomerId(customerId);
+    public List<AppointmentEntity> getAppointmentsByUser(Long userId, String role) {
+        return appointmentRepository.findByUserIdAndRole(userId, role);
     }
 
     public Optional<AppointmentEntity> getAppointmentById(Long id) {
         return appointmentRepository.findById(id);
     }
 
-    public AppointmentEntity bookAppointment(Long customerId, Long serviceProviderId, LocalDateTime appointmentTime, String notes) {
-        Optional<UserEntity> customer = userRepository.findById(customerId);
-        Optional<UserEntity> serviceProvider = userRepository.findById(serviceProviderId);
+    public AppointmentEntity bookAppointment(Long userId, String role, LocalDateTime appointmentTime, String notes) {
+        Optional<UserEntity> user = userRepository.findById(userId);
 
-        if (customer.isEmpty() || serviceProvider.isEmpty()) {
-            throw new RuntimeException("Customer or Service Provider not found");
+        if (user.isEmpty()) {
+            throw new RuntimeException("User not found");
         }
 
         AppointmentEntity appointment = new AppointmentEntity();
-        appointment.setCustomer(customer.get());
-        appointment.setServiceProvider(serviceProvider.get());
+        appointment.setUser(user.get());
+        appointment.setRole(role);
         appointment.setAppointmentTime(appointmentTime);
         appointment.setStatus(AppointmentStatus.SCHEDULED);
         appointment.setNotes(notes);

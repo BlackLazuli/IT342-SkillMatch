@@ -17,10 +17,10 @@ public class RatingController {
         this.ratingService = ratingService;
     }
 
-    // Get all ratings for a service provider
-    @GetMapping("/service-provider/{serviceProviderId}")
-    public ResponseEntity<List<RatingEntity>> getRatingsByServiceProvider(@PathVariable Long serviceProviderId) {
-        List<RatingEntity> ratings = ratingService.getRatingsByServiceProvider(serviceProviderId);
+    // Get ratings for a user (customer or service provider)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<RatingEntity>> getRatingsForUser(@PathVariable Long userId) {
+        List<RatingEntity> ratings = ratingService.getRatingsForUser(userId);
         return ResponseEntity.ok(ratings);
     }
 
@@ -34,17 +34,19 @@ public class RatingController {
 
     // Add a new rating
     @PostMapping("/")
-    public ResponseEntity<RatingEntity> addRating(@RequestParam Long customerId,
-                                                  @RequestParam Long serviceProviderId,
-                                                  @RequestParam int rating,
-                                                  @RequestParam(required = false) String review) {
+    public ResponseEntity<RatingEntity> addRating(@RequestBody RatingEntity ratingEntity) {
         try {
-            RatingEntity savedRating = ratingService.addRating(customerId, serviceProviderId, rating, review);
+            RatingEntity savedRating = ratingService.addRating(
+                    ratingEntity.getUser().getId(), 
+                    ratingEntity.getRating(), 
+                    ratingEntity.getReview()
+            );
             return ResponseEntity.ok(savedRating);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
+    
 
     // Delete a rating
     @DeleteMapping("/{id}")

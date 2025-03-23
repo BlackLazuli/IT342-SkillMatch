@@ -18,16 +18,10 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    // Get all appointments for a service provider
-    @GetMapping("/service-provider/{serviceProviderId}")
-    public ResponseEntity<List<AppointmentEntity>> getAppointmentsByServiceProvider(@PathVariable Long serviceProviderId) {
-        return ResponseEntity.ok(appointmentService.getAppointmentsByServiceProvider(serviceProviderId));
-    }
-
-    // Get all appointments for a customer
-    @GetMapping("/customer/{customerId}")
-    public ResponseEntity<List<AppointmentEntity>> getAppointmentsByCustomer(@PathVariable Long customerId) {
-        return ResponseEntity.ok(appointmentService.getAppointmentsByCustomer(customerId));
+    // Get all appointments for a user (either as a customer or service provider)
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<AppointmentEntity>> getAppointmentsByUser(@PathVariable Long userId, @RequestParam String role) {
+        return ResponseEntity.ok(appointmentService.getAppointmentsByUser(userId, role));
     }
 
     // Get an appointment by ID
@@ -40,18 +34,20 @@ public class AppointmentController {
 
     // Book a new appointment
     @PostMapping("/")
-    public ResponseEntity<AppointmentEntity> bookAppointment(@RequestParam Long customerId,
-                                                             @RequestParam Long serviceProviderId,
-                                                             @RequestParam String appointmentTime,
-                                                             @RequestParam(required = false) String notes) {
-        LocalDateTime time = LocalDateTime.parse(appointmentTime);
+    public ResponseEntity<AppointmentEntity> bookAppointment(@RequestBody AppointmentEntity appointmentEntity) {
         try {
-            AppointmentEntity booked = appointmentService.bookAppointment(customerId, serviceProviderId, time, notes);
+            AppointmentEntity booked = appointmentService.bookAppointment(
+                    appointmentEntity.getUser().getId(),
+                    appointmentEntity.getRole(),
+                    appointmentEntity.getAppointmentTime(),
+                    appointmentEntity.getNotes()
+            );
             return ResponseEntity.ok(booked);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
+    
 
     // Reschedule an appointment
     @PutMapping("/{id}/reschedule")

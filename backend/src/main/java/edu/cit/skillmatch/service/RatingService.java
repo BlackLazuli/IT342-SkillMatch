@@ -19,25 +19,23 @@ public class RatingService {
         this.userRepository = userRepository;
     }
 
-    public List<RatingEntity> getRatingsByServiceProvider(Long serviceProviderId) {
-        return ratingRepository.findByServiceProviderId(serviceProviderId);
+    public List<RatingEntity> getRatingsForUser(Long userId) {
+        return ratingRepository.findByUserId(userId);
     }
 
     public Optional<RatingEntity> getRatingById(Long id) {
         return ratingRepository.findById(id);
     }
 
-    public RatingEntity addRating(Long customerId, Long serviceProviderId, int rating, String review) {
-        Optional<UserEntity> customerOptional = userRepository.findById(customerId);
-        Optional<UserEntity> serviceProviderOptional = userRepository.findById(serviceProviderId);
+    public RatingEntity addRating(Long userId, int rating, String review) {
+        Optional<UserEntity> userOptional = userRepository.findById(userId);
 
-        if (customerOptional.isEmpty() || serviceProviderOptional.isEmpty()) {
-            throw new RuntimeException("Customer or Service Provider not found");
+        if (userOptional.isEmpty()) {
+            throw new RuntimeException("User not found");
         }
 
         RatingEntity ratingEntity = new RatingEntity();
-        ratingEntity.setCustomer(customerOptional.get());
-        ratingEntity.setServiceProvider(serviceProviderOptional.get());
+        ratingEntity.setUser(userOptional.get());
         ratingEntity.setRating(rating);
         ratingEntity.setReview(review);
 

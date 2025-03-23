@@ -27,16 +27,16 @@ public class LocationController {
     // Add or update a user's location
     @PostMapping("/{userId}")
     public ResponseEntity<LocationEntity> saveOrUpdateLocation(@PathVariable Long userId,
-                                                               @RequestParam double latitude,
-                                                               @RequestParam double longitude,
-                                                               @RequestParam String address) {
+                                                               @RequestBody LocationEntity location) {
         try {
-            LocationEntity savedLocation = locationService.saveOrUpdateLocation(userId, latitude, longitude, address);
+            LocationEntity savedLocation = locationService.saveOrUpdateLocation(
+                    userId, location.getLatitude(), location.getLongitude(), location.getAddress());
             return ResponseEntity.ok(savedLocation);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();
         }
     }
+    
 
     // Delete a user's location
     @DeleteMapping("/{userId}")

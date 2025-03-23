@@ -30,7 +30,13 @@
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
-
+	<!-- MEON dependencies -->
+		<dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>42.7.2</version>
+        </dependency>
+		<!-- MEON dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>

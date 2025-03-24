@@ -2,6 +2,8 @@ package edu.cit.skillmatch.entity;
 
 import jakarta.persistence.*;
 import java.util.List;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Table(name = "users")
@@ -9,6 +11,8 @@ public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Column(nullable = false)
     private String firstName;
@@ -83,7 +87,11 @@ public class UserEntity {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = passwordEncoder.encode(password);
+    }
+
+    public boolean checkPassword(String rawPassword) {
+        return passwordEncoder.matches(rawPassword, this.password);
     }
 
     public String getRole() {

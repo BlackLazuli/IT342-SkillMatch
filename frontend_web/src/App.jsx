@@ -3,14 +3,14 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import './App.css';
 import Login from './pages/login/login';
 import SignUp from "./pages/sign-up/SignUp";
-
+import MarketingPage from './pages/landingpage/MarketingPage';
 function App() {
   const [count, setCount] = useState(0);
 
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<Navigate to="/MarketingPage" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         

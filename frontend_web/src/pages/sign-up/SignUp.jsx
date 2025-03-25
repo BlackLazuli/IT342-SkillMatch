@@ -7,7 +7,7 @@ import Divider from '@mui/material/Divider';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormLabel from '@mui/material/FormLabel';
 import FormControl from '@mui/material/FormControl';
-import Link from '@mui/material/Link';
+import { Link } from "react-router-dom";
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
@@ -16,6 +16,7 @@ import { styled } from '@mui/material/styles';
 import AppTheme from "../../theme/AppTheme";
 import ColorModeSelect from '../../theme/ColorModeSelect';
 import { GoogleIcon, FacebookIcon, SitemarkIcon } from './components/CustomIcons';
+import skillmatchLogo from '../../images/skillmatch.png';
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: 'flex',
@@ -124,7 +125,9 @@ export default function SignUp(props) {
       <ColorModeSelect sx={{ position: 'fixed', top: '1rem', right: '1rem' }} />
       <SignUpContainer direction="column" justifyContent="space-between">
         <Card variant="outlined">
-          <SitemarkIcon />
+        <Box sx={{ width: 100, height: 21, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <img src={skillmatchLogo} alt="SkillMatch Logo" style={{ width: 150, height: 200, objectFit: 'contain' }} />
+          </Box>
           <Typography
             component="h1"
             variant="h4"

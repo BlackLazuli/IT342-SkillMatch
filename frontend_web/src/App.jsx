@@ -11,6 +11,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/MarketingPage" />} />
+        <Route path="/MarketingPage" element={<MarketingPage />} />  
         <Route path="/login" element={<Login />} />
         <Route path="/sign-up" element={<SignUp />} />
         

@@ -4,12 +4,16 @@ import edu.cit.skillmatch.repository.UserRepository;
 import edu.cit.skillmatch.entity.UserEntity;
 import org.springframework.stereotype.Service;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -39,7 +43,7 @@ public class UserService {
                 user.setEmail(updatedUser.getEmail());
             }
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                user.setPassword(updatedUser.getPassword());
+                user.setPassword(passwordEncoder.encode(updatedUser.getPassword())); // Ensure password is hashed
             }
             if (updatedUser.getRole() != null) {
                 user.setRole(updatedUser.getRole());

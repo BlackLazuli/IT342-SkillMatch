@@ -1,22 +1,38 @@
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import './App.css';
-import Login from './pages/login/login';
-import SignUp from "./pages/sign-up/SignUp";
-import MarketingPage from './pages/landingpage/MarketingPage';
-import Dashboard from './pages/dashboard/Dashboard';
-function App() {
-  const [count, setCount] = useState(0);
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import RegistrationPage from "./pages/RegistrationPage";
+import CustomerDashboard from "./pages/CustomerDashboard";
+import ProviderDashboard from "./pages/ProviderDashboard";
 
+function PrivateRoute({ children }) {
+  const token = localStorage.getItem("token");
+  return token ? children : <Navigate to="/" />;
+}
+
+function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/MarketingPage" />} />
-        <Route path="/MarketingPage" element={<MarketingPage />} />  
-        <Route path="/login" element={<Login />} />
-        <Route path="/sign-up" element={<SignUp />} />
-        <Route path="/dashboard" element={<Dashboard/>}/>
-        
+        <Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<RegistrationPage />} />
+
+        {/* Protect dashboards */}
+        <Route
+          path="/customer-dashboard"
+          element={
+            <PrivateRoute>
+              <CustomerDashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/provider-dashboard"
+          element={
+            <PrivateRoute>
+              <ProviderDashboard />
+            </PrivateRoute>
+          }
+        />
       </Routes>
     </Router>
   );

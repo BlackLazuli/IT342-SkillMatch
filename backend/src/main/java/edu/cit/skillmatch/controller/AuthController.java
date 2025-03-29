@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:5173") // Allow React frontend
 public class AuthController {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -26,15 +27,16 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
         Optional<UserEntity> userOpt = userRepository.findByEmail(request.getEmail());
-
+    
         if (userOpt.isPresent() && passwordEncoder.matches(request.getPassword(), userOpt.get().getPassword())) {
             UserEntity user = userOpt.get();
             String token = jwtUtil.generateToken(user.getEmail());
-
-            AuthResponse response = new AuthResponse(user.getEmail(), user.getId(), token);
+    
+            // Include role in the response
+            AuthResponse response = new AuthResponse(user.getEmail(), user.getId(), token, user.getRole());
             return ResponseEntity.ok(response);
         }
-
+    
         return ResponseEntity.status(401).body(null);
     }
 }

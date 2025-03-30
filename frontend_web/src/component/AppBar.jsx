@@ -33,11 +33,12 @@ const AppBar = () => {
     >
       {/* Logo */}
       <Box sx={{ textAlign: "center", padding: "16px" }}>
-        <Typography variant="h6" sx={{ fontWeight: "bold" }}>
-          SKILL MATCH
-        </Typography>
+      <img
+    src="/skillmatchlogo.png" // Ensure the file is inside the public folder as public/logo.png
+    alt="Skill Match Logo"
+    style={{ width: "200px", height: "80px" }}
+  />
       </Box>
-
       {/* Navigation List */}
       <List>
         {[

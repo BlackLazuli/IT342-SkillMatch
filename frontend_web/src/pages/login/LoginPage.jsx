@@ -48,6 +48,7 @@ const LoginPage = () => {
   };
   return (
     <div>
+      <AppBar />
       <Container maxWidth="sm">
         <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
           <Paper elevation={3} sx={{ padding: 4, width: "100%" }}>

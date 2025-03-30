@@ -11,10 +11,13 @@ import {
   Box,
 } from "@mui/material";
 import { Home, Person, Work, Event, Settings } from "@mui/icons-material";
+import { usePersonalInfo } from "../context/PersonalInfoContext"; // Import context
 
 const drawerWidth = 240;
 
 const AppBar = () => {
+  const { personalInfo } = usePersonalInfo(); // Get user info from context
+
   return (
     <Drawer
       variant="permanent"
@@ -23,7 +26,7 @@ const AppBar = () => {
         flexShrink: 0,
         "& .MuiDrawer-paper": {
           width: drawerWidth,
-          backgroundColor: "#F8D7A8", // Light peach color
+          backgroundColor: "#F8D7A8",
           color: "black",
           display: "flex",
           flexDirection: "column",
@@ -31,15 +34,10 @@ const AppBar = () => {
         },
       }}
     >
-      {/* Logo */}
       <Box sx={{ textAlign: "center", padding: "16px" }}>
-      <img
-    src="/skillmatchlogo.png" // Ensure the file is inside the public folder as public/logo.png
-    alt="Skill Match Logo"
-    style={{ width: "200px", height: "80px" }}
-  />
+        <img src="/skillmatchlogo.png" alt="Skill Match Logo" style={{ width: "200px", height: "80px" }} />
       </Box>
-      {/* Navigation List */}
+
       <List>
         {[
           { text: "Home", icon: <Home /> },
@@ -56,7 +54,6 @@ const AppBar = () => {
 
       <Divider />
 
-      {/* Bottom Section */}
       <Box sx={{ padding: "16px", textAlign: "center" }}>
         <ListItem button>
           <ListItemIcon sx={{ color: "black" }}>
@@ -65,12 +62,14 @@ const AppBar = () => {
           <ListItemText primary="Settings" />
         </ListItem>
         <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-          <Avatar sx={{ bgcolor: "gray", marginRight: "8px" }}>F</Avatar>
+          <Avatar sx={{ bgcolor: "gray", marginRight: "8px" }}>
+            {personalInfo?.firstName ? personalInfo.firstName[0] : "?"}
+          </Avatar>
           <Box>
             <Typography variant="body2" fontWeight="bold">
-              Feerdee Liban
+              {personalInfo?.firstName || "Guest"} {personalInfo?.lastName || ""}
             </Typography>
-            <Typography variant="caption">freerdee@skillmatch.com</Typography>
+            <Typography variant="caption">{personalInfo?.email || "No email"}</Typography>
           </Box>
         </Box>
       </Box>

@@ -1,5 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  Box,
+  TextField,
+  Button,
+  Typography,
+  ToggleButtonGroup,
+  ToggleButton,
+  Paper,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
 
 const RegistrationPage = () => {
   const navigate = useNavigate();
@@ -19,8 +31,8 @@ const RegistrationPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleRoleSelect = (role) => {
-    setFormData({ ...formData, role });
+  const handleRoleSelect = (event, newRole) => {
+    if (newRole) setFormData({ ...formData, role: newRole });
   };
 
   const handleSubmit = async (e) => {
@@ -62,48 +74,91 @@ const RegistrationPage = () => {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-semibold mb-4 text-center">Register</h2>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700">First Name:</label>
-            <input type="text" name="firstName" className="w-full p-2 border rounded mt-1" value={formData.firstName} onChange={handleChange} required />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Last Name:</label>
-            <input type="text" name="lastName" className="w-full p-2 border rounded mt-1" value={formData.lastName} onChange={handleChange} required />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Email:</label>
-            <input type="email" name="email" className="w-full p-2 border rounded mt-1" value={formData.email} onChange={handleChange} required />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Password:</label>
-            <input type="password" name="password" className="w-full p-2 border rounded mt-1" value={formData.password} onChange={handleChange} required />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Phone Number:</label>
-            <input type="text" name="phoneNumber" className="w-full p-2 border rounded mt-1" value={formData.phoneNumber} onChange={handleChange} required />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 mb-2">Role:</label>
-            <div className="flex gap-4">
-              <button type="button" className={`p-2 w-1/2 rounded ${formData.role === "CUSTOMER" ? "bg-blue-500 text-white" : "bg-gray-200"}`} onClick={() => handleRoleSelect("CUSTOMER")}>
-                CUSTOMER
-              </button>
-              <button type="button" className={`p-2 w-1/2 rounded ${formData.role === "SERVICE PROVIDER" ? "bg-blue-500 text-white" : "bg-gray-200"}`} onClick={() => handleRoleSelect("SERVICE PROVIDER")}>
-                SERVICE PROVIDER
-              </button>
-            </div>
-          </div>
-          <button type="submit" className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600" disabled={loading}>
-            {loading ? "Registering..." : "Register"}
-          </button>
-        </form>
-      </div>
-    </div>
+    <Container maxWidth="sm">
+      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+        <Paper elevation={3} sx={{ p: 4, width: "100%" }}>
+          <Typography variant="h4" fontWeight="bold" textAlign="center" gutterBottom>
+            Register
+          </Typography>
+
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+          <form onSubmit={handleSubmit}>
+            <TextField
+              fullWidth
+              label="First Name"
+              name="firstName"
+              value={formData.firstName}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Last Name"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              type="email"
+              label="Email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              type="password"
+              label="Password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+            <TextField
+              fullWidth
+              label="Phone Number"
+              name="phoneNumber"
+              value={formData.phoneNumber}
+              onChange={handleChange}
+              margin="normal"
+              required
+            />
+
+            <Typography variant="body1" sx={{ mt: 2, mb: 1 }}>
+              Select Role:
+            </Typography>
+            <ToggleButtonGroup
+              fullWidth
+              value={formData.role}
+              exclusive
+              onChange={handleRoleSelect}
+            >
+              <ToggleButton value="CUSTOMER">Customer</ToggleButton>
+              <ToggleButton value="SERVICE PROVIDER">Service Provider</ToggleButton>
+            </ToggleButtonGroup>
+
+            <Button
+              fullWidth
+              variant="contained"
+              color="primary"
+              sx={{ mt: 3 }}
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} /> : "Register"}
+            </Button>
+          </form>
+        </Paper>
+      </Box>
+    </Container>
   );
 };
 

@@ -1,8 +1,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import RegistrationPage from "./pages/RegistrationPage";
-import CustomerDashboard from "./pages/CustomerDashboard";
-import ProviderDashboard from "./pages/ProviderDashboard";
+import LoginPage from "./pages/login/LoginPage";
+import RegistrationPage from "./pages/registration/RegistrationPage";
+import CustomerDashboard from "./pages/customerdashboard/CustomerDashboard";
+import ProviderDashboard from "./pages/providerdashboard/ProviderDashboard";
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("token");

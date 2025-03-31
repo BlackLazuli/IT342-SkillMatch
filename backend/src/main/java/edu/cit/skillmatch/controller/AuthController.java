@@ -32,8 +32,16 @@ public class AuthController {
             UserEntity user = userOpt.get();
             String token = jwtUtil.generateToken(user.getEmail());
     
-            // Include role in the response
-            AuthResponse response = new AuthResponse(user.getEmail(), user.getId(), token, user.getRole());
+            // Include firstName and lastName in the response
+            AuthResponse response = new AuthResponse(
+                user.getEmail(),
+                user.getId(),
+                token,
+                user.getRole(),
+                user.getFirstName(), // Fetch firstName
+                user.getLastName()    // Fetch lastName
+            );
+    
             return ResponseEntity.ok(response);
         }
     

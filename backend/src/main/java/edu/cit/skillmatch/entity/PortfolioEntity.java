@@ -14,9 +14,6 @@ public class PortfolioEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    @Column(nullable = false)
-    private String portfolioUrl;
-
     @Column
     private String workExperience;
 
@@ -39,14 +36,6 @@ public class PortfolioEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
-    }
-
-    public String getPortfolioUrl() {
-        return portfolioUrl;
-    }
-
-    public void setPortfolioUrl(String portfolioUrl) {
-        this.portfolioUrl = portfolioUrl;
     }
 
     public String getWorkExperience() {

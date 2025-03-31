@@ -3,6 +3,8 @@ package edu.cit.skillmatch.entity;
 import jakarta.persistence.*;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "portfolios")
 public class PortfolioEntity {
@@ -12,6 +14,7 @@ public class PortfolioEntity {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+     @JsonBackReference
     private UserEntity user;
 
     @Column

@@ -1,0 +1,32 @@
+R_DEF: Internal format may change without notice
+local
+color colorAccent
+color colorBackground
+color colorPrimary
+color colorPrimaryDark
+color colorRectangle
+drawable back_button__1_
+drawable businessman
+drawable customer
+drawable facebook
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+drawable pen
+drawable professionals
+drawable rectangle_container
+drawable sk_darkmode
+drawable skillmatch_darkmode
+drawable social
+id constraintLayout2
+id imageView
+id imageView2
+id main
+id view
+layout activity_main
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+style Base.Theme.SkillMatch
+style Theme.SkillMatch
+xml backup_rules
+xml data_extraction_rules

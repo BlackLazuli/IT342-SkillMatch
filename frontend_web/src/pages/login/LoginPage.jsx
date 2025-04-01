@@ -12,48 +12,51 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     if (!email || !password) {
       setError("Both fields are required.");
       return;
     }
-
+  
     try {
       const response = await fetch("http://localhost:8080/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
+  
       if (!response.ok) {
         throw new Error("Invalid email or password.");
       }
-
+  
       const data = await response.json();
-
+  
       console.log("Login API Response:", data); // Debugging
-
-      if (!data.userId) {
-        throw new Error("User ID is missing in response.");
+  
+      if (!data.userId || !data.token) {
+        throw new Error("User ID or token is missing in response.");
       }
-
+  
+      // Store JWT token in localStorage
+      localStorage.setItem('token', data.token);
+  
       // Store user info in context instead of localStorage
       setPersonalInfo({
         userId: data.userId,
-        firstName: data.firstName, // Ensure API sends this
+        firstName: data.firstName, 
         lastName: data.lastName, 
         email: data.email,
         role: data.role,
       });
-
+  
       console.log("Updated Personal Info in Context:", {
         userId: data.userId,
-        firstName: data.firstName, // Ensure API sends this
+        firstName: data.firstName,
         lastName: data.lastName, 
         email: data.email,
         role: data.role,
       });
-
+  
       // Redirect based on role
       if (data.role === "CUSTOMER") {
         navigate("/customer-dashboard");

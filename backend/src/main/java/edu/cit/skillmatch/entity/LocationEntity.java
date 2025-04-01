@@ -1,5 +1,7 @@
 package edu.cit.skillmatch.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -10,6 +12,7 @@ public class LocationEntity {
     private Long id;
 
     @OneToOne
+    @JsonBackReference
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private UserEntity user; // Each user has one location
 

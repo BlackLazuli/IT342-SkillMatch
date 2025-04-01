@@ -1,8 +1,16 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.SkillMatch" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Background Colors -->
+        <item name="android:colorBackground">@color/colorBackground</item>
+
+        <!-- Primary Colors -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+
+        <!-- Rectangle Container Color -->
+        <item name="android:windowBackground">@color/colorRectangle</item>
     </style>
 
     <style name="Theme.SkillMatch" parent="Base.Theme.SkillMatch" />

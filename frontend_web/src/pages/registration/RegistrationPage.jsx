@@ -37,16 +37,19 @@ const RegistrationPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     // Basic validation
     if (!formData.firstName || !formData.lastName || !formData.email || !formData.password || !formData.phoneNumber) {
       setError("All fields are required.");
       return;
     }
-
+  
     setError("");
     setLoading(true);
-
+  
+    // Log the data that is going to be sent
+    console.log("Data being sent to server:", formData);
+  
     try {
       const response = await fetch("http://localhost:8080/api/users/createUser", {
         method: "POST",
@@ -55,17 +58,17 @@ const RegistrationPage = () => {
         },
         body: JSON.stringify(formData),
       });
-
+  
       if (!response.ok) {
         throw new Error("Failed to register. Please try again.");
       }
-
+  
       const result = await response.json();
       console.log("User registered:", result);
-
+  
       alert("Registration successful! Redirecting to login.");
       navigate("/"); // Redirect to login
-
+  
     } catch (error) {
       setError(error.message);
     } finally {

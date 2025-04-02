@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Drawer,
   List,
@@ -17,6 +18,26 @@ const drawerWidth = 240;
 
 const AppBar = () => {
   const { personalInfo } = usePersonalInfo(); // Get user info from context
+  const navigate = useNavigate(); // Hook for navigation
+
+  const menuItems = [
+    { text: "Home", icon: <Home />, path: "/" },
+    { text: "Profile", icon: <Person />, path: "/profile" },
+    { 
+      text: "Portfolio", 
+      icon: <Work />, 
+      path: personalInfo?.userId ? `/portfolio/${personalInfo.userId}` : "/" 
+    },
+    { text: "Appointments", icon: <Event />, path: "/appointments" },
+  ];
+
+  const handleNavigation = (path) => {
+    if (path.includes("/portfolio/") && !personalInfo?.userId) {
+      alert("You need to log in to access your portfolio.");
+      return;
+    }
+    navigate(path);
+  };
 
   return (
     <Drawer
@@ -39,13 +60,8 @@ const AppBar = () => {
       </Box>
 
       <List>
-        {[
-          { text: "Home", icon: <Home /> },
-          { text: "Profile", icon: <Person /> },
-          { text: "Portfolio", icon: <Work /> },
-          { text: "Appointments", icon: <Event /> },
-        ].map((item, index) => (
-          <ListItem button key={index} sx={{ padding: "12px 24px" }}>
+        {menuItems.map((item, index) => (
+          <ListItem button key={index} sx={{ padding: "12px 24px" }} onClick={() => handleNavigation(item.path)}>
             <ListItemIcon sx={{ color: "black" }}>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>

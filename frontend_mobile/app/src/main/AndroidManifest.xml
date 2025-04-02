@@ -21,6 +21,17 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Add the Login activity here -->
+        <activity
+            android:name=".Login"
+            android:exported="false">
+        </activity>
+        <!-- Add the SignUp activity here -->
+        <activity
+            android:name=".SignUp"
+            android:exported="false">
+        </activity>
     </application>
 
 </manifest>

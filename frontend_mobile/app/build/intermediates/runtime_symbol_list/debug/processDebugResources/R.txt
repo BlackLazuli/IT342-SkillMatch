@@ -3003,6 +3003,7 @@ int drawable abc_vector_test 0x7f070077
 int drawable avd_hide_password 0x7f070078
 int drawable avd_show_password 0x7f070079
 int drawable back_button__1_ 0x7f07007a
+int drawable birthday 0x7f0700f4
 int drawable btn_checkbox_checked_mtrl 0x7f07007b
 int drawable btn_checkbox_checked_to_unchecked_mtrl_animation 0x7f07007c
 int drawable btn_checkbox_unchecked_mtrl 0x7f07007d
@@ -3012,6 +3013,7 @@ int drawable btn_radio_off_to_on_mtrl_animation 0x7f070080
 int drawable btn_radio_on_mtrl 0x7f070081
 int drawable btn_radio_on_to_off_mtrl_animation 0x7f070082
 int drawable businessman 0x7f070083
+int drawable container 0x7f0700f1
 int drawable customer 0x7f070084
 int drawable design_fab_background 0x7f070085
 int drawable design_ic_visibility 0x7f070086
@@ -3040,6 +3042,7 @@ int drawable ic_mtrl_chip_checked_circle 0x7f07009c
 int drawable ic_mtrl_chip_close_circle 0x7f07009d
 int drawable ic_search_black_24 0x7f07009e
 int drawable indeterminate_static 0x7f07009f
+int drawable lock 0x7f0700f2
 int drawable m3_avd_hide_password 0x7f0700a0
 int drawable m3_avd_show_password 0x7f0700a1
 int drawable m3_bottom_sheet_drag_handle 0x7f0700a2
@@ -3051,6 +3054,7 @@ int drawable m3_tabs_background 0x7f0700a7
 int drawable m3_tabs_line_indicator 0x7f0700a8
 int drawable m3_tabs_rounded_line_indicator 0x7f0700a9
 int drawable m3_tabs_transparent_background 0x7f0700aa
+int drawable mail 0x7f0700f5
 int drawable material_cursor_drawable 0x7f0700ab
 int drawable material_ic_calendar_black_24dp 0x7f0700ac
 int drawable material_ic_clear_black_24dp 0x7f0700ad
@@ -3118,14 +3122,17 @@ int drawable rectangle_container 0x7f0700ea
 int drawable sk_darkmode 0x7f0700eb
 int drawable skillmatch_darkmode 0x7f0700ec
 int drawable social 0x7f0700ed
+int drawable telephone 0x7f0700f6
 int drawable test_level_drawable 0x7f0700ee
 int drawable tooltip_frame_dark 0x7f0700ef
 int drawable tooltip_frame_light 0x7f0700f0
+int drawable user 0x7f0700f3
 int id ALT 0x7f080000
 int id BOTTOM_END 0x7f080001
 int id BOTTOM_START 0x7f080002
 int id CTRL 0x7f080003
 int id FUNCTION 0x7f080004
+int id GetStarted 0x7f080203
 int id META 0x7f080005
 int id NO_DEBUG 0x7f080006
 int id SHIFT 0x7f080007
@@ -3226,6 +3233,7 @@ int id buttonPanel 0x7f080065
 int id cache_measures 0x7f080066
 int id callMeasure 0x7f080067
 int id cancel_button 0x7f080068
+int id cancelbtn 0x7f080210
 int id carryVelocity 0x7f080069
 int id center 0x7f08006a
 int id centerCrop 0x7f08006b
@@ -3249,6 +3257,8 @@ int id compress 0x7f08007c
 int id confirm_button 0x7f08007d
 int id constraint 0x7f08007e
 int id constraintLayout2 0x7f08007f
+int id contactsContainer 0x7f080211
+int id contactsInput 0x7f080212
 int id container 0x7f080080
 int id content 0x7f080081
 int id contentPanel 0x7f080082
@@ -3282,6 +3292,8 @@ int id disableIntraAutoTransition 0x7f08009d
 int id disablePostScroll 0x7f08009e
 int id disableScroll 0x7f08009f
 int id disjoint 0x7f0800a0
+int id dobContainer 0x7f080213
+int id dobInput 0x7f080214
 int id dragAnticlockwise 0x7f0800a1
 int id dragClockwise 0x7f0800a2
 int id dragDown 0x7f0800a3
@@ -3299,6 +3311,8 @@ int id edge 0x7f0800ae
 int id edit_query 0x7f0800af
 int id edit_text_id 0x7f0800b0
 int id elastic 0x7f0800b1
+int id emailContainer 0x7f080215
+int id emailInput 0x7f080216
 int id embed 0x7f0800b2
 int id end 0x7f0800b3
 int id endToStart 0x7f0800b4
@@ -3313,6 +3327,8 @@ int id fill 0x7f0800bc
 int id fill_horizontal 0x7f0800bd
 int id fill_vertical 0x7f0800be
 int id filled 0x7f0800bf
+int id firstNameContainer 0x7f080217
+int id firstNameInput 0x7f080218
 int id fitCenter 0x7f0800c0
 int id fitEnd 0x7f0800c1
 int id fitStart 0x7f0800c2
@@ -3328,6 +3344,7 @@ int id fullscreen_header 0x7f0800cb
 int id ghost_view 0x7f0800cc
 int id ghost_view_holder 0x7f0800cd
 int id gone 0x7f0800ce
+int id googlebtn 0x7f080205
 int id graph 0x7f0800cf
 int id graph_wrap 0x7f0800d0
 int id group_divider 0x7f0800d1
@@ -3349,6 +3366,8 @@ int id ignoreRequest 0x7f0800e0
 int id image 0x7f0800e1
 int id imageView 0x7f0800e2
 int id imageView2 0x7f0800e3
+int id imageView3 0x7f080206
+int id imageView4 0x7f080219
 int id immediateStop 0x7f0800e4
 int id included 0x7f0800e5
 int id indeterminate 0x7f0800e6
@@ -3360,6 +3379,8 @@ int id item_touch_helper_previous_elevation 0x7f0800eb
 int id jumpToEnd 0x7f0800ec
 int id jumpToStart 0x7f0800ed
 int id labeled 0x7f0800ee
+int id lastNameContainer 0x7f08021a
+int id lastNameInput 0x7f08021b
 int id layout 0x7f0800ef
 int id left 0x7f0800f0
 int id leftToRight 0x7f0800f1
@@ -3369,6 +3390,7 @@ int id line3 0x7f0800f4
 int id linear 0x7f0800f5
 int id listMode 0x7f0800f6
 int id list_item 0x7f0800f7
+int id loginbtn 0x7f08021c
 int id m3_side_sheet 0x7f0800f8
 int id main 0x7f0800f9
 int id marquee 0x7f0800fa
@@ -3398,6 +3420,8 @@ int id material_value_index 0x7f080111
 int id matrix 0x7f080112
 int id message 0x7f080113
 int id middle 0x7f080114
+int id middleNameContainer 0x7f08021d
+int id middleNameInput 0x7f08021e
 int id mini 0x7f080115
 int id month_grid 0x7f080116
 int id month_navigation_bar 0x7f080117
@@ -3474,6 +3498,8 @@ int id parent 0x7f08015d
 int id parentPanel 0x7f08015e
 int id parentRelative 0x7f08015f
 int id parent_matrix 0x7f080160
+int id passwordContainer 0x7f080208
+int id passwordInput 0x7f080209
 int id password_toggle 0x7f080161
 int id path 0x7f080162
 int id pathRelative 0x7f080163
@@ -3525,6 +3551,7 @@ int id shortcut 0x7f080190
 int id showCustom 0x7f080191
 int id showHome 0x7f080192
 int id showTitle 0x7f080193
+int id signUpText 0x7f08020a
 int id sin 0x7f080194
 int id skipCollapsed 0x7f080195
 int id skipped 0x7f080196
@@ -3556,6 +3583,7 @@ int id stop 0x7f0801af
 int id stretch 0x7f0801b0
 int id submenuarrow 0x7f0801b1
 int id submit_area 0x7f0801b2
+int id submitbtn 0x7f08021f
 int id supportScrollUp 0x7f0801b3
 int id tabMode 0x7f0801b4
 int id tag_accessibility_actions 0x7f0801b5
@@ -3578,6 +3606,12 @@ int id textSpacerNoButtons 0x7f0801c5
 int id textSpacerNoTitle 0x7f0801c6
 int id textStart 0x7f0801c7
 int id textTop 0x7f0801c8
+int id textView 0x7f080200
+int id textView2 0x7f080201
+int id textView3 0x7f080202
+int id textView5 0x7f08020b
+int id textView7 0x7f08020c
+int id textView8 0x7f08020d
 int id text_input_end_icon 0x7f0801c9
 int id text_input_error_icon 0x7f0801ca
 int id text_input_start_icon 0x7f0801cb
@@ -3611,6 +3645,8 @@ int id uniform 0x7f0801e6
 int id unlabeled 0x7f0801e7
 int id up 0x7f0801e8
 int id useLogo 0x7f0801e9
+int id usernameContainer 0x7f08020e
+int id usernameInput 0x7f08020f
 int id vertical 0x7f0801ea
 int id vertical_only 0x7f0801eb
 int id view 0x7f0801ec
@@ -3746,7 +3782,9 @@ int layout abc_search_dropdown_item_icons_2line 0x7f0b0018
 int layout abc_search_view 0x7f0b0019
 int layout abc_select_dialog_material 0x7f0b001a
 int layout abc_tooltip 0x7f0b001b
+int layout activity_login 0x7f0b006c
 int layout activity_main 0x7f0b001c
+int layout activity_signup 0x7f0b006d
 int layout custom_dialog 0x7f0b001d
 int layout design_bottom_navigation_item 0x7f0b001e
 int layout design_bottom_sheet_dialog 0x7f0b001f

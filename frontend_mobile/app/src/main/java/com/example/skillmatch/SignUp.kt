@@ -3,66 +3,99 @@ package com.example.skillmatch
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.example.skillmatch.repository.SkillMatchRepository
+import com.example.skillmatch.utils.SessionManager
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
+import kotlinx.coroutines.launch
 
 class SignUp : AppCompatActivity() {
+
+    private lateinit var repository: SkillMatchRepository
+    private lateinit var sessionManager: SessionManager
+    
+    private lateinit var usernameInput: TextInputEditText
+    private lateinit var passwordInput: TextInputEditText
+    private lateinit var emailInput: TextInputEditText
+    private lateinit var submitBtn: Button
+    private lateinit var cancelBtn: Button
+    
+    private var selectedRole: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
-
-        val firstNameInput: TextInputEditText = findViewById(R.id.firstNameInput)
-        val middleNameInput: TextInputEditText = findViewById(R.id.middleNameInput)
-        val lastNameInput: TextInputEditText = findViewById(R.id.lastNameInput)
-        val dobInput: TextInputEditText = findViewById(R.id.dobInput)
-        val emailInput: TextInputEditText = findViewById(R.id.emailInput)
-        val contactsInput: TextInputEditText = findViewById(R.id.contactsInput)
-        val usernameInput: TextInputEditText = findViewById(R.id.usernameInput)
-        val passwordInput: TextInputEditText = findViewById(R.id.passwordInput)
-
-        val submitButton: Button = findViewById(R.id.submitbtn)
-        val cancelButton: Button = findViewById(R.id.cancelbtn)
-        val googleButton: ImageButton = findViewById(R.id.googlebtn)
-
-        submitButton.setOnClickListener {
-            val firstName = firstNameInput.text.toString()
-            val middleName = middleNameInput.text.toString()
-            val lastName = lastNameInput.text.toString()
-            val dob = dobInput.text.toString()
-            val email = emailInput.text.toString()
-            val contacts = contactsInput.text.toString()
+        
+        // Get selected role from intent
+        selectedRole = intent.getStringExtra("SELECTED_ROLE")
+        
+        // Initialize repository and session manager
+        repository = SkillMatchRepository(this)
+        sessionManager = SessionManager(this)
+        
+        // Initialize UI elements
+        usernameInput = findViewById(R.id.usernameInput)
+        passwordInput = findViewById(R.id.passwordInput)
+        emailInput = findViewById(R.id.emailInput)
+        submitBtn = findViewById(R.id.submitbtn)
+        cancelBtn = findViewById(R.id.cancelbtn)
+        
+        // Set up click listeners
+        submitBtn.setOnClickListener {
             val username = usernameInput.text.toString()
             val password = passwordInput.text.toString()
-
-            // Validate the input
-            if (firstName.isNotEmpty() && middleName.isNotEmpty() && lastName.isNotEmpty() &&
-                dob.isNotEmpty() && email.isNotEmpty() && contacts.isNotEmpty() &&
-                username.isNotEmpty() && password.isNotEmpty()) {
-
-                // Proceed with the sign-up logic (e.g., save the data to a database or send it to a backend)
-                Toast.makeText(this, "Sign Up Successful", Toast.LENGTH_SHORT).show()
-                finish()
-                 // Redirect to login screen after sign up
+            val email = emailInput.text.toString()
+            
+            if (username.isNotEmpty() && password.isNotEmpty() && email.isNotEmpty() && selectedRole != null) {
+                registerUser(username, email, password, selectedRole!!)
             } else {
-                Toast.makeText(this, "Please fill all the fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show()
             }
         }
-
-        cancelButton.setOnClickListener {
-            // Handle cancel action (e.g., go back to login screen)
-            // Close the current activity
-            startActivity(Intent(this, Login::class.java))
+        
+        cancelBtn.setOnClickListener {
+            // Go back to login screen
+            val intent = Intent(this, Login::class.java)
+            startActivity(intent)
+            finish()
         }
-
-        googleButton.setOnClickListener {
-            Toast.makeText(this, "Google Login Clicked", Toast.LENGTH_SHORT).show()
-            // Implement Google Sign-In functionality
+    }
+    
+    private fun registerUser(name: String, email: String, password: String, userType: String) {
+        lifecycleScope.launch {
+            try {
+                val response = repository.signup(name, email, password, userType)
+                
+                if (response.isSuccessful) {
+                    val signupResponse = response.body()
+                    
+                    if (signupResponse != null) {
+                        // Save user data to session
+                        sessionManager.saveAuthToken(signupResponse.token)
+                        sessionManager.saveUserId(signupResponse.userId)
+                        sessionManager.saveUserType(signupResponse.userType)
+                        
+                        // Navigate based on user type
+                        if (signupResponse.userType == "CUSTOMER") {
+                            val intent = Intent(this@SignUp, CustomerDashboard::class.java)
+                            intent.putExtra("USER_ID", signupResponse.userId)
+                            startActivity(intent)
+                            finish()
+                        } else if (signupResponse.userType == "PROFESSIONAL") {
+                            val intent = Intent(this@SignUp, ProfessionalDashboard::class.java)
+                            intent.putExtra("USER_ID", signupResponse.userId)
+                            startActivity(intent)
+                            finish()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this@SignUp, "Registration failed: ${response.message()}", Toast.LENGTH_SHORT).show()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@SignUp, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 }

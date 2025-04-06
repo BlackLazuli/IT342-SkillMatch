@@ -2,46 +2,42 @@ package com.example.skillmatch
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 
 class ChooseRole : AppCompatActivity() {
 
-    private lateinit var customerRoleCardPopup: CardView
-    private lateinit var professionalRoleCardPopup: CardView
-    private lateinit var instructionText: TextView
-    private lateinit var selectedRole: String
+    private lateinit var customerRoleCard: CardView
+    private lateinit var professionalRoleCard: CardView
+    private var selectedRole: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chooserole)
 
-        // Initialize views
-        customerRoleCardPopup = findViewById(R.id.customerRoleCardPopup)
-        professionalRoleCardPopup = findViewById(R.id.professionalRoleCardPopup)
-        instructionText = findViewById(R.id.instructionText)
+        // Initialize views - make sure these IDs match exactly what's in your layout
+        customerRoleCard = findViewById(R.id.customerRoleCardPopup)
+        professionalRoleCard = findViewById(R.id.professionalRoleCardPopup)
 
-        // Set click listeners for role selection
-        customerRoleCardPopup.setOnClickListener {
-            selectedRole = "customer"
-            Toast.makeText(this, "Customer role selected", Toast.LENGTH_SHORT).show()
-            navigateToSignUp()
-        }
+        // Set click listeners with explicit View parameter
+        customerRoleCard.setOnClickListener(View.OnClickListener {
+            selectedRole = "CUSTOMER"
+            proceedToSignUp()
+        })
 
-        professionalRoleCardPopup.setOnClickListener {
-            selectedRole = "professional"
-            Toast.makeText(this, "Professional role selected", Toast.LENGTH_SHORT).show()
-            navigateToSignUp()
-        }
+        professionalRoleCard.setOnClickListener(View.OnClickListener {
+            selectedRole = "PROFESSIONAL"
+            proceedToSignUp()
+        })
     }
 
-    private fun navigateToSignUp() {
+    private fun proceedToSignUp() {
+        // Create intent to pass to SignUp activity
         val intent = Intent(this, SignUp::class.java)
         intent.putExtra("SELECTED_ROLE", selectedRole)
         startActivity(intent)
-        finish() // Close this activity so user can't go back to it
+        finish() // Close this activity
     }
-
 }

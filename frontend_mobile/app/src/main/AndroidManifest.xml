@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,44 +14,26 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SkillMatch"
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
         tools:targetApi="31">
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+        
+        <!-- Existing activities -->
+        <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <!-- Add the Login activity here -->
-        <activity
-            android:name=".Login"
-            android:exported="false">
-        </activity>
-        <!-- Add the SignUp activity here -->
-        <activity
-            android:name=".SignUp"
-            android:exported="false">
-        </activity>
-        <!-- Add the ChooseRole activity here -->
-        <activity
-            android:name=".ChooseRole"
-            android:exported="false">
-        </activity>
-
-        <!-- Add the CustomerDashboard activity here -->
-        <activity
-            android:name=".CustomerDashboard"
-            android:exported="false">
-        </activity>
-
-        <!-- Add the ProfessionalDashboard activity here -->
-        <activity
-            android:name=".ProfessionalDashboard"
-            android:exported="false">
-        </activity>
+        
+        <activity android:name=".Login" />
+        <activity android:name=".SignUp" />
+        <activity android:name=".CustomerDashboard" />
+        <activity android:name=".ProfessionalDashboard" />
+        
+        <!-- Add the new ChooseRole activity -->
+        <activity android:name=".ChooseRole" />
+        
     </application>
 
 </manifest>

@@ -32,6 +32,23 @@
             android:name=".SignUp"
             android:exported="false">
         </activity>
+        <!-- Add the ChooseRole activity here -->
+        <activity
+            android:name=".ChooseRole"
+            android:exported="false">
+        </activity>
+
+        <!-- Add the CustomerDashboard activity here -->
+        <activity
+            android:name=".CustomerDashboard"
+            android:exported="false">
+        </activity>
+
+        <!-- Add the ProfessionalDashboard activity here -->
+        <activity
+            android:name=".ProfessionalDashboard"
+            android:exported="false">
+        </activity>
     </application>
 
 </manifest>

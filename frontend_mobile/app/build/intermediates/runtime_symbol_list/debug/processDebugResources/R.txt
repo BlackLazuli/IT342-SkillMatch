@@ -3271,6 +3271,8 @@ int id cradle 0x7f080088
 int id currentState 0x7f080089
 int id custom 0x7f08008a
 int id customPanel 0x7f08008b
+int id customerRoleCard 0x7f080220
+int id customerRoleCardPopup 0x7f080221
 int id cut 0x7f08008c
 int id date_picker_actions 0x7f08008d
 int id decelerate 0x7f08008e
@@ -3285,6 +3287,7 @@ int id design_menu_item_action_area_stub 0x7f080096
 int id design_menu_item_text 0x7f080097
 int id design_navigation_view 0x7f080098
 int id dialog_button 0x7f080099
+int id dimOverlay 0x7f080222
 int id dimensions 0x7f08009a
 int id direct 0x7f08009b
 int id disableHome 0x7f08009c
@@ -3322,6 +3325,7 @@ int id escape 0x7f0800b7
 int id exitUntilCollapsed 0x7f0800b8
 int id expand_activities_button 0x7f0800b9
 int id expanded_menu 0x7f0800ba
+int id facebookLoginCard 0x7f080223
 int id fade 0x7f0800bb
 int id fill 0x7f0800bc
 int id fill_horizontal 0x7f0800bd
@@ -3344,6 +3348,7 @@ int id fullscreen_header 0x7f0800cb
 int id ghost_view 0x7f0800cc
 int id ghost_view_holder 0x7f0800cd
 int id gone 0x7f0800ce
+int id googleLoginCard 0x7f080224
 int id googlebtn 0x7f080205
 int id graph 0x7f0800cf
 int id graph_wrap 0x7f0800d0
@@ -3372,6 +3377,7 @@ int id immediateStop 0x7f0800e4
 int id included 0x7f0800e5
 int id indeterminate 0x7f0800e6
 int id info 0x7f0800e7
+int id instructionText 0x7f080225
 int id invisible 0x7f0800e8
 int id inward 0x7f0800e9
 int id italic 0x7f0800ea
@@ -3509,6 +3515,8 @@ int id pin 0x7f080166
 int id position 0x7f080167
 int id postLayout 0x7f080168
 int id pressed 0x7f080169
+int id professionalRoleCard 0x7f080226
+int id professionalRoleCardPopup 0x7f080227
 int id progress_circular 0x7f08016a
 int id progress_horizontal 0x7f08016b
 int id radio 0x7f08016c
@@ -3520,6 +3528,8 @@ int id right 0x7f080171
 int id rightToLeft 0x7f080172
 int id right_icon 0x7f080173
 int id right_side 0x7f080174
+int id roleSelectionCard 0x7f080228
+int id roleSelectionPopup 0x7f080229
 int id rounded 0x7f080175
 int id row_index_key 0x7f080176
 int id save_non_transition_alpha 0x7f080177
@@ -3640,6 +3650,7 @@ int id transition_position 0x7f0801e1
 int id transition_scene_layoutid_cache 0x7f0801e2
 int id transition_transform 0x7f0801e3
 int id triangle 0x7f0801e4
+int id typeOfUserLabel 0x7f08022a
 int id unchecked 0x7f0801e5
 int id uniform 0x7f0801e6
 int id unlabeled 0x7f0801e7
@@ -3782,6 +3793,7 @@ int layout abc_search_dropdown_item_icons_2line 0x7f0b0018
 int layout abc_search_view 0x7f0b0019
 int layout abc_select_dialog_material 0x7f0b001a
 int layout abc_tooltip 0x7f0b001b
+int layout activity_chooserole 0x7f0b006e
 int layout activity_login 0x7f0b006c
 int layout activity_main 0x7f0b001c
 int layout activity_signup 0x7f0b006d

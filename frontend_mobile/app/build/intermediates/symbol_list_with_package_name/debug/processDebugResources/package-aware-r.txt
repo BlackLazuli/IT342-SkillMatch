@@ -3272,6 +3272,8 @@ id cradle
 id currentState
 id custom
 id customPanel
+id customerRoleCard
+id customerRoleCardPopup
 id cut
 id date_picker_actions
 id decelerate
@@ -3286,6 +3288,7 @@ id design_menu_item_action_area_stub
 id design_menu_item_text
 id design_navigation_view
 id dialog_button
+id dimOverlay
 id dimensions
 id direct
 id disableHome
@@ -3323,6 +3326,7 @@ id escape
 id exitUntilCollapsed
 id expand_activities_button
 id expanded_menu
+id facebookLoginCard
 id fade
 id fill
 id fill_horizontal
@@ -3345,6 +3349,7 @@ id fullscreen_header
 id ghost_view
 id ghost_view_holder
 id gone
+id googleLoginCard
 id googlebtn
 id graph
 id graph_wrap
@@ -3373,6 +3378,7 @@ id immediateStop
 id included
 id indeterminate
 id info
+id instructionText
 id invisible
 id inward
 id italic
@@ -3510,6 +3516,8 @@ id pin
 id position
 id postLayout
 id pressed
+id professionalRoleCard
+id professionalRoleCardPopup
 id progress_circular
 id progress_horizontal
 id radio
@@ -3521,6 +3529,8 @@ id right
 id rightToLeft
 id right_icon
 id right_side
+id roleSelectionCard
+id roleSelectionPopup
 id rounded
 id row_index_key
 id save_non_transition_alpha
@@ -3641,6 +3651,7 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id typeOfUserLabel
 id unchecked
 id uniform
 id unlabeled
@@ -3783,6 +3794,7 @@ layout abc_search_dropdown_item_icons_2line
 layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
+layout activity_chooserole
 layout activity_login
 layout activity_main
 layout activity_signup

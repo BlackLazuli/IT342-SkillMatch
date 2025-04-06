@@ -84,10 +84,6 @@
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-35:\\mipmap-xxhdpi\\ic_launcher.webp"
     },
     {
-        "merged": "com.example.skillmatch.app-debug-33:/layout_activity_signup.xml.flat",
-        "source": "com.example.skillmatch.app-main-35:/layout/activity_signup.xml"
-    },
-    {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-33:\\drawable_sk_darkmode.png.flat",
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-35:\\drawable\\sk_darkmode.png"
     },
@@ -142,5 +138,9 @@
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-33:\\xml_data_extraction_rules.xml.flat",
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-35:\\xml\\data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.example.skillmatch.app-debug-33:/layout_activity_chooserole.xml.flat",
+        "source": "com.example.skillmatch.app-main-35:/layout/activity_chooserole.xml"
     }
 ]

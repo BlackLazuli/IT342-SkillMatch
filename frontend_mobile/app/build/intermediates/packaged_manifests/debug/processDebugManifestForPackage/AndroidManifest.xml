@@ -47,6 +47,11 @@
             android:name="com.example.skillmatch.SignUp"
             android:exported="false" >
         </activity>
+        <!-- Add the ChooseRole activity here -->
+        <activity
+            android:name="com.example.skillmatch.ChooseRole"
+            android:exported="false" >
+        </activity>
 
         <provider
             android:name="androidx.startup.InitializationProvider"

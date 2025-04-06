@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import {
+  Box,
+  Typography,
+  Button,
+  CircularProgress,
+  Avatar,
+  Card,
+  CardContent,
+  Grid,
+} from "@mui/material";
+import AppBar from "../../component/AppBar";
+import { usePersonalInfo } from "../../context/PersonalInfoContext"; // Optional: for avatar display
 
 const PortfolioPage = () => {
   const { userID } = useParams();
@@ -7,6 +19,7 @@ const PortfolioPage = () => {
   const [portfolio, setPortfolio] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { personalInfo } = usePersonalInfo();
 
   useEffect(() => {
     const fetchPortfolio = async () => {
@@ -20,13 +33,12 @@ const PortfolioPage = () => {
       try {
         const response = await fetch(`http://localhost:8080/api/portfolios/getPortfolio/${userID}`, {
           headers: {
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
         if (response.status === 404) {
-          console.warn("No portfolio found for this user.");
-          setPortfolio(null); // Explicitly set portfolio to null when not found
+          setPortfolio(null);
           setLoading(false);
           return;
         }
@@ -36,11 +48,8 @@ const PortfolioPage = () => {
         }
 
         const portfolioData = await response.json();
-        console.log("Portfolio data:", portfolioData);
-
         setPortfolio(portfolioData);
       } catch (error) {
-        console.error("Error fetching portfolio:", error);
         setError("Failed to load portfolio.");
       } finally {
         setLoading(false);
@@ -51,48 +60,96 @@ const PortfolioPage = () => {
   }, [userID]);
 
   const handleAddPortfolio = () => {
-    const token = localStorage.getItem("token");
     navigate(`/add-portfolio/${userID}`);
-// ✅ Pass userID and token via state
   };
 
-  if (loading) return <p>Loading portfolio...</p>;
-  if (error) return <p>Error: {error}</p>;
-
-  // If portfolio is null, show the Add Portfolio button
-  if (!portfolio) {
+  if (loading) {
     return (
-      <div>
-        <h1>Portfolio</h1>
-        <p>No portfolio found for this user.</p>
-        <button onClick={handleAddPortfolio}>Add Portfolio</button>
-      </div>
+      <Box sx={{ display: "flex" }}>
+        <AppBar />
+        <Box sx={{ p: 4 }}>
+          <CircularProgress />
+        </Box>
+      </Box>
     );
   }
 
   return (
-    <div>
-      <h1>Portfolio</h1>
-      <h2>Work Experience</h2>
-      <p>{portfolio?.workExperience || "No work experience provided."}</p>
+    <Box sx={{ display: "flex" }}>
+      <AppBar />
 
-      <h2>Services Offered</h2>
-      <p>{portfolio?.servicesOffered || "No services listed."}</p>
+      <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
+        {!portfolio ? (
+          <>
+            <Typography variant="h4" gutterBottom>
+              Portfolio
+            </Typography>
+            <Typography>No portfolio found for this user.</Typography>
+            <Button variant="contained" sx={{ mt: 2 }} onClick={handleAddPortfolio}>
+              Add Portfolio
+            </Button>
+          </>
+        ) : (
+          <>
+            <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
+              <Avatar
+                alt={personalInfo?.firstName}
+                src="/placeholder-avatar.png"
+                sx={{ width: 80, height: 80, mr: 2 }}
+              />
+              <Typography variant="h4" fontWeight="bold">
+                My Portfolio
+              </Typography>
+            </Box>
 
-      <h2>Client Testimonials</h2>
-      <p>{portfolio?.clientTestimonials || "No testimonials available."}</p>
+            <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
+              <CardContent>
+                <Typography variant="h5" fontWeight="bold" gutterBottom>
+                  Work Experience
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  {portfolio?.workExperience}
+                </Typography>
 
-      <h2>Comments</h2>
-      {portfolio?.comments && portfolio.comments.length > 0 ? (
-        <ul>
-          {portfolio.comments.map((comment, index) => (
-            <li key={index}>{comment}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>No comments available.</p>
-      )}
-    </div>
+                <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
+                  Services Offered
+                </Typography>
+                <Typography variant="body2" gutterBottom>
+                  {portfolio?.servicesOffered}
+                </Typography>
+              </CardContent>
+            </Card>
+
+            <Grid container spacing={2}>
+              {[1, 2, 3].map((index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Card elevation={2}>
+                    <CardContent>
+                      <Typography variant="h6" fontWeight="bold">
+                        Services Offered:
+                      </Typography>
+                      <ul>
+                        <li>Service {index}A</li>
+                        <li>Service {index}B</li>
+                        <li>Service {index}C</li>
+                      </ul>
+                      <Typography variant="body2" fontWeight="bold">
+                        Pricing:
+                      </Typography>
+                      <Typography variant="body2">$100 - $500</Typography>
+
+                      <Button fullWidth variant="contained" sx={{ mt: 2 }}>
+                        RATINGS
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </>
+        )}
+      </Box>
+    </Box>
   );
 };
 

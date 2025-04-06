@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Drawer,
@@ -12,21 +12,21 @@ import {
   Box,
 } from "@mui/material";
 import { Home, Person, Work, Event, Settings } from "@mui/icons-material";
-import { usePersonalInfo } from "../context/PersonalInfoContext"; // Import context
+import { usePersonalInfo } from "../context/PersonalInfoContext";
 
 const drawerWidth = 240;
 
 const AppBar = () => {
-  const { personalInfo } = usePersonalInfo(); // Get user info from context
-  const navigate = useNavigate(); // Hook for navigation
+  const { personalInfo } = usePersonalInfo();
+  const navigate = useNavigate();
 
   const menuItems = [
     { text: "Home", icon: <Home />, path: "/" },
     { text: "Profile", icon: <Person />, path: "/profile" },
-    { 
-      text: "Portfolio", 
-      icon: <Work />, 
-      path: personalInfo?.userId ? `/portfolio/${personalInfo.userId}` : "/" 
+    {
+      text: "Portfolio",
+      icon: <Work />,
+      path: personalInfo?.userId ? `/portfolio/${personalInfo.userId}` : "/",
     },
     { text: "Appointments", icon: <Event />, path: "/appointments" },
   ];
@@ -40,56 +40,92 @@ const AppBar = () => {
   };
 
   return (
-    <Drawer
-      variant="permanent"
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
+      <Drawer
+        variant="permanent"
+        sx={{
           width: drawerWidth,
-          backgroundColor: "#F8D7A8",
-          color: "black",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
-        },
-      }}
-    >
-      <Box sx={{ textAlign: "center", padding: "16px" }}>
-        <img src="/skillmatchlogo.png" alt="Skill Match Logo" style={{ width: "200px", height: "80px" }} />
-      </Box>
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            height: "100vh",
+            backgroundColor: "#f4f0ff",
+            color: "#333",
+            display: "flex",
+            flexDirection: "column",
+            px: 2,
+            py: 3,
+            boxSizing: "border-box",
+          },
+        }}
+      >
+        {/* Logo */}
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          <img
+            src="/skillmatchlogo.png"
+            alt="Skill Match Logo"
+            style={{ width: "180px", height: "70px", objectFit: "contain" }}
+          />
+        </Box>
 
-      <List>
-        {menuItems.map((item, index) => (
-          <ListItem button key={index} sx={{ padding: "12px 24px" }} onClick={() => handleNavigation(item.path)}>
-            <ListItemIcon sx={{ color: "black" }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
+        {/* Scrollable content */}
+        <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
+          <List>
+            {menuItems.map((item, index) => (
+              <ListItem
+                button
+                key={index}
+                sx={{
+                  borderRadius: 2,
+                  mb: 1,
+                  "&:hover": { backgroundColor: "#c1e3c6" },
+                }}
+                onClick={() => handleNavigation(item.path)}
+              >
+                <ListItemIcon sx={{ color: "#333" }}>{item.icon}</ListItemIcon>
+                <ListItemText
+                  primary={item.text}
+                  primaryTypographyProps={{ fontWeight: 500 }}
+                />
+              </ListItem>
+            ))}
+          </List>
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        {/* Bottom section: settings and user */}
+        <Box>
+          <ListItem
+            button
+            sx={{
+              borderRadius: 2,
+              mb: 1,
+              "&:hover": {
+                backgroundColor: "#c1e3c6",
+              },
+            }}
+          >
+            <ListItemIcon sx={{ color: "#333" }}>
+              <Settings />
+            </ListItemIcon>
+            <ListItemText primary="Settings" primaryTypographyProps={{ fontWeight: 500 }} />
           </ListItem>
-        ))}
-      </List>
 
-      <Divider />
-
-      <Box sx={{ padding: "16px", textAlign: "center" }}>
-        <ListItem button>
-          <ListItemIcon sx={{ color: "black" }}>
-            <Settings />
-          </ListItemIcon>
-          <ListItemText primary="Settings" />
-        </ListItem>
-        <Box sx={{ display: "flex", alignItems: "center", mt: 2 }}>
-          <Avatar sx={{ bgcolor: "gray", marginRight: "8px" }}>
-            {personalInfo?.firstName ? personalInfo.firstName[0] : "?"}
-          </Avatar>
-          <Box>
-            <Typography variant="body2" fontWeight="bold">
-              {personalInfo?.firstName || "Guest"} {personalInfo?.lastName || ""}
-            </Typography>
-            <Typography variant="caption">{personalInfo?.email || "No email"}</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", mt: 3, px: 1 }}>
+            <Avatar sx={{ bgcolor: "#a3d2d3", mr: 2 }}>
+              {personalInfo?.firstName ? personalInfo.firstName[0] : "?"}
+            </Avatar>
+            <Box>
+              <Typography variant="body2" fontWeight="bold">
+                {personalInfo?.firstName || "Guest"} {personalInfo?.lastName || ""}
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                {personalInfo?.email || "No email"}
+              </Typography>
+            </Box>
           </Box>
         </Box>
-      </Box>
-    </Drawer>
+      </Drawer>
   );
 };
 

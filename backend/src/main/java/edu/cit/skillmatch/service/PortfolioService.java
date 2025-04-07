@@ -2,6 +2,7 @@ package edu.cit.skillmatch.service;
 
 import edu.cit.skillmatch.repository.PortfolioRepository;
 import edu.cit.skillmatch.entity.PortfolioEntity;
+import edu.cit.skillmatch.entity.ServiceEntity;
 import edu.cit.skillmatch.entity.UserEntity;
 import edu.cit.skillmatch.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -22,14 +23,21 @@ public class PortfolioService {
         return portfolioRepository.findByUserId(userId);
     }
 
-    public PortfolioEntity createOrUpdatePortfolio(Long userId, PortfolioEntity portfolio) {
-        Optional<UserEntity> userOpt = userRepository.findById(userId);
-        if (userOpt.isPresent()) {
-            portfolio.setUser(userOpt.get());
-            return portfolioRepository.save(portfolio);
+public PortfolioEntity createOrUpdatePortfolio(Long userId, PortfolioEntity portfolio) {
+    Optional<UserEntity> userOpt = userRepository.findById(userId);
+    if (userOpt.isPresent()) {
+        portfolio.setUser(userOpt.get());
+
+        if (portfolio.getServicesOffered() != null) {
+            for (ServiceEntity service : portfolio.getServicesOffered()) {
+                service.setPortfolio(portfolio); // set the back-reference
+            }
         }
-        throw new RuntimeException("User not found");
+
+        return portfolioRepository.save(portfolio);
     }
+    throw new RuntimeException("User not found");
+}
 
     public void deletePortfolio(Long id) {
         portfolioRepository.deleteById(id);

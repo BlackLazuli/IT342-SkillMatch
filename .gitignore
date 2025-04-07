@@ -1,3 +1,13 @@
+# Gradle checksums
+frontend_mobile/gradle/8.11.1/checksums/checksums.lock
+frontend_mobile/gradle/8.11.1/checksums/md5-checksums.bin
+frontend_mobile/gradle/8.11.1/checksums/sha1-checksums.bin
+
+# Other Gradle files that should be ignored
+frontend_mobile/.gradle/
+frontend_mobile/build/
+frontend_mobile/app/build/
+
 # Compiled class file
 *.class
 

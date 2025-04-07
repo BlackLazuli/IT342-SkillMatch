@@ -35,17 +35,19 @@ public class SecurityConfig {
 
     // Cors configuration to allow requests from frontend
     @Bean
-    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        CorsConfiguration config = new CorsConfiguration();
-        
-        // Add allowed origins, for now allowing frontend localhost
-        config.addAllowedOrigin("http://localhost:5173"); // Adjust this to the exact frontend URL
-        config.addAllowedMethod("*");  // Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
-        config.addAllowedHeader("*");  // Allow all headers
-        config.setAllowCredentials(true);  // Allow credentials (cookies, tokens, etc.)
-
-        source.registerCorsConfiguration("/**", config); // Apply configuration to all endpoints
-        return source;
-    }
+public UrlBasedCorsConfigurationSource corsConfigurationSource() {
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    CorsConfiguration config = new CorsConfiguration();
+    
+    // Add allowed origins, including frontend localhost and Android
+    config.addAllowedOrigin("http://localhost:5173"); // Web frontend
+    config.addAllowedOrigin("http://10.0.2.2:8080"); // Android emulator
+    config.addAllowedOrigin("*"); // Allow all origins for testing (remove in production)
+    config.addAllowedMethod("*");  // Allow all HTTP methods
+    config.addAllowedHeader("*");  // Allow all headers
+    config.setAllowCredentials(true);  // Allow credentials
+    
+    source.registerCorsConfiguration("/**", config);
+    return source;
+}
 }

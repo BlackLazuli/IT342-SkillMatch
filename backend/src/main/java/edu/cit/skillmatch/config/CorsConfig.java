@@ -14,7 +14,11 @@ public class CorsConfig {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:5173") // Allow React frontend
+                        .allowedOrigins(
+                            "http://localhost:5173", // Allow React frontend
+                            "http://10.0.2.2:8080",  // Allow Android emulator
+                            "http://localhost:8080"  // Allow local testing
+                        )
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

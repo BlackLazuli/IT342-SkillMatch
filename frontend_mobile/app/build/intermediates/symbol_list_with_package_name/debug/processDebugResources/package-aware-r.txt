@@ -3001,10 +3001,12 @@ drawable abc_textfield_search_activated_mtrl_alpha
 drawable abc_textfield_search_default_mtrl_alpha
 drawable abc_textfield_search_material
 drawable abc_vector_test
+drawable appointment
 drawable avd_hide_password
 drawable avd_show_password
 drawable back_button__1_
 drawable birthday
+drawable briefcase
 drawable btn_checkbox_checked_mtrl
 drawable btn_checkbox_checked_to_unchecked_mtrl_animation
 drawable btn_checkbox_unchecked_mtrl
@@ -3014,6 +3016,8 @@ drawable btn_radio_off_to_on_mtrl_animation
 drawable btn_radio_on_mtrl
 drawable btn_radio_on_to_off_mtrl_animation
 drawable businessman
+drawable calendar
+drawable clock
 drawable container
 drawable customer
 drawable design_fab_background
@@ -3022,6 +3026,7 @@ drawable design_ic_visibility_off
 drawable design_password_eye
 drawable design_snackbar_background
 drawable facebook
+drawable home
 drawable ic_arrow_back_black_24
 drawable ic_call_answer
 drawable ic_call_answer_low
@@ -3104,6 +3109,7 @@ drawable mtrl_switch_track
 drawable mtrl_switch_track_decoration
 drawable mtrl_tabs_default_indicator
 drawable navigation_empty_icon
+drawable next
 drawable notification_action_background
 drawable notification_bg
 drawable notification_bg_low
@@ -3120,6 +3126,8 @@ drawable notify_panel_notification_icon_bg
 drawable pen
 drawable professionals
 drawable rectangle_container
+drawable search
+drawable settings
 drawable sk_darkmode
 drawable skillmatch_darkmode
 drawable social
@@ -3210,6 +3218,7 @@ id animateToEnd
 id animateToStart
 id antiClockwise
 id anticipate
+id appointmentsTitle
 id arc
 id asConfigured
 id async
@@ -3226,12 +3235,15 @@ id below
 id bestChoice
 id blocking
 id bottom
+id bottomNavigation
 id bounce
 id bounceBoth
 id bounceEnd
 id bounceStart
+id briefcaseNav
 id buttonPanel
 id cache_measures
+id calendarNav
 id callMeasure
 id cancel_button
 id cancelbtn
@@ -3272,6 +3284,8 @@ id cradle
 id currentState
 id custom
 id customPanel
+id customerRoleCard
+id customerRoleCardPopup
 id cut
 id date_picker_actions
 id decelerate
@@ -3286,6 +3300,7 @@ id design_menu_item_action_area_stub
 id design_menu_item_text
 id design_navigation_view
 id dialog_button
+id dimOverlay
 id dimensions
 id direct
 id disableHome
@@ -3323,7 +3338,9 @@ id escape
 id exitUntilCollapsed
 id expand_activities_button
 id expanded_menu
+id facebookLoginCard
 id fade
+id featuredCard
 id fill
 id fill_horizontal
 id fill_vertical
@@ -3345,17 +3362,20 @@ id fullscreen_header
 id ghost_view
 id ghost_view_holder
 id gone
+id googleLoginCard
 id googlebtn
 id graph
 id graph_wrap
 id group_divider
 id grouping
 id groups
+id headerLayout
 id header_title
 id hide_ime_id
 id hideable
 id home
 id homeAsUp
+id homeNav
 id honorRequest
 id horizontal
 id horizontal_only
@@ -3373,6 +3393,7 @@ id immediateStop
 id included
 id indeterminate
 id info
+id instructionText
 id invisible
 id inward
 id italic
@@ -3391,7 +3412,9 @@ id line3
 id linear
 id listMode
 id list_item
+id locationText
 id loginbtn
+id logoImage
 id m3_side_sheet
 id main
 id marquee
@@ -3510,6 +3533,10 @@ id pin
 id position
 id postLayout
 id pressed
+id professionalRoleCard
+id professionalRoleCardPopup
+id profileCircle
+id profileNav
 id progress_circular
 id progress_horizontal
 id radio
@@ -3521,6 +3548,8 @@ id right
 id rightToLeft
 id right_icon
 id right_side
+id roleSelectionCard
+id roleSelectionPopup
 id rounded
 id row_index_key
 id save_non_transition_alpha
@@ -3533,6 +3562,8 @@ id scrollIndicatorDown
 id scrollIndicatorUp
 id scrollView
 id scrollable
+id searchBarCard
+id searchEditText
 id search_badge
 id search_bar
 id search_button
@@ -3546,6 +3577,7 @@ id search_voice_btn
 id select_dialog_listview
 id selected
 id selection_type
+id settingsNav
 id sharedValueSet
 id sharedValueUnset
 id shortcut
@@ -3641,6 +3673,7 @@ id transition_position
 id transition_scene_layoutid_cache
 id transition_transform
 id triangle
+id typeOfUserLabel
 id unchecked
 id uniform
 id unlabeled
@@ -3783,8 +3816,11 @@ layout abc_search_dropdown_item_icons_2line
 layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
+layout activity_chooserole
+layout activity_customerdashboard
 layout activity_login
 layout activity_main
+layout activity_professionaldashboard
 layout activity_signup
 layout custom_dialog
 layout design_bottom_navigation_item
@@ -5319,3 +5355,4 @@ styleable ViewTransition android_id SharedValue SharedValueId clearsTag duration
 styleable include constraintSet
 xml backup_rules
 xml data_extraction_rules
+xml network_security_config

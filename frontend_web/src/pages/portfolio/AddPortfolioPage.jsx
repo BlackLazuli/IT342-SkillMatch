@@ -76,7 +76,7 @@ const AddPortfolioPage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/portfolios/createPortfolio/${userID}`,
+        `http://localhost:8080/api/portfolios/${userID}`,
         {
           method: "POST",
           headers: {

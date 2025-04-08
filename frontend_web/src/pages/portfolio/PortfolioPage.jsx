@@ -31,7 +31,7 @@ const PortfolioPage = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/portfolios/getPortfolio/${userID}`, {
+        const response = await fetch(`http://localhost:8080/api/portfolios/${userID}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

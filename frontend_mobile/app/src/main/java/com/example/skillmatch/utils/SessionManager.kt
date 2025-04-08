@@ -9,11 +9,11 @@ class SessionManager(context: Context) {
     companion object {
         const val USER_TOKEN = "user_token"
         const val USER_ID = "user_id"
-        const val USER_TYPE = "user_type"
+        const val USER_ROLE = "user_role" // Changed from USER_TYPE
     }
     
     // Save auth token
-    fun saveAuthToken(token: String) {
+    fun saveAuthToken(token: String?) {
         val editor = prefs.edit()
         editor.putString(USER_TOKEN, token)
         editor.apply()
@@ -25,7 +25,7 @@ class SessionManager(context: Context) {
     }
     
     // Save user ID
-    fun saveUserId(userId: String) {
+    fun saveUserId(userId: String?) {
         val editor = prefs.edit()
         editor.putString(USER_ID, userId)
         editor.apply()
@@ -36,16 +36,16 @@ class SessionManager(context: Context) {
         return prefs.getString(USER_ID, null)
     }
     
-    // Save user type
-    fun saveUserType(userType: String) {
+    // Save user role (renamed from saveUserType)
+    fun saveUserType(role: String?) {
         val editor = prefs.edit()
-        editor.putString(USER_TYPE, userType)
+        editor.putString(USER_ROLE, role ?: "CUSTOMER") // Default to CUSTOMER if null
         editor.apply()
     }
     
-    // Get user type
+    // Get user role (renamed from getUserType)
     fun getUserType(): String? {
-        return prefs.getString(USER_TYPE, null)
+        return prefs.getString(USER_ROLE, null)
     }
     
     // Clear session

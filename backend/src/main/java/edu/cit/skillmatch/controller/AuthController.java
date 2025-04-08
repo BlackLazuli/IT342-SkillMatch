@@ -13,7 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173") // Allow React frontend
+@CrossOrigin(origins = {"http://localhost:5173", "http://10.0.2.2:8080"}) // Allow React frontend and Android
 public class AuthController {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -46,5 +46,46 @@ public class AuthController {
         }
     
         return ResponseEntity.status(401).body(null);
+    }
+    
+    @PostMapping("/signup")
+    public ResponseEntity<AuthResponse> signup(@RequestBody UserEntity user) {
+        try {
+            // Check if email already exists
+            if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+                return ResponseEntity.status(409).body(null); // Conflict - email already exists
+            }
+            
+            // Ensure the password is encoded before saving
+            if (user.getPassword() != null) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+            
+            // Make sure role/userType is not null
+            if (user.getRole() == null) {
+                user.setRole("CUSTOMER"); // Default role if none provided
+            }
+            
+            // Save the new user
+            UserEntity savedUser = userRepository.save(user);
+            
+            // Generate JWT token
+            String token = jwtUtil.generateToken(savedUser.getEmail());
+            
+            // Create response with non-null values
+            AuthResponse response = new AuthResponse(
+                savedUser.getEmail(),
+                savedUser.getId(),
+                token,
+                savedUser.getRole(), // This should not be null now
+                savedUser.getFirstName(),
+                savedUser.getLastName()
+            );
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
     }
 }

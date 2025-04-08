@@ -26,36 +26,17 @@ class MainActivity : AppCompatActivity() {
         repository = SkillMatchRepository(this)
         sessionManager = SessionManager(this)
 
-        // Check if user is already logged in
-        if (sessionManager.getAuthToken() != null) {
-            navigateBasedOnUserType()
-            return
-        }
+
 
         val getStartedButton: Button = findViewById(R.id.GetStarted)
         getStartedButton.setOnClickListener {
             // Navigate to role selection screen
-            val intent = Intent(this, ChooseRole::class.java)
+            val intent = Intent(this, Login::class.java)
             startActivity(intent)
         }
     }
     
-    private fun navigateBasedOnUserType() {
-        val userType = sessionManager.getUserType()
-        val userId = sessionManager.getUserId()
-        
-        if (userType == "CUSTOMER") {
-            val intent = Intent(this, CustomerDashboard::class.java)
-            intent.putExtra("USER_ID", userId)
-            startActivity(intent)
-            finish()
-        } else if (userType == "PROFESSIONAL") {
-            val intent = Intent(this, ProfessionalDashboard::class.java)
-            intent.putExtra("USER_ID", userId)
-            startActivity(intent)
-            finish()
-        }
-    }
+
     
     // Inside your MainActivity or another appropriate place
     private fun testBackendConnection() {

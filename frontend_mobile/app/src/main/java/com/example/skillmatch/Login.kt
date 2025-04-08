@@ -66,15 +66,15 @@ class Login : AppCompatActivity() {
                         // Save user data to session
                         sessionManager.saveAuthToken(loginResponse.token)
                         sessionManager.saveUserId(loginResponse.userId)
-                        sessionManager.saveUserType(loginResponse.userType)
+                        sessionManager.saveUserType(loginResponse.role)
                         
                         // Navigate based on user type
-                        if (loginResponse.userType == "CUSTOMER") {
+                        if (loginResponse.role == "CUSTOMER") {
                             val intent = Intent(this@Login, CustomerDashboard::class.java)
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)
                             finish()
-                        } else if (loginResponse.userType == "PROFESSIONAL") {
+                        } else if (loginResponse.role == "SERVICE_PROVIDER") {
                             val intent = Intent(this@Login, ProfessionalDashboard::class.java)
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)

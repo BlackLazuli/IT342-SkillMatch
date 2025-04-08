@@ -12,7 +12,7 @@ data class LoginRequest(
 data class LoginResponse(
     val token: String,
     val userId: String,
-    val userType: String
+    val role:String
 )
 
 // Update your SignupRequest model to match backend expectations
@@ -26,11 +26,13 @@ data class SignupRequest(
 )
 
 data class SignupResponse(
-    val token: String,
+    val email: String,
     val userId: String,
-    val userType: String
+    val token: String,
+    val role: String, // Changed from userType
+    val firstName: String,
+    val lastName: String
 )
-
 // User models
 data class User(
     val id: String,

@@ -79,16 +79,16 @@ class SignUp : AppCompatActivity() {
     
     // In your registerUser method
     private fun registerUser(firstName: String, lastName: String, email: String, 
-                            password: String, phoneNumber: String, userType: String) {
+                          password: String, phoneNumber: String, userType: String) {
         lifecycleScope.launch {
             try {
                 // Convert PROFESSIONAL to SERVICE_PROVIDER to match backend
-                val backendRole = if (userType == "PROFESSIONAL") "SERVICE_PROVIDER" else userType
+                val role = if (userType == "PROFESSIONAL") "SERVICE_PROVIDER" else userType
                 
                 // Add debug logging
-                android.util.Log.d("SignUp", "Attempting to register: $firstName, $lastName, $email, [password], $phoneNumber, $backendRole")
+                android.util.Log.d("SignUp", "Attempting to register: $firstName, $lastName, $email, [password], $phoneNumber, $role")
                 
-                val response = repository.signup(firstName, lastName, email, password, phoneNumber, backendRole)
+                val response = repository.signup(firstName, lastName, email, password, phoneNumber, role)
                 
                 if (response.isSuccessful) {
                     val signupResponse = response.body()
@@ -97,19 +97,19 @@ class SignUp : AppCompatActivity() {
                         // Save user data to session
                         sessionManager.saveAuthToken(signupResponse.token)
                         sessionManager.saveUserId(signupResponse.userId)
-                        sessionManager.saveUserType(signupResponse.userType)
+                        sessionManager.saveUserType(signupResponse.role) // Change to role
                         
                         Log.d("SignUp", "Registration successful: ${signupResponse.userId}")
                         Toast.makeText(this@SignUp, "Registration successful!", Toast.LENGTH_SHORT).show()
                         
-                        // Navigate based on user type
-                        if (signupResponse.userType == "CUSTOMER") {
+                        // Navigate based on role
+                        if (signupResponse.role == "CUSTOMER") {
                             val intent = Intent(this@SignUp, CustomerDashboard::class.java)
                             intent.putExtra("USER_ID", signupResponse.userId)
                             startActivity(intent)
                             finish()
-                        } else if (signupResponse.userType == "PROFESSIONAL" || 
-                                  signupResponse.userType == "SERVICE_PROVIDER") {
+                        } else if (signupResponse.role == "PROFESSIONAL" || 
+                                  signupResponse.role == "SERVICE_PROVIDER") {
                             val intent = Intent(this@SignUp, ProfessionalDashboard::class.java)
                             intent.putExtra("USER_ID", signupResponse.userId)
                             startActivity(intent)

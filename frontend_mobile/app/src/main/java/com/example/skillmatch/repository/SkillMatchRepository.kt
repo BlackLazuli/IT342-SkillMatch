@@ -4,19 +4,24 @@ import android.content.Context
 import com.example.skillmatch.api.RetrofitClient
 import com.example.skillmatch.models.Appointment
 import com.example.skillmatch.models.LoginRequest
-import com.example.skillmatch.models.Professional
+import com.example.skillmatch.models.LoginResponse
 import com.example.skillmatch.models.SignupRequest
-import com.example.skillmatch.models.User
+import com.example.skillmatch.models.SignupResponse
+import retrofit2.Response
 
 class SkillMatchRepository(private val context: Context) {
-    private val apiService = RetrofitClient.getApiService(context)
-
-    // Authentication
-    suspend fun login(email: String, password: String) =
-        apiService.login(LoginRequest(email, password))
-
-    suspend fun signup(name: String, email: String, password: String, userType: String) =
-        apiService.signup(SignupRequest(name, email, password, userType))
+    private val apiService = RetrofitClient.apiService
+    
+    suspend fun login(email: String, password: String): Response<LoginResponse> {
+        val loginRequest = LoginRequest(email, password)
+        return apiService.login(loginRequest)
+    }
+    
+    suspend fun signup(firstName: String, lastName: String, email: String, 
+                      password: String, phoneNumber: String, role: String): Response<SignupResponse> {
+        val signupRequest = SignupRequest(firstName, lastName, email, password, phoneNumber, role)
+        return apiService.signup(signupRequest)
+    }
 
     // User
     suspend fun getUserProfile(userId: String) = apiService.getUserProfile(userId)

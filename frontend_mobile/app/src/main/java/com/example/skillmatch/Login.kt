@@ -17,7 +17,7 @@ class Login : AppCompatActivity() {
     private lateinit var repository: SkillMatchRepository
     private lateinit var sessionManager: SessionManager
     
-    private lateinit var usernameInput: TextInputEditText
+    private lateinit var emailInput: TextInputEditText
     private lateinit var passwordInput: TextInputEditText
     private lateinit var loginButton: Button
     private lateinit var signupText: TextView
@@ -31,14 +31,14 @@ class Login : AppCompatActivity() {
         sessionManager = SessionManager(this)
         
         // Initialize UI elements
-        usernameInput = findViewById(R.id.usernameInput)
+        emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
         loginButton = findViewById(R.id.loginbtn)
         signupText = findViewById(R.id.signUpText)
         
         // Set up click listeners
         loginButton.setOnClickListener {
-            val email = usernameInput.text.toString()
+            val email = emailInput.text.toString()
             val password = passwordInput.text.toString()
             
             if (email.isNotEmpty() && password.isNotEmpty()) {

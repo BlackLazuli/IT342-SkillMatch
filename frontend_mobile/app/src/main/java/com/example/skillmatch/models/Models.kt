@@ -1,6 +1,7 @@
 package com.example.skillmatch.models
 
 import com.google.gson.annotations.SerializedName
+import retrofit2.Response
 
 // Authentication models
 data class LoginRequest(
@@ -14,11 +15,14 @@ data class LoginResponse(
     val userType: String
 )
 
+// Update your SignupRequest model to match backend expectations
 data class SignupRequest(
-    val name: String,
+    val firstName: String,
+    val lastName: String,
     val email: String,
     val password: String,
-    val userType: String
+    val phoneNumber: String,
+    val role: String
 )
 
 data class SignupResponse(

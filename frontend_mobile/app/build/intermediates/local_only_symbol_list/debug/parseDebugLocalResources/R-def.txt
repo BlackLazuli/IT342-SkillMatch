@@ -43,8 +43,6 @@ id contactsInput
 id customerRoleCard
 id customerRoleCardPopup
 id dimOverlay
-id dobContainer
-id dobInput
 id emailContainer
 id emailInput
 id facebookLoginCard
@@ -66,8 +64,6 @@ id locationText
 id loginbtn
 id logoImage
 id main
-id middleNameContainer
-id middleNameInput
 id passwordContainer
 id passwordInput
 id professionalRoleCard

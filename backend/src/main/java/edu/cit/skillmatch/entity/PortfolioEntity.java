@@ -20,8 +20,9 @@ public class PortfolioEntity {
     @Column
     private String workExperience;
 
-    @Column
-    private String servicesOffered;
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ServiceEntity> servicesOffered;
+    
 
     @Column
     private String clientTestimonials;
@@ -49,11 +50,11 @@ public class PortfolioEntity {
         this.workExperience = workExperience;
     }
 
-    public String getServicesOffered() {
+    public List<ServiceEntity> getServicesOffered() {
         return servicesOffered;
     }
-
-    public void setServicesOffered(String servicesOffered) {
+    
+    public void setServicesOffered(List<ServiceEntity> servicesOffered) {
         this.servicesOffered = servicesOffered;
     }
 

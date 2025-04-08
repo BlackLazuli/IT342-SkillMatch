@@ -42,7 +42,7 @@ public UrlBasedCorsConfigurationSource corsConfigurationSource() {
     // Add allowed origins, including frontend localhost and Android
     config.addAllowedOrigin("http://localhost:5173"); // Web frontend
     config.addAllowedOrigin("http://10.0.2.2:8080"); // Android emulator
-    config.addAllowedOrigin("*"); // Allow all origins for testing (remove in production)
+     // Allow all origins for testing (remove in production)
     config.addAllowedMethod("*");  // Allow all HTTP methods
     config.addAllowedHeader("*");  // Allow all headers
     config.setAllowCredentials(true);  // Allow credentials

@@ -18,7 +18,7 @@ public class PortfolioController {
     }
 
     // Get Portfolio by User ID
-    @GetMapping("/getPortfolio/{userId}")
+    @GetMapping("/{userId}")
     public ResponseEntity<PortfolioEntity> getPortfolioByUserId(@PathVariable Long userId) {
         Optional<PortfolioEntity> portfolio = portfolioService.getPortfolioByUserId(userId);
         return portfolio.map(ResponseEntity::ok)
@@ -26,7 +26,7 @@ public class PortfolioController {
     }
 
     // Create or Update Portfolio
-    @PostMapping("/createPortfolio/{userId}")
+    @PostMapping("/{userId}")
     public ResponseEntity<PortfolioEntity> createOrUpdatePortfolio(@PathVariable Long userId,
                                                                    @RequestBody PortfolioEntity portfolio) {
         try {
@@ -38,7 +38,7 @@ public class PortfolioController {
     }
 
     // Delete Portfolio
-    @DeleteMapping("/deletePortfolio/{portfolioId}")
+    @DeleteMapping("/{portfolioId}")
     public ResponseEntity<Void> deletePortfolio(@PathVariable Long portfolioId) {
         portfolioService.deletePortfolio(portfolioId);
         return ResponseEntity.noContent().build();

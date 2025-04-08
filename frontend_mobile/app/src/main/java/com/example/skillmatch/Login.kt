@@ -57,16 +57,23 @@ class Login : AppCompatActivity() {
     private fun loginUser(email: String, password: String) {
         lifecycleScope.launch {
             try {
+                // Add debug logging
+                android.util.Log.d("Login", "Attempting login with email: $email")
+                
                 val response = repository.login(email, password)
                 
                 if (response.isSuccessful) {
                     val loginResponse = response.body()
+                    
+                    android.util.Log.d("Login", "Login response: $loginResponse")
                     
                     if (loginResponse != null) {
                         // Save user data to session
                         sessionManager.saveAuthToken(loginResponse.token)
                         sessionManager.saveUserId(loginResponse.userId)
                         sessionManager.saveUserType(loginResponse.role)
+                        
+                        android.util.Log.d("Login", "User role: ${loginResponse.role}")
                         
                         // Navigate based on user type
                         if (loginResponse.role == "CUSTOMER") {
@@ -80,11 +87,25 @@ class Login : AppCompatActivity() {
                             startActivity(intent)
                             finish()
                         }
+                    } else {
+                        android.util.Log.e("Login", "Login response body is null")
+                        Toast.makeText(this@Login, "Login failed: Response body is null", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    Toast.makeText(this@Login, "Login failed: ${response.message()}", Toast.LENGTH_SHORT).show()
+                    android.util.Log.e("Login", "Login failed: ${response.code()} - ${response.message()}")
+                    
+                    // Display a more user-friendly error message
+                    val errorMessage = when (response.code()) {
+                        401 -> "Invalid email or password"
+                        else -> "Login failed: ${response.message()}"
+                    }
+                    
+                    //
+                    
+                    Toast.makeText(this@Login, errorMessage, Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
+                android.util.Log.e("Login", "Login error", e)
                 Toast.makeText(this@Login, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }

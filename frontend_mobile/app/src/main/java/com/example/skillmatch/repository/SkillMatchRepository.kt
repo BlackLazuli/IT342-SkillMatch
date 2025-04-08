@@ -12,9 +12,10 @@ import retrofit2.Response
 class SkillMatchRepository(private val context: Context) {
     private val apiService = RetrofitClient.apiService
     
+    // Make sure your login method looks like this
     suspend fun login(email: String, password: String): Response<LoginResponse> {
-        val loginRequest = LoginRequest(email, password)
-        return apiService.login(loginRequest)
+        val authRequest = LoginRequest(email, password)
+        return apiService.login(authRequest)
     }
     
     suspend fun signup(firstName: String, lastName: String, email: String, 

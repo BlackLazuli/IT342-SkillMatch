@@ -80,12 +80,12 @@
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\layout\\activity_signup.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_skillmatch_darkmode.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\skillmatch_darkmode.png"
-    },
-    {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-anydpi_ic_launcher_round.xml.flat",
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-anydpi\\ic_launcher_round.xml"
+    },
+    {
+        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_skillmatch_darkmode.png.flat",
+        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\skillmatch_darkmode.png"
     },
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_pen.png.flat",
@@ -178,10 +178,6 @@
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_briefcase.png.flat",
         "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\briefcase.png"
-    },
-    {
-        "merged": "com.example.skillmatch.app-debug-37:/layout_activity_signup.xml.flat",
-        "source": "com.example.skillmatch.app-main-39:/layout/activity_signup.xml"
     },
     {
         "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_back_button__1_.png.flat",

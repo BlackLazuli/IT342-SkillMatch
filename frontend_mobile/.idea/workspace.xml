@@ -46,15 +46,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="41bb72fe-3180-4c2d-ae41-7f5fb84185ac" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gradle/8.11.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.11.1/executionHistory/executionHistory.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/8.11.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/8.11.1/fileHashes/fileHashes.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/Login.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/Login.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/MainActivity.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/MainActivity.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/SignUp.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/SignUp.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/models/Models.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/models/Models.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/utils/SessionManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/skillmatch/utils/SessionManager.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/entity/ServiceEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/repository/ServiceRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/controller/PortfolioController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/controller/PortfolioController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/entity/PortfolioEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/entity/PortfolioEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/security/SecurityConfig.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/security/SecurityConfig.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/service/PortfolioService.java" beforeDir="false" afterPath="$PROJECT_DIR$/../backend/src/main/java/edu/cit/skillmatch/service/PortfolioService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend_web/src/pages/portfolio/AddPortfolioPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend_web/src/pages/portfolio/AddPortfolioPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend_web/src/pages/portfolio/PortfolioPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend_web/src/pages/portfolio/PortfolioPage.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../frontend_web/src/pages/registration/RegistrationPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/../frontend_web/src/pages/registration/RegistrationPage.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -143,7 +144,7 @@
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
     "com.google.services.firebase.aqiPopupShown": "true",
-    "git-widget-placeholder": "feature__frontend__mobile",
+    "git-widget-placeholder": "Merging feature__frontend__mobile",
     "kotlin-language-version-configured": "true",
     "settings.editor.selected.configurable": "AndroidSdkUpdater"
   }

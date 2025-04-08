@@ -42,6 +42,7 @@ public UrlBasedCorsConfigurationSource corsConfigurationSource() {
     // Add allowed origins, including frontend localhost and Android
     config.addAllowedOrigin("http://localhost:5173"); // Web frontend
     config.addAllowedOrigin("http://10.0.2.2:8080"); // Android emulator
+
     config.addAllowedOrigin("http://10.0.2.2"); // Android emulator without port
     
     // Add more origins for Android
@@ -50,6 +51,7 @@ public UrlBasedCorsConfigurationSource corsConfigurationSource() {
     config.addAllowedOrigin("http://localhost");
     config.addAllowedOrigin("http://localhost:8080");
     
+
     config.addAllowedMethod("*");  // Allow all HTTP methods
     config.addAllowedHeader("*");  // Allow all headers
     config.setAllowCredentials(false);  // Change to false to simplify testing

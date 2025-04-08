@@ -31,7 +31,7 @@ const PortfolioPage = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/portfolios/getPortfolio/${userID}`, {
+        const response = await fetch(`http://localhost:8080/api/portfolios/${userID}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -114,38 +114,32 @@ const PortfolioPage = () => {
                 <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
                   Services Offered
                 </Typography>
-                <Typography variant="body2" gutterBottom>
-                  {portfolio?.servicesOffered}
-                </Typography>
+                <Grid container spacing={2}>
+                  {portfolio?.servicesOffered?.map((service, index) => (
+                    <Grid item xs={12} sm={6} md={4} key={index}>
+                      <Card elevation={2}>
+                        <CardContent>
+                          <Typography variant="h6" fontWeight="bold">
+                            {service.name}
+                          </Typography>
+                          <Typography variant="body2" gutterBottom>
+                            {service.description}
+                          </Typography>
+                          <Typography variant="body2" fontWeight="bold">
+                            Pricing:
+                          </Typography>
+                          <Typography variant="body2">{service.pricing}</Typography>
+
+                          <Button fullWidth variant="contained" sx={{ mt: 2 }}>
+                            RATINGS
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  ))}
+                </Grid>
               </CardContent>
             </Card>
-
-            <Grid container spacing={2}>
-              {[1, 2, 3].map((index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Card elevation={2}>
-                    <CardContent>
-                      <Typography variant="h6" fontWeight="bold">
-                        Services Offered:
-                      </Typography>
-                      <ul>
-                        <li>Service {index}A</li>
-                        <li>Service {index}B</li>
-                        <li>Service {index}C</li>
-                      </ul>
-                      <Typography variant="body2" fontWeight="bold">
-                        Pricing:
-                      </Typography>
-                      <Typography variant="body2">$100 - $500</Typography>
-
-                      <Button fullWidth variant="contained" sx={{ mt: 2 }}>
-                        RATINGS
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
           </>
         )}
       </Box>

@@ -53,7 +53,7 @@ const RegistrationPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/users/createUser", {
+      const response = await fetch("http://localhost:8080/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

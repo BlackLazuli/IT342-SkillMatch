@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .and()
                 .csrf().disable()
                 .authorizeRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/users/**").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/users/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -42,10 +42,17 @@ public UrlBasedCorsConfigurationSource corsConfigurationSource() {
     // Add allowed origins, including frontend localhost and Android
     config.addAllowedOrigin("http://localhost:5173"); // Web frontend
     config.addAllowedOrigin("http://10.0.2.2:8080"); // Android emulator
-     // Allow all origins for testing (remove in production)
+    config.addAllowedOrigin("http://10.0.2.2"); // Android emulator without port
+    
+    // Add more origins for Android
+    config.addAllowedOrigin("capacitor://localhost");
+    config.addAllowedOrigin("ionic://localhost");
+    config.addAllowedOrigin("http://localhost");
+    config.addAllowedOrigin("http://localhost:8080");
+    
     config.addAllowedMethod("*");  // Allow all HTTP methods
     config.addAllowedHeader("*");  // Allow all headers
-    config.setAllowCredentials(true);  // Allow credentials
+    config.setAllowCredentials(false);  // Change to false to simplify testing
     
     source.registerCorsConfiguration("/**", config);
     return source;

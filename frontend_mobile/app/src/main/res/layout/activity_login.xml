@@ -90,11 +90,11 @@
                 app:startIconTint="@android:color/black">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/usernameInput"
+                    android:id="@+id/emailInput"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:background="@android:color/transparent"
-                    android:hint="Username"
+                    android:hint="Email"
                     android:inputType="text"
                     android:minHeight="40dp"
                     android:paddingStart="0dp"
@@ -193,8 +193,11 @@
                 app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent" />
 
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Add this below the login button if it doesn't exist -->
 

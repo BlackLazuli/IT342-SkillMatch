@@ -1,17 +1,16 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { usePersonalInfo } from "./context/PersonalInfoContext"; // Import context
+import { usePersonalInfo } from "./context/PersonalInfoContext";
 import LoginPage from "./pages/login/LoginPage";
 import RegistrationPage from "./pages/registration/RegistrationPage";
 import CustomerDashboard from "./pages/customerdashboard/CustomerDashboard";
 import ProviderDashboard from "./pages/providerdashboard/ProviderDashboard";
-import PortfolioPage from "./pages/portfolio/PortfolioPage"; // Import PortfolioPage
+import PortfolioPage from "./pages/portfolio/PortfolioPage";
 import AddPortfolioPage from "./pages/portfolio/AddPortfolioPage";
+import ProfilePage from "./pages/profile/ProfilePage"; // ✅ Added
 
 function PrivateRoute({ children }) {
-  const { personalInfo } = usePersonalInfo(); // ✅ Get correct state
-
-  console.log("Checking personalInfo in PrivateRoute:", personalInfo); // ✅ Debugging log
-
+  const { personalInfo } = usePersonalInfo();
+  console.log("Checking personalInfo in PrivateRoute:", personalInfo);
   return personalInfo && personalInfo.userId ? children : <Navigate to="/" />;
 }
 
@@ -22,7 +21,6 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegistrationPage />} />
 
-        {/* Protect dashboards */}
         <Route
           path="/customer-dashboard"
           element={
@@ -39,8 +37,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        {/* Protect Portfolio Page */}
         <Route
           path="/portfolio/:userID"
           element={
@@ -49,12 +45,21 @@ function App() {
             </PrivateRoute>
           }
         />
-
         <Route
           path="/add-portfolio/:userID"
           element={
             <PrivateRoute>
               <AddPortfolioPage />
+            </PrivateRoute>
+          }
+        />
+
+        {/* ✅ New Profile Page route */}
+        <Route
+          path="/profile"
+          element={
+            <PrivateRoute>
+              <ProfilePage />
             </PrivateRoute>
           }
         />

@@ -5,16 +5,20 @@ public class AuthResponse {
     private Long userId;
     private String token;
     private String role;
-    private String firstName; // Add firstName
-    private String lastName;  // Add lastName
+    private String firstName;
+    private String lastName;
+    private String phoneNumber;  // ✅ Add phoneNumber
 
-    public AuthResponse(String email, Long userId, String token, String role, String firstName, String lastName) {
+    // Constructor updated to accept phoneNumber
+    public AuthResponse(String email, Long userId, String token, String role, 
+                        String firstName, String lastName, String phoneNumber) {
         this.email = email;
         this.userId = userId;
         this.token = token;
         this.role = role;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.phoneNumber = phoneNumber;  // Set phoneNumber
     }
 
     // Getters
@@ -40,5 +44,9 @@ public class AuthResponse {
 
     public String getLastName() {
         return lastName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;  // Getter for phoneNumber
     }
 }

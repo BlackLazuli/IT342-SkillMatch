@@ -52,6 +52,7 @@ const LoginPage = () => {
         lastName: data.lastName,
         email: data.email,
         role: data.role,
+        contactNumber: data.phoneNumber, 
       });
 
       if (data.role === "CUSTOMER") {

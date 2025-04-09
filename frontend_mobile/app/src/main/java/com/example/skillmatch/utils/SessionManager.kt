@@ -54,4 +54,6 @@ class SessionManager(context: Context) {
         editor.clear()
         editor.apply()
     }
+
+
 }

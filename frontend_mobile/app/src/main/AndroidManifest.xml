@@ -33,6 +33,7 @@
         
         <!-- Add the new ChooseRole activity -->
         <activity android:name=".ChooseRole" />
+        <activity android:name=".CustomerViewCard"/>
         
     </application>
 

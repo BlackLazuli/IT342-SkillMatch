@@ -104,7 +104,7 @@ class SignUp : AppCompatActivity() {
                         
                         // Navigate based on role
                         if (signupResponse.role == "CUSTOMER") {
-                            val intent = Intent(this@SignUp, CustomerDashboard::class.java)
+                            val intent = Intent(this@SignUp, EditCustomerProfile::class.java)
                             intent.putExtra("USER_ID", signupResponse.userId)
                             startActivity(intent)
                             finish()

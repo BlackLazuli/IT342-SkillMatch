@@ -36,24 +36,44 @@ data class SignupResponse(
     val firstName: String,
     val lastName: String
 )
-// User models
 data class User(
     val id: String,
-    val name: String,
-    val email: String,
-    val userType: String,
-    val profilePicture: String? = null
+    val firstName: String?,
+    val lastName: String?,
+    val email: String?,
+    val role: String?, // "CUSTOMER" or "SERVICE_PROVIDER"
+    val bio: String?,
+    val phoneNumber: String?,
+    val rating: Double?,
+    val occupation: String?, // For service providers
+    val availableDays: String?, // For service providers
+    val availableHours: String?, // For service providers
+    val location: Location?,
+    val portfolio: Portfolio?
 )
 
-// Professional model
-data class Professional(
-    val id: String,
-    val name: String,
-    val profession: String,
-    val rating: Float,
-    val workingDays: String,
-    val workingHours: String,
-    val profilePicture: String? = null
+data class Location(
+    val id: String?,
+    val address: String?,
+    val city: String?,
+    val state: String?,
+    val zipCode: String?,
+    val latitude: Double?,
+    val longitude: Double?
+)
+
+data class Portfolio(
+    val id: String?,
+    val workExperience: String?,
+    val clientTestimonials: String?,
+    val servicesOffered: List<Service>?
+)
+
+data class Service(
+    val id: String?,
+    val name: String?,
+    val description: String?,
+    val price: Double?
 )
 
 // Appointment model

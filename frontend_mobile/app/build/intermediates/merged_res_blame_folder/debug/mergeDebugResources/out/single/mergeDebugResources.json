@@ -1,194 +1,198 @@
 [
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_clock.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\clock.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_search.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/search.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_ic_launcher_background.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\ic_launcher_background.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/ic_launcher_foreground.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_lock.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\lock.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_back_button__1_.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/back_button__1_.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-hdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-hdpi\\ic_launcher.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-mdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-mdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\layout_activity_customerdashboard.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\layout\\activity_customerdashboard.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-xxhdpi_ic_launcher.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-xxhdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_customer.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\customer.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_customer.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/customer.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_ic_launcher_foreground.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\ic_launcher_foreground.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/xml_network_security_config.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/xml/network_security_config.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_home.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\home.png"
+        "merged": "com.example.skillmatch.app-debug-48:/layout_item_comment.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/layout/item_comment.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_professionals.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\professionals.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_facebook.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/facebook.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\layout_activity_chooserole.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\layout\\activity_chooserole.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/xml_backup_rules.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/xml/backup_rules.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\layout_activity_main.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\layout\\activity_main.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/xml_data_extraction_rules.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/xml/data_extraction_rules.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\xml_network_security_config.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\xml\\network_security_config.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_clock.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/clock.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_search.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\search.png"
+        "merged": "com.example.skillmatch.app-debug-48:/layout_activity_chooserole.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/layout/activity_chooserole.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-xxhdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-xxhdpi\\ic_launcher.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-xxhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\layout_activity_login.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\layout\\activity_login.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_appointment.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/appointment.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-mdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-mdpi\\ic_launcher.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_professionals.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/professionals.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\xml_data_extraction_rules.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\xml\\data_extraction_rules.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_ic_launcher_background.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/ic_launcher_background.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_next.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\next.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_home.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/home.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_birthday.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\birthday.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_mail.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/mail.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\layout_activity_signup.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\layout\\activity_signup.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_settings.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/settings.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-anydpi_ic_launcher_round.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-anydpi\\ic_launcher_round.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/layout_activity_signup.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/layout/activity_signup.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_skillmatch_darkmode.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\skillmatch_darkmode.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_rectangle_container.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/rectangle_container.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_pen.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\pen.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_lock.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/lock.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_social.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\social.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_calendar.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/calendar.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-xhdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-xhdpi\\ic_launcher_round.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-xhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-xhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-xhdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-xhdpi\\ic_launcher.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-xhdpi_ic_launcher.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-xhdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-xxxhdpi_ic_launcher.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-xxxhdpi\\ic_launcher.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-anydpi_ic_launcher.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-anydpi/ic_launcher.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_calendar.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\calendar.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_pen.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/pen.png"
     },
     {
-        "merged": "com.example.skillmatch.app-debug-37:/layout_activity_login.xml.flat",
-        "source": "com.example.skillmatch.app-main-39:/layout/activity_login.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_briefcase.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/briefcase.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-mdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-mdpi\\ic_launcher_round.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-anydpi_ic_launcher_round.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-anydpi/ic_launcher_round.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_mail.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\mail.png"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-xxxhdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-xxxhdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-anydpi_ic_launcher.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-anydpi\\ic_launcher.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/layout_activity_login.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/layout/activity_login.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_settings.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\settings.png"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-mdpi_ic_launcher.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-mdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_container.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\container.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_birthday.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/birthday.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\layout_activity_professionaldashboard.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\layout\\activity_professionaldashboard.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/layout_activity_professionaldashboard.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/layout/activity_professionaldashboard.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_sk_darkmode.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\sk_darkmode.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_businessman.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/businessman.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_businessman.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\businessman.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_telephone.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/telephone.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_telephone.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\telephone.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_sk_darkmode.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/sk_darkmode.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_user.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\user.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_social.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/social.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_rectangle_container.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\rectangle_container.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_user.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/user.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-xxhdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-xxhdpi\\ic_launcher_round.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_container.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/container.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_appointment.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\appointment.png"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_skillmatch_darkmode.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/skillmatch_darkmode.png"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\xml_backup_rules.xml.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\xml\\backup_rules.xml"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-hdpi_ic_launcher_round.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-hdpi/ic_launcher_round.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-hdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-hdpi\\ic_launcher_round.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-xxxhdpi_ic_launcher.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-xxxhdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_briefcase.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\briefcase.png"
+        "merged": "com.example.skillmatch.app-debug-48:/layout_activity_customerdashboard.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/layout/activity_customerdashboard.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_back_button__1_.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\back_button__1_.png"
+        "merged": "com.example.skillmatch.app-debug-48:/layout_activity_main.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/layout/activity_main.xml"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\drawable_facebook.png.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\drawable\\facebook.png"
+        "merged": "com.example.skillmatch.app-debug-48:/mipmap-hdpi_ic_launcher.webp.flat",
+        "source": "com.example.skillmatch.app-main-50:/mipmap-hdpi/ic_launcher.webp"
     },
     {
-        "merged": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-debug-37:\\mipmap-xxxhdpi_ic_launcher_round.webp.flat",
-        "source": "C:\\Users\\Admin\\.gradle\\daemon\\8.11.1\\com.example.skillmatch.app-main-39:\\mipmap-xxxhdpi\\ic_launcher_round.webp"
+        "merged": "com.example.skillmatch.app-debug-48:/drawable_next.png.flat",
+        "source": "com.example.skillmatch.app-main-50:/drawable/next.png"
+    },
+    {
+        "merged": "com.example.skillmatch.app-debug-48:/layout_activity_customerviewcard.xml.flat",
+        "source": "com.example.skillmatch.app-main-50:/layout/activity_customerviewcard.xml"
     }
 ]

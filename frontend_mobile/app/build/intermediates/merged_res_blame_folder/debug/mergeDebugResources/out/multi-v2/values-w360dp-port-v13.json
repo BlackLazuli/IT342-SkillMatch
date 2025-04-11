@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.skillmatch.app-mergeDebugResources-46:/values-w360dp-port-v13/values-w360dp-port-v13.xml",
+            "outputFile": "com.example.skillmatch.app-mergeDebugResources-39:/values-w360dp-port-v13/values-w360dp-port-v13.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Admin\\.gradle\\caches\\8.11.1\\transforms\\f26b0f9d9ed7b2f59fb02852a1a8c0d5\\transformed\\material-1.12.0\\res\\values-w360dp-port-v13\\values-w360dp-port-v13.xml",

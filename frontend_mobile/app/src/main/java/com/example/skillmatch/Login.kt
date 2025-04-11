@@ -7,6 +7,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.skillmatch.customer.EditCustomerProfile
 import com.example.skillmatch.repository.SkillMatchRepository
 import com.example.skillmatch.utils.SessionManager
 import com.google.android.material.textfield.TextInputEditText
@@ -77,12 +78,12 @@ class Login : AppCompatActivity() {
                         
                         // Navigate based on user type
                         if (loginResponse.role == "CUSTOMER") {
-                            val intent = Intent(this@Login, CustomerDashboard::class.java)
+                            val intent = Intent(this@Login, EditCustomerProfile::class.java)
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)
                             finish()
                         } else if (loginResponse.role == "SERVICE_PROVIDER") {
-                            val intent = Intent(this@Login, ProfessionalDashboard::class.java)
+                            val intent = Intent(this@Login, EditCustomerProfile::class.java)
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)
                             finish()

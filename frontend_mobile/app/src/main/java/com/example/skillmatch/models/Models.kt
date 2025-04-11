@@ -19,6 +19,7 @@ data class LoginResponse(
 )
 
 // Update your SignupRequest model to match backend expectations
+// Add or update these models in your Models.kt file
 data class SignupRequest(
     val firstName: String,
     val lastName: String,
@@ -29,12 +30,12 @@ data class SignupRequest(
 )
 
 data class SignupResponse(
-    val email: String,
     val userId: String,
-    val token: String,
-    val role: String, // Changed from userType
+    val email: String,
     val firstName: String,
-    val lastName: String
+    val lastName: String,
+    val role: String,
+    val token: String
 )
 data class User(
     val id: String,
@@ -52,15 +53,7 @@ data class User(
     val portfolio: Portfolio?
 )
 
-data class Location(
-    val id: String?,
-    val address: String?,
-    val city: String?,
-    val state: String?,
-    val zipCode: String?,
-    val latitude: Double?,
-    val longitude: Double?
-)
+
 
 data class Portfolio(
     val id: String?,
@@ -86,4 +79,10 @@ data class Appointment(
     val date: String,
     val time: String,
     val status: String = "pending"
+)
+
+data class Location(
+    val latitude: Double,
+    val longitude: Double,
+    val address: String = "" // Added address field to match backend LocationEntity
 )

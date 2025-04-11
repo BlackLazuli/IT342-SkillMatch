@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.skillmatch.app-mergeDebugResources-46:/values-large-v4/values-large-v4.xml",
+            "outputFile": "com.example.skillmatch.app-mergeDebugResources-39:/values-large-v4/values-large-v4.xml",
             "map": [
                 {
                     "source": "C:\\Users\\Admin\\.gradle\\caches\\8.11.1\\transforms\\9bc1164a4c7d729864f44c2dd48490d8\\transformed\\appcompat-1.7.0\\res\\values-large-v4\\values-large-v4.xml",

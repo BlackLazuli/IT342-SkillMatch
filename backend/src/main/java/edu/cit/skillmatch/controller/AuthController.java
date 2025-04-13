@@ -48,18 +48,20 @@ public class AuthController {
         // Remove this in production!
         String token = jwtUtil.generateToken(user.getEmail());
         
-        // Include firstName and lastName in the response
+        // Include phoneNumber in the response
         AuthResponse response = new AuthResponse(
             user.getEmail(),
             user.getId(),
             token,
             user.getRole(),
             user.getFirstName(),
-            user.getLastName()
+            user.getLastName(),
+            user.getPhoneNumber()  // Include phoneNumber here
         );
         
         return ResponseEntity.ok(response);
     }
+    
     
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> signup(@RequestBody UserEntity user) {
@@ -85,14 +87,15 @@ public class AuthController {
             // Generate JWT token
             String token = jwtUtil.generateToken(savedUser.getEmail());
             
-            // Create response with non-null values
+            // Create response with phoneNumber included
             AuthResponse response = new AuthResponse(
                 savedUser.getEmail(),
                 savedUser.getId(),
                 token,
-                savedUser.getRole(), // This should not be null now
+                savedUser.getRole(),
                 savedUser.getFirstName(),
-                savedUser.getLastName()
+                savedUser.getLastName(),
+                savedUser.getPhoneNumber()  // Include phoneNumber here
             );
             
             return ResponseEntity.ok(response);
@@ -101,4 +104,5 @@ public class AuthController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+    
 }

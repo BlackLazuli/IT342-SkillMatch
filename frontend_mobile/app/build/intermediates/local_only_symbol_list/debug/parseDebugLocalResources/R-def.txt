@@ -11,11 +11,13 @@ drawable birthday
 drawable briefcase
 drawable businessman
 drawable calendar
+drawable circle_background
 drawable clock
 drawable container
 drawable customer
 drawable facebook
 drawable home
+drawable ic_camera
 drawable ic_launcher_background
 drawable ic_launcher_foreground
 drawable lock
@@ -46,6 +48,7 @@ id emailInput
 id facebookLoginCard
 id firstNameContainer
 id firstNameInput
+id frameLayout2
 id googleLoginCard
 id googlebtn
 id imageView

@@ -3063,6 +3063,7 @@ int drawable btn_radio_on_mtrl 0x7f070084
 int drawable btn_radio_on_to_off_mtrl_animation 0x7f070085
 int drawable businessman 0x7f070086
 int drawable calendar 0x7f070087
+int drawable circle_background 0x7f070114
 int drawable clock 0x7f070088
 int drawable common_full_open_on_phone 0x7f070089
 int drawable common_google_signin_btn_icon_dark 0x7f07008a
@@ -3101,6 +3102,7 @@ int drawable ic_call_answer_video 0x7f0700aa
 int drawable ic_call_answer_video_low 0x7f0700ab
 int drawable ic_call_decline 0x7f0700ac
 int drawable ic_call_decline_low 0x7f0700ad
+int drawable ic_camera 0x7f070115
 int drawable ic_clear_black_24 0x7f0700ae
 int drawable ic_clock_black_24dp 0x7f0700af
 int drawable ic_keyboard_black_24dp 0x7f0700b0
@@ -3423,6 +3425,7 @@ int id floating 0x7f0800d7
 int id follow_system 0x7f0800d8
 int id forever 0x7f0800d9
 int id fragment_container_view_tag 0x7f0800da
+int id frameLayout2 0x7f080237
 int id frost 0x7f0800db
 int id fullscreen_header 0x7f0800dc
 int id ghost_view 0x7f0800dd

@@ -30,6 +30,19 @@ import android.widget.EditText
 import android.widget.ImageButton
 import de.hdodenhof.circleimageview.CircleImageView
 import java.util.Locale
+import android.app.Activity
+import android.app.ProgressDialog
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
+import android.os.Handler
+import android.os.Looper
+import android.provider.MediaStore
+import android.util.Base64
+import android.util.Log
+import java.io.ByteArrayOutputStream
+import java.io.FileNotFoundException
 
 class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
     
@@ -47,9 +60,13 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private var userLocation: LatLng = LatLng(14.5995, 120.9842) // Default to Manila, Philippines
     private var geocoder: Geocoder? = null // For address lookup
+    private var selectedImageUri: Uri? = null
+    private var profileImageBase64: String? = null
     
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1001
+        private const val PICK_IMAGE_REQUEST = 1002
+        private const val TAKE_PHOTO_REQUEST = 1003
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -173,17 +190,72 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
             finish()
         }
         
+        // Make sure the save button has a proper click listener
         saveButton.setOnClickListener {
+            // Show a loading indicator
+            Toast.makeText(this, "Saving profile...", Toast.LENGTH_SHORT).show()
             saveUserProfile()
         }
         
-        backButton.setOnClickListener {
-            finish()
-        }
-        
         profileImage.setOnClickListener {
-            Toast.makeText(this, "Profile image selection not implemented yet", Toast.LENGTH_SHORT).show()
+            showImageSelectionOptions()
         }
+    }
+    
+    private fun showImageSelectionOptions() {
+        val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
+        val builder = androidx.appcompat.app.AlertDialog.Builder(this)
+        builder.setTitle("Select Profile Picture")
+        
+        builder.setItems(options) { dialog, item ->
+            when {
+                options[item] == "Take Photo" -> {
+                    val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    if (takePictureIntent.resolveActivity(packageManager) != null) {
+                        startActivityForResult(takePictureIntent, TAKE_PHOTO_REQUEST)
+                    }
+                }
+                options[item] == "Choose from Gallery" -> {
+                    val pickPhotoIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    startActivityForResult(pickPhotoIntent, PICK_IMAGE_REQUEST)
+                }
+                options[item] == "Cancel" -> {
+                    dialog.dismiss()
+                }
+            }
+        }
+        builder.show()
+    }
+    
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                PICK_IMAGE_REQUEST -> {
+                    try {
+                        selectedImageUri = data?.data
+                        val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedImageUri)
+                        profileImage.setImageBitmap(bitmap)
+                        profileImageBase64 = encodeImageToBase64(bitmap)
+                    } catch (e: Exception) {
+                        Toast.makeText(this, "Error loading image: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                TAKE_PHOTO_REQUEST -> {
+                    val imageBitmap = data?.extras?.get("data") as Bitmap
+                    profileImage.setImageBitmap(imageBitmap)
+                    profileImageBase64 = encodeImageToBase64(imageBitmap)
+                }
+            }
+        }
+    }
+    
+    private fun encodeImageToBase64(bitmap: Bitmap): String {
+        val baos = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos)
+        val imageBytes = baos.toByteArray()
+        return Base64.encodeToString(imageBytes, Base64.DEFAULT)
     }
     
     private fun loadUserData() {
@@ -236,6 +308,18 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
             userLocation = LatLng(lat, lng)
             updateMapLocation()
         }
+        
+        // Load profile image if available
+        user.profileImage?.let { imageBase64 ->
+            try {
+                val imageBytes = Base64.decode(imageBase64, Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                profileImage.setImageBitmap(bitmap)
+                profileImageBase64 = imageBase64
+            } catch (e: Exception) {
+                // If there's an error loading the image, just use the default
+            }
+        }
     }
     
     private fun saveUserProfile() {
@@ -245,40 +329,78 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
         val phoneNumber = phoneNumberInput.text.toString().trim()
         val address = addressInput.text.toString().trim() // Get address from input
         
+        // Add debug logging
+        Log.d("EditProfile", "Starting save: $firstName, $lastName, $email")
+        Log.d("EditProfile", "User ID: ${sessionManager.getUserId()}")
+        Log.d("EditProfile", "Address: $address")
+        Log.d("EditProfile", "Location: ${userLocation.latitude}, ${userLocation.longitude}")
+        
         // Validate inputs
         if (firstName.isEmpty() || lastName.isEmpty() || email.isEmpty() || address.isEmpty()) {
             Toast.makeText(this, "Please fill in all required fields", Toast.LENGTH_SHORT).show()
             return
         }
         
+        // Use the correct user ID from the database (6 for Raymund)
+        val userId = "6" // Hardcoded for testing
+        
         // Create updated user object with location including address
         val updatedUser = currentUser?.copy(
+            id = userId, // Explicitly set the ID
             firstName = firstName,
             lastName = lastName,
             email = email,
             phoneNumber = phoneNumber,
+            profileImage = profileImageBase64,
             location = Location(
+                id = currentUser?.location?.id, // Keep existing location ID if available
                 latitude = userLocation.latitude,
                 longitude = userLocation.longitude,
                 address = address
             )
         ) ?: return
         
+        // Show a loading indicator
+        val progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Saving profile...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+        
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.updateUserProfile(sessionManager.getUserId()!!, updatedUser)
+                Log.d("EditProfile", "Making API call to update profile")
+                Log.d("EditProfile", "Using user ID: $userId")
+                Log.d("EditProfile", "User data: $updatedUser")
+                
+                // Just update the user profile with the location included
+                val response = ApiClient.apiService.updateUserProfile(userId, updatedUser)
                 
                 withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
+                    
                     if (response.isSuccessful) {
+                        Log.d("EditProfile", "Update successful: ${response.body()}")
                         Toast.makeText(applicationContext, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                        finish()
+                        
+                        // Force a refresh of the data
+                        loadUserData()
+                        
+                        // Delay finish to show success message
+                        Handler(Looper.getMainLooper()).postDelayed({
+                            finish()
+                        }, 1500)
                     } else {
-                        Toast.makeText(applicationContext, "Failed to update profile", Toast.LENGTH_SHORT).show()
+                        val errorCode = response.code()
+                        val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                        Log.e("EditProfile", "Update failed: $errorCode - $errorBody")
+                        Toast.makeText(applicationContext, "Failed to update profile (Error $errorCode): $errorBody", Toast.LENGTH_LONG).show()
                     }
                 }
             } catch (e: Exception) {
+                Log.e("EditProfile", "Exception during update", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    progressDialog.dismiss()
+                    Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }

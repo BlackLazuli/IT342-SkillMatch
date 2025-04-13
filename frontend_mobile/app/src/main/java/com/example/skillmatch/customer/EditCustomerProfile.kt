@@ -260,6 +260,7 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
     
     private fun loadUserData() {
         val userId = sessionManager.getUserId()
+        val token = sessionManager.getToken() // This should now get the correct token
         
         if (userId.isNullOrEmpty()) {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
@@ -267,8 +268,11 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         
+        Log.d("EditProfile", "Loading user data for ID: $userId with token: $token")
+        
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // Add authorization header to your API service call
                 val response = ApiClient.apiService.getUserProfile(userId)
                 
                 if (response.isSuccessful && response.body() != null) {
@@ -279,10 +283,12 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(applicationContext, "Failed to load user data", Toast.LENGTH_SHORT).show()
+                        Log.e("EditProfile", "Failed to load user data: ${response.code()} - ${response.errorBody()?.string()}")
+                        Toast.makeText(applicationContext, "Failed to load user data: ${response.code()}", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
+                Log.e("EditProfile", "Exception loading user data", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
@@ -322,6 +328,7 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
         }
     }
     
+    // Also update the saveUserProfile method to remove the token parameter
     private fun saveUserProfile() {
         val firstName = firstNameInput.text.toString().trim()
         val lastName = lastNameInput.text.toString().trim()
@@ -341,19 +348,24 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         
-        // Use the correct user ID from the database (6 for Raymund)
-        val userId = "6" // Hardcoded for testing
+        // Get the user ID from session manager
+        val userId = sessionManager.getUserId() ?: ""
+        
+        if (userId.isEmpty()) {
+            Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_SHORT).show()
+            return
+        }
         
         // Create updated user object with location including address
         val updatedUser = currentUser?.copy(
-            id = userId, // Explicitly set the ID
+            userId = userId,
             firstName = firstName,
             lastName = lastName,
             email = email,
             phoneNumber = phoneNumber,
             profileImage = profileImageBase64,
             location = Location(
-                id = currentUser?.location?.id, // Keep existing location ID if available
+                id = currentUser?.location?.id,
                 latitude = userLocation.latitude,
                 longitude = userLocation.longitude,
                 address = address

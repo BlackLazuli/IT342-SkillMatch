@@ -1,8 +1,5 @@
 package com.example.skillmatch.models
 
-import com.google.gson.annotations.SerializedName
-import retrofit2.Response
-
 // Authentication models
 data class LoginRequest(
     val email: String,
@@ -52,7 +49,8 @@ data class User(
     val availableHours: String?, // For service providers
     val location: Location?,
     val portfolio: Portfolio?,
-    val profileImage: String? // Base64 encoded image
+    val profileImage: String?, // Base64 encoded image
+    val userId: String
 )
 
 

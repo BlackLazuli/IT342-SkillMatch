@@ -16,7 +16,10 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
-
+    <!-- Add this line to fix the lint error -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
     <uses-feature
         android:glEsVersion="0x00020000"
         android:required="true" />

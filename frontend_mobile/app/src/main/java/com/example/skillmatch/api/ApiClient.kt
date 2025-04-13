@@ -43,5 +43,27 @@ object ApiClient {
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
     
-    val apiService: ApiService = retrofit.create(ApiService::class.java)
+    // Add this to your ApiClient.kt file to include the token in all requests
+    val apiService: ApiService by lazy {
+        val client = OkHttpClient.Builder()
+            .addInterceptor { chain ->
+                val original = chain.request()
+                val request = original.newBuilder()
+                    .header("Content-Type", "application/json")
+                    .method(original.method, original.body)
+                    .build()
+                chain.proceed(request)
+            }
+            .addInterceptor(HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            })
+            .build()
+    
+        Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
+    }
 }

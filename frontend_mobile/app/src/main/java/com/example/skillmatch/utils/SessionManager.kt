@@ -13,6 +13,7 @@ class SessionManager(context: Context) {
         const val USER_ROLE = "user_role"
         const val USER_FIRST_NAME = "user_first_name"
         const val USER_LAST_NAME = "user_last_name"
+        const val KEY_TOKEN = "token"
     }
     
     fun saveAuthToken(token: String) {
@@ -72,5 +73,11 @@ class SessionManager(context: Context) {
         val editor = prefs.edit()
         editor.clear()
         editor.apply()
+    }
+    
+    // Add this method to your SessionManager class
+    // Fix this method to use prefs instead of sharedPreferences
+    fun getToken(): String? {
+        return prefs.getString(KEY_TOKEN, null)
     }
 }

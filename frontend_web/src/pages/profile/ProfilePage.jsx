@@ -22,7 +22,7 @@ const ProfilePage = () => {
   const [address, setAddress] = useState('');
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
-  const [existingAddress, setExistingAddress] = useState(null); // State to store existing address
+  const [existingAddress, setExistingAddress] = useState(null);
   const token = localStorage.getItem("token");
 
   if (!personalInfo) {
@@ -39,7 +39,6 @@ const ProfilePage = () => {
   } = personalInfo;
 
   useEffect(() => {
-    // Fetch the user's existing address when the component mounts
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
@@ -51,9 +50,9 @@ const ProfilePage = () => {
           }
         );
         if (response.data) {
-          setExistingAddress(response.data.address); // Set the fetched address
-          setLatitude(response.data.latitude);
-          setLongitude(response.data.longitude);
+          setExistingAddress(response.data.address);
+          setLatitude(Number(response.data.latitude)); // ensure numeric
+          setLongitude(Number(response.data.longitude)); // ensure numeric
         }
       } catch (error) {
         console.error("Error fetching address:", error);
@@ -78,7 +77,6 @@ const ProfilePage = () => {
     }
 
     try {
-      // Get coordinates from the provided address
       const { lat, lng } = await getCoordinatesFromAddress(address);
 
       if (!lat || !lng) {
@@ -86,7 +84,6 @@ const ProfilePage = () => {
         return;
       }
 
-      // Send the address and coordinates to your backend API
       const response = await axios.post(
         `http://localhost:8080/api/locations/${userId}`,
         { address, latitude: lat, longitude: lng },
@@ -97,42 +94,41 @@ const ProfilePage = () => {
           },
         }
       );
+
       console.log("Address added:", response.data);
       alert("Address added successfully!");
-      setExistingAddress(address); // Update the displayed address
-      handleCloseModal(); // Close the modal after submission
+
+      // ✅ Update state immediately for map to render
+      setLatitude(Number(lat));
+      setLongitude(Number(lng));
+      setExistingAddress(address);
+
+      handleCloseModal();
     } catch (error) {
       console.error("Error adding address:", error);
       alert("Error adding address.");
     }
   };
 
-  // Function to fetch latitude and longitude based on the address using Google Maps Geocoding API
   const getCoordinatesFromAddress = async (address) => {
-    const apiKey = "AIzaSyC5Bgywlpo6HUd7ZV-8klLuaLeIBSjXbaE";  // Replace with your Google Maps API key
+    const apiKey = "AIzaSyC5Bgywlpo6HUd7ZV-8klLuaLeIBSjXbaE"; 
     try {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
       );
-      
-      // Log the response to see what is being returned
+
       console.log('Google Maps API response:', response.data);
 
-      // Check if the response contains results
       if (response.data.results.length > 0) {
         const { lat, lng } = response.data.results[0].geometry.location;
-
-        // Log the lat and lng to ensure they're correct
         console.log('Coordinates for the address:', lat, lng);
-
         return { lat, lng };
       } else {
-        console.error("No results found for the given address.");
-        return { lat: '', lng: '' }; // Return empty values if no result is found
+        return { lat: '', lng: '' };
       }
     } catch (error) {
       console.error("Error fetching coordinates:", error);
-      return { lat: '', lng: '' }; // Return empty values in case of error
+      return { lat: '', lng: '' };
     }
   };
 
@@ -194,30 +190,34 @@ const ProfilePage = () => {
                 </Box>
               </Box>
 
-              {/* Display Address if it exists */}
               {existingAddress ? (
                 <Box sx={{ mt: 3 }}>
                   <Typography variant="h6">Address:</Typography>
                   <Typography>{existingAddress}</Typography>
 
-                  {/* Google Map showing the address */}
-                  <Box sx={{ width: '100%', height: 300, mt: 2 }}>
-                    <LoadScript googleMapsApiKey="AIzaSyC5Bgywlpo6HUd7ZV-8klLuaLeIBSjXbaE">
-                      <GoogleMap
-                        center={{ lat: latitude, lng: longitude }}
-                        zoom={13}
-                        mapContainerStyle={{ width: '100%', height: '100%' }}
-                      >
-                        <Marker position={{ lat: latitude, lng: longitude }} />
-                        <InfoWindow position={{ lat: latitude, lng: longitude }}>
-                          <Typography>{existingAddress}</Typography>
-                        </InfoWindow>
-                      </GoogleMap>
-                    </LoadScript>
-                  </Box>
+                  {/* ✅ Map only renders if lat/lng are valid numbers */}
+                  {!isNaN(latitude) && !isNaN(longitude) ? (
+                    <Box sx={{ width: '100%', height: 300, mt: 2 }}>
+                      <LoadScript googleMapsApiKey="AIzaSyC5Bgywlpo6HUd7ZV-8klLuaLeIBSjXbaE">
+                        <GoogleMap
+                          center={{ lat: Number(latitude), lng: Number(longitude) }}
+                          zoom={13}
+                          mapContainerStyle={{ width: '100%', height: '100%' }}
+                        >
+                          <Marker position={{ lat: Number(latitude), lng: Number(longitude) }} />
+                          <InfoWindow position={{ lat: Number(latitude), lng: Number(longitude) }}>
+                            <Typography>{existingAddress}</Typography>
+                          </InfoWindow>
+                        </GoogleMap>
+                      </LoadScript>
+                    </Box>
+                  ) : (
+                    <Typography color="error" sx={{ mt: 2 }}>
+                      Invalid map coordinates.
+                    </Typography>
+                  )}
                 </Box>
               ) : (
-                // Button to open address modal if no address exists
                 <Button
                   variant="contained"
                   color="primary"

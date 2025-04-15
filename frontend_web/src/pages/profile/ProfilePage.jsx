@@ -202,7 +202,7 @@ const ProfilePage = () => {
 
                   {/* Google Map showing the address */}
                   <Box sx={{ width: '100%', height: 300, mt: 2 }}>
-                    <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
+                    <LoadScript googleMapsApiKey="AIzaSyC5Bgywlpo6HUd7ZV-8klLuaLeIBSjXbaE">
                       <GoogleMap
                         center={{ lat: latitude, lng: longitude }}
                         zoom={13}

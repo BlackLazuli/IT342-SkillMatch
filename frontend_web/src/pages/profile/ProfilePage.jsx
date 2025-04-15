@@ -111,7 +111,7 @@ const ProfilePage = () => {
   };
 
   const getCoordinatesFromAddress = async (address) => {
-    const apiKey = "AIzaSyC5Bgywlpo6HUd7ZV-8klLuaLeIBSjXbaE"; 
+    const apiKey = ""; 
     try {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
@@ -198,7 +198,7 @@ const ProfilePage = () => {
                   {/* ✅ Map only renders if lat/lng are valid numbers */}
                   {!isNaN(latitude) && !isNaN(longitude) ? (
                     <Box sx={{ width: '100%', height: 300, mt: 2 }}>
-                      <LoadScript googleMapsApiKey="AIzaSyC5Bgywlpo6HUd7ZV-8klLuaLeIBSjXbaE">
+                      <LoadScript googleMapsApiKey="">
                         <GoogleMap
                           center={{ lat: Number(latitude), lng: Number(longitude) }}
                           zoom={13}

@@ -70,14 +70,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.skillmatch.Login" />
-        <activity android:name="com.example.skillmatch.SignUp" />
-
-        <!-- Add the new ChooseRole activity -->
-        <activity android:name="com.example.skillmatch.ChooseRole" />
-
-        <!-- Add the EditCustomerProfile activity -->
-        <activity android:name="com.example.skillmatch.customer.EditCustomerProfile" />
+        <activity
+            android:name="com.example.skillmatch.Login"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.SignUp"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.ChooseRole"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.customer.EditCustomerProfile"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.professional.EditPortfolioActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.professional.EditProfessionalProfile"
+            android:exported="false" />
 
         <!-- Needs to be explicitly declared on P+ -->
         <uses-library

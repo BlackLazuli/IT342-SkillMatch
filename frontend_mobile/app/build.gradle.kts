@@ -49,6 +49,26 @@ android {
     lint {
         baseline = file("lint-baseline.xml")
     }
+    
+    buildFeatures {
+        viewBinding = true
+    }
+    
+    // Add this to prevent file locking issues
+    packaging {
+        resources {
+            excludes += listOf(
+                "META-INF/DEPENDENCIES",
+                "META-INF/LICENSE",
+                "META-INF/LICENSE.txt",
+                "META-INF/license.txt",
+                "META-INF/NOTICE",
+                "META-INF/NOTICE.txt",
+                "META-INF/notice.txt",
+                "META-INF/ASL2.0"
+            )
+        }
+    }
 }
 
 dependencies {

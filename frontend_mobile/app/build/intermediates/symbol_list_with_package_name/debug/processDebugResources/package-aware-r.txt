@@ -3196,6 +3196,7 @@ drawable notify_panel_notification_icon_bg
 drawable pen
 drawable professionals
 drawable rectangle_container
+drawable rounded_edittext
 drawable search
 drawable settings
 drawable sk_darkmode
@@ -3279,6 +3280,7 @@ id action_text
 id actions
 id activity_chooser_view_content
 id add
+id addServiceButton
 id addressInput
 id adjust_height
 id adjust_width
@@ -3298,6 +3300,9 @@ id auto
 id autoComplete
 id autoCompleteToEnd
 id autoCompleteToStart
+id availabilityTimeInput
+id availableDays
+id availableHours
 id axisRelative
 id backButton
 id barrier
@@ -3306,6 +3311,7 @@ id beginOnFirstDraw
 id beginning
 id below
 id bestChoice
+id bioInput
 id blocking
 id bottom
 id bounce
@@ -3314,7 +3320,9 @@ id bounceEnd
 id bounceStart
 id buttonPanel
 id cache_measures
+id calendarView
 id callMeasure
+id cancelButton
 id cancel_button
 id cancelbtn
 id carryVelocity
@@ -3359,10 +3367,13 @@ id customerRoleCardPopup
 id cut
 id dark
 id date_picker_actions
+id dayCard
+id dayText
 id decelerate
 id decelerateAndComplete
 id decor_content_parent
 id default_activity_button
+id deleteButton
 id deltaRelative
 id dependency_ordering
 id design_bottom_sheet
@@ -3370,6 +3381,7 @@ id design_menu_item_action_area
 id design_menu_item_action_area_stub
 id design_menu_item_text
 id design_navigation_view
+id dialogTitle
 id dialog_button
 id dimOverlay
 id dimensions
@@ -3393,6 +3405,7 @@ id easeInOut
 id easeOut
 id east
 id edge
+id editButton
 id edit_query
 id edit_text_id
 id elastic
@@ -3602,6 +3615,9 @@ id pin
 id position
 id postLayout
 id pressed
+id professionalAvatar
+id professionalName
+id professionalOccupation
 id professionalRoleCard
 id professionalRoleCardPopup
 id profileImage
@@ -3609,6 +3625,7 @@ id profileSection
 id progress_circular
 id progress_horizontal
 id radio
+id ratingBar
 id ratio
 id rectangles
 id report_drawn
@@ -3646,6 +3663,13 @@ id search_voice_btn
 id select_dialog_listview
 id selected
 id selection_type
+id serviceDescription
+id serviceDescriptionInput
+id serviceName
+id serviceNameInput
+id servicePrice
+id servicePricingInput
+id servicesRecyclerView
 id sharedValueSet
 id sharedValueUnset
 id shortcut
@@ -3768,6 +3792,7 @@ id wide
 id withText
 id with_icon
 id withinBounds
+id workExperienceInput
 id wrap
 id wrap_content
 id wrap_content_constrained
@@ -3889,6 +3914,8 @@ layout abc_search_view
 layout abc_select_dialog_material
 layout abc_tooltip
 layout activity_chooserole
+layout activity_edit_portfolio
+layout activity_edit_professional_profile
 layout activity_editcustomerprofile
 layout activity_login
 layout activity_main
@@ -3909,8 +3936,12 @@ layout design_navigation_menu
 layout design_navigation_menu_item
 layout design_text_input_end_icon
 layout design_text_input_start_icon
+layout dialog_service
 layout ime_base_split_test_activity
 layout ime_secondary_split_test_activity
+layout item_calendar_day
+layout item_professional
+layout item_service
 layout m3_alert_dialog
 layout m3_alert_dialog_actions
 layout m3_alert_dialog_title

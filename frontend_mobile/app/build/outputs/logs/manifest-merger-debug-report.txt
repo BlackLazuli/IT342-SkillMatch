@@ -1,9 +1,10 @@
 -- Merging decision tree log ---
 manifest
-ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:2:1-60:12
-INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:2:1-60:12
-INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:2:1-60:12
-INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:2:1-60:12
+ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:2:1-55:12
+INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:2:1-55:12
+INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:2:1-55:12
+INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:2:1-55:12
+MERGED from [androidx.databinding:viewbinding:8.9.1] C:\Users\Admin\.gradle\caches\8.11.1\transforms\1b5e29262f5514207f460797072482ea\transformed\viewbinding-8.9.1\AndroidManifest.xml:2:1-7:12
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\Admin\.gradle\caches\8.11.1\transforms\f26b0f9d9ed7b2f59fb02852a1a8c0d5\transformed\material-1.12.0\AndroidManifest.xml:17:1-24:12
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\Admin\.gradle\caches\8.11.1\transforms\cc132225e78e3cb1351f888d4fec4d31\transformed\constraintlayout-2.2.1\AndroidManifest.xml:2:1-9:12
 MERGED from [androidx.appcompat:appcompat-resources:1.7.0] C:\Users\Admin\.gradle\caches\8.11.1\transforms\c29886c77f55d1bedf0004e5d16426dd\transformed\appcompat-resources-1.7.0\AndroidManifest.xml:2:1-7:12
@@ -107,8 +108,8 @@ ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\
 	android:name
 		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:14:19-57
 application
-ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:17:5-59:19
-INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:17:5-59:19
+ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:17:5-54:19
+INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:17:5-54:19
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\Admin\.gradle\caches\8.11.1\transforms\f26b0f9d9ed7b2f59fb02852a1a8c0d5\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\Admin\.gradle\caches\8.11.1\transforms\f26b0f9d9ed7b2f59fb02852a1a8c0d5\transformed\material-1.12.0\AndroidManifest.xml:22:5-20
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\Admin\.gradle\caches\8.11.1\transforms\cc132225e78e3cb1351f888d4fec4d31\transformed\constraintlayout-2.2.1\AndroidManifest.xml:7:5-20
@@ -192,25 +193,47 @@ ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\
 	android:name
 		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:43:27-74
 activity#com.example.skillmatch.Login
-ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:48:9-43
+ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:47:9-68
+	android:exported
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:47:41-65
 	android:name
-		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:48:19-40
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:47:19-40
 activity#com.example.skillmatch.SignUp
-ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:49:9-44
+ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:48:9-69
+	android:exported
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:48:42-66
 	android:name
-		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:49:19-41
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:48:19-41
 activity#com.example.skillmatch.ChooseRole
-ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:52:9-48
+ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:49:9-73
+	android:exported
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:49:46-70
 	android:name
-		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:52:19-45
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:49:19-45
 activity#com.example.skillmatch.customer.EditCustomerProfile
-ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:56:9-66
+ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:50:9-91
+	android:exported
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:50:64-88
 	android:name
-		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:56:19-63
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:50:19-63
+activity#com.example.skillmatch.professional.EditPortfolioActivity
+ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:51:9-97
+	android:exported
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:51:70-94
+	android:name
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:51:19-69
+activity#com.example.skillmatch.professional.EditProfessionalProfile
+ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:52:9-99
+	android:exported
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:52:72-96
+	android:name
+		ADDED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml:52:19-71
 uses-sdk
 INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml reason: use-sdk injection requested
 INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml
 INJECTED from C:\Users\Admin\Documents\GitHub\IT342-SkillMatch\frontend_mobile\app\src\main\AndroidManifest.xml
+MERGED from [androidx.databinding:viewbinding:8.9.1] C:\Users\Admin\.gradle\caches\8.11.1\transforms\1b5e29262f5514207f460797072482ea\transformed\viewbinding-8.9.1\AndroidManifest.xml:5:5-44
+MERGED from [androidx.databinding:viewbinding:8.9.1] C:\Users\Admin\.gradle\caches\8.11.1\transforms\1b5e29262f5514207f460797072482ea\transformed\viewbinding-8.9.1\AndroidManifest.xml:5:5-44
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\Admin\.gradle\caches\8.11.1\transforms\f26b0f9d9ed7b2f59fb02852a1a8c0d5\transformed\material-1.12.0\AndroidManifest.xml:20:5-44
 MERGED from [com.google.android.material:material:1.12.0] C:\Users\Admin\.gradle\caches\8.11.1\transforms\f26b0f9d9ed7b2f59fb02852a1a8c0d5\transformed\material-1.12.0\AndroidManifest.xml:20:5-44
 MERGED from [androidx.constraintlayout:constraintlayout:2.2.1] C:\Users\Admin\.gradle\caches\8.11.1\transforms\cc132225e78e3cb1351f888d4fec4d31\transformed\constraintlayout-2.2.1\AndroidManifest.xml:5:5-44

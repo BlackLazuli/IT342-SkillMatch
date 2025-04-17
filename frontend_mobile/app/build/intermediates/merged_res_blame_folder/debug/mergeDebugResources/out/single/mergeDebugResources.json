@@ -12,6 +12,14 @@
         "source": "com.example.skillmatch.app-main-43:/drawable/circle_background.xml"
     },
     {
+        "merged": "com.example.skillmatch.app-debug-41:/drawable_rounded_edittext.xml.flat",
+        "source": "com.example.skillmatch.app-main-43:/drawable/rounded_edittext.xml"
+    },
+    {
+        "merged": "com.example.skillmatch.app-debug-41:/layout_item_service.xml.flat",
+        "source": "com.example.skillmatch.app-main-43:/layout/item_service.xml"
+    },
+    {
         "merged": "com.example.skillmatch.app-debug-41:/drawable_user.png.flat",
         "source": "com.example.skillmatch.app-main-43:/drawable/user.png"
     },
@@ -26,6 +34,10 @@
     {
         "merged": "com.example.skillmatch.app-debug-41:/drawable_appointment.png.flat",
         "source": "com.example.skillmatch.app-main-43:/drawable/appointment.png"
+    },
+    {
+        "merged": "com.example.skillmatch.app-debug-41:/layout_activity_edit_professional_profile.xml.flat",
+        "source": "com.example.skillmatch.app-main-43:/layout/activity_edit_professional_profile.xml"
     },
     {
         "merged": "com.example.skillmatch.app-debug-41:/mipmap-xxxhdpi_ic_launcher.webp.flat",
@@ -52,12 +64,12 @@
         "source": "com.example.skillmatch.app-main-43:/xml/network_security_config.xml"
     },
     {
-        "merged": "com.example.skillmatch.app-debug-41:/drawable_next.png.flat",
-        "source": "com.example.skillmatch.app-main-43:/drawable/next.png"
-    },
-    {
         "merged": "com.example.skillmatch.app-debug-41:/drawable_rectangle_container.xml.flat",
         "source": "com.example.skillmatch.app-main-43:/drawable/rectangle_container.xml"
+    },
+    {
+        "merged": "com.example.skillmatch.app-debug-41:/drawable_next.png.flat",
+        "source": "com.example.skillmatch.app-main-43:/drawable/next.png"
     },
     {
         "merged": "com.example.skillmatch.app-debug-41:/drawable_businessman.png.flat",
@@ -72,6 +84,10 @@
         "source": "com.example.skillmatch.app-main-43:/drawable/clock.png"
     },
     {
+        "merged": "com.example.skillmatch.app-debug-41:/layout_item_professional.xml.flat",
+        "source": "com.example.skillmatch.app-main-43:/layout/item_professional.xml"
+    },
+    {
         "merged": "com.example.skillmatch.app-debug-41:/mipmap-mdpi_ic_launcher.webp.flat",
         "source": "com.example.skillmatch.app-main-43:/mipmap-mdpi/ic_launcher.webp"
     },
@@ -82,6 +98,10 @@
     {
         "merged": "com.example.skillmatch.app-debug-41:/mipmap-xxhdpi_ic_launcher.webp.flat",
         "source": "com.example.skillmatch.app-main-43:/mipmap-xxhdpi/ic_launcher.webp"
+    },
+    {
+        "merged": "com.example.skillmatch.app-debug-41:/layout_dialog_service.xml.flat",
+        "source": "com.example.skillmatch.app-main-43:/layout/dialog_service.xml"
     },
     {
         "merged": "com.example.skillmatch.app-debug-41:/mipmap-xxhdpi_ic_launcher_round.webp.flat",
@@ -110,6 +130,10 @@
     {
         "merged": "com.example.skillmatch.app-debug-41:/drawable_settings.png.flat",
         "source": "com.example.skillmatch.app-main-43:/drawable/settings.png"
+    },
+    {
+        "merged": "com.example.skillmatch.app-debug-41:/layout_item_calendar_day.xml.flat",
+        "source": "com.example.skillmatch.app-main-43:/layout/item_calendar_day.xml"
     },
     {
         "merged": "com.example.skillmatch.app-debug-41:/drawable_ic_camera.xml.flat",
@@ -150,6 +174,10 @@
     {
         "merged": "com.example.skillmatch.app-debug-41:/drawable_birthday.png.flat",
         "source": "com.example.skillmatch.app-main-43:/drawable/birthday.png"
+    },
+    {
+        "merged": "com.example.skillmatch.app-debug-41:/layout_activity_edit_portfolio.xml.flat",
+        "source": "com.example.skillmatch.app-main-43:/layout/activity_edit_portfolio.xml"
     },
     {
         "merged": "com.example.skillmatch.app-debug-41:/mipmap-anydpi_ic_launcher_round.xml.flat",

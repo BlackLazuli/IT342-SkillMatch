@@ -1,6 +1,5 @@
 package com.example.skillmatch.api
 
-import com.example.skillmatch.models.Appointment
 import com.example.skillmatch.models.LoginRequest
 import com.example.skillmatch.models.LoginResponse
 import com.example.skillmatch.models.SignupRequest

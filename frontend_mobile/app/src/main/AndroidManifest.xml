@@ -44,17 +44,12 @@
             </intent-filter>
         </activity>
         
-        
-        <activity android:name=".Login" />
-        <activity android:name=".SignUp" />
-        
-        <!-- Add the new ChooseRole activity -->
-        <activity android:name=".ChooseRole" />
-
-        
-        <!-- Add the EditCustomerProfile activity -->
-        <activity android:name=".customer.EditCustomerProfile" />
-
+        <activity android:name=".Login" android:exported="false" />
+        <activity android:name=".SignUp" android:exported="false" />
+        <activity android:name=".ChooseRole" android:exported="false" />
+        <activity android:name=".customer.EditCustomerProfile" android:exported="false" />
+        <activity android:name=".professional.EditPortfolioActivity" android:exported="false" />
+        <activity android:name=".professional.EditProfessionalProfile" android:exported="false" />
         
     </application>
 </manifest>

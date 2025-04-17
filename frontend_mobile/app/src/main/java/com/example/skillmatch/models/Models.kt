@@ -55,32 +55,6 @@ data class User(
 
 
 
-data class Portfolio(
-    val id: String?,
-    val workExperience: String?,
-    val clientTestimonials: String?,
-    val servicesOffered: List<Service>?
-)
-
-data class Service(
-    val id: String?,
-    val name: String?,
-    val description: String?,
-    val price: Double?
-)
-
-// Appointment model
-data class Appointment(
-    val id: String? = null,
-    val customerId: String,
-    val customerName: String,
-    val professionalId: String,
-    val professionalName: String,
-    val date: String,
-    val time: String,
-    val status: String = "pending"
-)
-
 data class Location(
     val id: Long? = null,
     val latitude: Double,

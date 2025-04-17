@@ -12,6 +12,7 @@ import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
 import retrofit2.Response
 import android.util.Log
+import com.example.skillmatch.customer.EditCustomerProfile
 
 class SignUp : AppCompatActivity() {
 
@@ -95,22 +96,33 @@ class SignUp : AppCompatActivity() {
                     
                     if (signupResponse != null) {
                         // Save user data to session
-                        sessionManager.saveAuthToken(signupResponse.token)
-                        sessionManager.saveUserId(signupResponse.userId)
-                        sessionManager.saveUserType(signupResponse.role) // Change to role
+                        // Inside the if (signupResponse != null) block
+                        // Replace these two lines:
+                        // sessionManager.saveAuthToken(signupResponse.token)
+                        // sessionManager.saveUserId(signupResponse.userId)
+                        // sessionManager.saveUserType(signupResponse.role)
                         
+                        // With this:
+                        sessionManager.saveAuthToken(signupResponse.token)
+                        sessionManager.saveUserDetails(
+                            signupResponse.userId,
+                            signupResponse.email,
+                            signupResponse.role,
+                            signupResponse.firstName,
+                            signupResponse.lastName
+                        )
                         Log.d("SignUp", "Registration successful: ${signupResponse.userId}")
                         Toast.makeText(this@SignUp, "Registration successful!", Toast.LENGTH_SHORT).show()
                         
                         // Navigate based on role
                         if (signupResponse.role == "CUSTOMER") {
-                            val intent = Intent(this@SignUp, CustomerDashboard::class.java)
+                            val intent = Intent(this@SignUp, EditCustomerProfile::class.java)
                             intent.putExtra("USER_ID", signupResponse.userId)
                             startActivity(intent)
                             finish()
                         } else if (signupResponse.role == "PROFESSIONAL" || 
                                   signupResponse.role == "SERVICE_PROVIDER") {
-                            val intent = Intent(this@SignUp, ProfessionalDashboard::class.java)
+                            val intent = Intent(this@SignUp, EditCustomerProfile::class.java)
                             intent.putExtra("USER_ID", signupResponse.userId)
                             startActivity(intent)
                             finish()

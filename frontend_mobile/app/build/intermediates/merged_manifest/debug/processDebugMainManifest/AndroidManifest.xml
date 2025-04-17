@@ -9,7 +9,26 @@
         android:targetSdkVersion="35" />
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Add location permissions -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Add this line to fix the lint error -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true" />
+
+    <queries>
+
+        <!-- Needs to be explicitly declared on Android R+ -->
+        <package android:name="com.google.android.apps.maps" />
+    </queries>
 
     <permission
         android:name="com.example.skillmatch.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -33,6 +52,14 @@
         android:theme="@style/Theme.SkillMatch"
         android:usesCleartextTraffic="true" >
 
+        <!-- Google Maps API Key - Update with properly configured key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyC6VpvVNvP3zPUg-DDfSxXBNpthbwmj344" />
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy" />
+
         <!-- Existing activities -->
         <activity
             android:name="com.example.skillmatch.MainActivity"
@@ -43,13 +70,38 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.example.skillmatch.Login" />
-        <activity android:name="com.example.skillmatch.SignUp" />
-        <activity android:name="com.example.skillmatch.CustomerDashboard" />
-        <activity android:name="com.example.skillmatch.ProfessionalDashboard" />
+        <activity
+            android:name="com.example.skillmatch.Login"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.SignUp"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.ChooseRole"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.customer.EditCustomerProfile"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.professional.EditPortfolioActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.example.skillmatch.professional.EditProfessionalProfile"
+            android:exported="false" />
 
-        <!-- Add the new ChooseRole activity -->
-        <activity android:name="com.example.skillmatch.ChooseRole" />
+        <!-- Needs to be explicitly declared on P+ -->
+        <uses-library
+            android:name="org.apache.http.legacy"
+            android:required="false" />
+
+        <activity
+            android:name="com.google.android.gms.common.api.GoogleApiActivity"
+            android:exported="false"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <provider
             android:name="androidx.startup.InitializationProvider"
@@ -65,6 +117,10 @@
                 android:name="androidx.profileinstaller.ProfileInstallerInitializer"
                 android:value="androidx.startup" />
         </provider>
+        <provider
+            android:name="com.squareup.picasso.PicassoProvider"
+            android:authorities="com.example.skillmatch.com.squareup.picasso"
+            android:exported="false" />
 
         <receiver
             android:name="androidx.profileinstaller.ProfileInstallReceiver"

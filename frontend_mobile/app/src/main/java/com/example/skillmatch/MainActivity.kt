@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.skillmatch.customer.EditCustomerProfile
 import com.example.skillmatch.repository.SkillMatchRepository
 import com.example.skillmatch.utils.SessionManager
 import kotlinx.coroutines.launch
@@ -26,7 +27,11 @@ class MainActivity : AppCompatActivity() {
         repository = SkillMatchRepository(this)
         sessionManager = SessionManager(this)
 
-
+        // Check if user is already logged in
+        if (sessionManager.getAuthToken() != null) {
+            navigateBasedOnUserType()
+            return
+        }
 
         val getStartedButton: Button = findViewById(R.id.GetStarted)
         getStartedButton.setOnClickListener {
@@ -36,24 +41,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
-
-    
-    // Inside your MainActivity or another appropriate place
-    private fun testBackendConnection() {
-        lifecycleScope.launch {
-            try {
-                val response = repository.getAllProfessionals()
-                if (response.isSuccessful) {
-                    Log.d("API", "Connection successful: ${response.body()}")
-                    Toast.makeText(this@MainActivity, "Connected to backend!", Toast.LENGTH_SHORT).show()
-                } else {
-                    Log.e("API", "Connection failed: ${response.code()}")
-                    Toast.makeText(this@MainActivity, "Failed to connect: ${response.message()}", Toast.LENGTH_SHORT).show()
-                }
-            } catch (e: Exception) {
-                Log.e("API", "Connection error", e)
-                Toast.makeText(this@MainActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-            }
+    // Add the missing navigateBasedOnUserType method
+    // Updated navigateBasedOnUserType method without CustomerDashboard reference
+    private fun navigateBasedOnUserType() {
+        try {
+            val userRole = sessionManager.getUserRole()
+            // Since CustomerDashboard is removed, redirect all users to Login for now
+            Toast.makeText(this, "Welcome back! Please log in again.", Toast.LENGTH_SHORT).show()
+            sessionManager.clearSession() // Clear session to ensure fresh login
+            val intent = Intent(this, Login::class.java)
+            startActivity(intent)
+            finish() // Close MainActivity so user can't go back
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Navigation error", e)
+            Toast.makeText(this, "Error navigating: ${e.message}", Toast.LENGTH_SHORT).show()
+            // Reset session and stay on main activity if there's an error
+            sessionManager.clearSession()
         }
     }
+   
+    
 }

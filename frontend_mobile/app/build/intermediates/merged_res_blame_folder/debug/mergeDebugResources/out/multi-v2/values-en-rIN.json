@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.skillmatch.app-mergeDebugResources-35:/values-en-rIN/values-en-rIN.xml",
+            "outputFile": "com.example.skillmatch.app-mergeDebugResources-39:/values-en-rIN/values-en-rIN.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Admin\\.gradle\\caches\\8.11.1\\transforms\\abb3ca7722fedf2651e5a963241f6216\\transformed\\appcompat-1.7.0\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "source": "C:\\Users\\Admin\\.gradle\\caches\\8.11.1\\transforms\\9bc1164a4c7d729864f44c2dd48490d8\\transformed\\appcompat-1.7.0\\res\\values-en-rIN\\values-en-rIN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4",
@@ -21,7 +21,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\Admin\\.gradle\\caches\\8.11.1\\transforms\\97ca7e51858b061d0fb640be6da04701\\transformed\\core-1.15.0\\res\\values-en-rIN\\values-en-rIN.xml",
+                    "source": "C:\\Users\\Admin\\.gradle\\caches\\8.11.1\\transforms\\561a2f1b94c96e831cdd861b582d6ec3\\transformed\\core-1.15.0\\res\\values-en-rIN\\values-en-rIN.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9",
                         "startColumns": "4,4,4,4,4,4,4,4",

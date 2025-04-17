@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.example.skillmatch.app-mergeDebugResources-35:/values-v16/values-v16.xml",
+            "outputFile": "com.example.skillmatch.app-mergeDebugResources-39:/values-v16/values-v16.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\Admin\\.gradle\\caches\\8.11.1\\transforms\\abb3ca7722fedf2651e5a963241f6216\\transformed\\appcompat-1.7.0\\res\\values-v16\\values-v16.xml",
+                    "source": "C:\\Users\\Admin\\.gradle\\caches\\8.11.1\\transforms\\9bc1164a4c7d729864f44c2dd48490d8\\transformed\\appcompat-1.7.0\\res\\values-v16\\values-v16.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

@@ -9,49 +9,75 @@ class SessionManager(context: Context) {
     companion object {
         const val USER_TOKEN = "user_token"
         const val USER_ID = "user_id"
-        const val USER_ROLE = "user_role" // Changed from USER_TYPE
+        const val USER_EMAIL = "user_email"
+        const val USER_ROLE = "user_role"
+        const val USER_FIRST_NAME = "user_first_name"
+        const val USER_LAST_NAME = "user_last_name"
+        const val KEY_TOKEN = "token"
     }
     
-    // Save auth token
-    fun saveAuthToken(token: String?) {
+    fun saveAuthToken(token: String) {
         val editor = prefs.edit()
         editor.putString(USER_TOKEN, token)
         editor.apply()
     }
     
-    // Get auth token
     fun getAuthToken(): String? {
         return prefs.getString(USER_TOKEN, null)
     }
     
-    // Save user ID
-    fun saveUserId(userId: String?) {
+    // Add these individual methods
+    fun saveUserId(userId: String) {
         val editor = prefs.edit()
         editor.putString(USER_ID, userId)
         editor.apply()
     }
     
-    // Get user ID
+    fun saveUserType(role: String) {
+        val editor = prefs.edit()
+        editor.putString(USER_ROLE, role)
+        editor.apply()
+    }
+    
+    fun saveUserDetails(userId: String, email: String, role: String, firstName: String, lastName: String) {
+        val editor = prefs.edit()
+        editor.putString(USER_ID, userId)
+        editor.putString(USER_EMAIL, email)
+        editor.putString(USER_ROLE, role)
+        editor.putString(USER_FIRST_NAME, firstName)
+        editor.putString(USER_LAST_NAME, lastName)
+        editor.apply()
+    }
+    
     fun getUserId(): String? {
         return prefs.getString(USER_ID, null)
     }
     
-    // Save user role (renamed from saveUserType)
-    fun saveUserType(role: String?) {
-        val editor = prefs.edit()
-        editor.putString(USER_ROLE, role ?: "CUSTOMER") // Default to CUSTOMER if null
-        editor.apply()
+    fun getUserEmail(): String? {
+        return prefs.getString(USER_EMAIL, null)
     }
     
-    // Get user role (renamed from getUserType)
-    fun getUserType(): String? {
+    fun getUserRole(): String? {
         return prefs.getString(USER_ROLE, null)
     }
     
-    // Clear session
+    fun getUserFirstName(): String? {
+        return prefs.getString(USER_FIRST_NAME, null)
+    }
+    
+    fun getUserLastName(): String? {
+        return prefs.getString(USER_LAST_NAME, null)
+    }
+    
     fun clearSession() {
         val editor = prefs.edit()
         editor.clear()
         editor.apply()
+    }
+    
+    // Add this method to your SessionManager class
+    // Fix this method to use prefs instead of sharedPreferences
+    fun getToken(): String? {
+        return prefs.getString(KEY_TOKEN, null)
     }
 }

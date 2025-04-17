@@ -1,8 +1,5 @@
 package com.example.skillmatch.models
 
-import com.google.gson.annotations.SerializedName
-import retrofit2.Response
-
 // Authentication models
 data class LoginRequest(
     val email: String,
@@ -19,6 +16,7 @@ data class LoginResponse(
 )
 
 // Update your SignupRequest model to match backend expectations
+// Add or update these models in your Models.kt file
 data class SignupRequest(
     val firstName: String,
     val lastName: String,
@@ -29,41 +27,37 @@ data class SignupRequest(
 )
 
 data class SignupResponse(
-    val email: String,
     val userId: String,
-    val token: String,
-    val role: String, // Changed from userType
+    val email: String,
     val firstName: String,
-    val lastName: String
+    val lastName: String,
+    val role: String,
+    val token: String
 )
-// User models
+// Update the User data class to include profileImage
 data class User(
     val id: String,
-    val name: String,
-    val email: String,
-    val userType: String,
-    val profilePicture: String? = null
+    val firstName: String?,
+    val lastName: String?,
+    val email: String?,
+    val role: String?, // "CUSTOMER" or "SERVICE_PROVIDER"
+    val bio: String?,
+    val phoneNumber: String?,
+    val rating: Double?,
+    val occupation: String?, // For service providers
+    val availableDays: String?, // For service providers
+    val availableHours: String?, // For service providers
+    val location: Location?,
+    val portfolio: Portfolio?,
+    val profileImage: String?, // Base64 encoded image
+    val userId: String
 )
 
-// Professional model
-data class Professional(
-    val id: String,
-    val name: String,
-    val profession: String,
-    val rating: Float,
-    val workingDays: String,
-    val workingHours: String,
-    val profilePicture: String? = null
-)
 
-// Appointment model
-data class Appointment(
-    val id: String? = null,
-    val customerId: String,
-    val customerName: String,
-    val professionalId: String,
-    val professionalName: String,
-    val date: String,
-    val time: String,
-    val status: String = "pending"
+
+data class Location(
+    val id: Long? = null,
+    val latitude: Double,
+    val longitude: Double,
+    val address: String
 )

@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/locations")
+@CrossOrigin(origins = {"http://localhost:5173", "http://10.0.2.2:8080"}) // Allow React frontend and Android emulator
 public class LocationController {
     private final LocationService locationService;
 
@@ -37,6 +38,18 @@ public class LocationController {
         }
     }
     
+    // Add a PUT endpoint for updating location
+    @PutMapping("/{userId}")
+    public ResponseEntity<LocationEntity> updateLocation(@PathVariable Long userId,
+                                                        @RequestBody LocationEntity location) {
+        try {
+            LocationEntity savedLocation = locationService.saveOrUpdateLocation(
+                    userId, location.getLatitude(), location.getLongitude(), location.getAddress());
+            return ResponseEntity.ok(savedLocation);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
 
     // Delete a user's location
     @DeleteMapping("/{userId}")

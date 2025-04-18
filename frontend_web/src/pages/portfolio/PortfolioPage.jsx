@@ -9,9 +9,10 @@ import {
   Card,
   CardContent,
   Grid,
+  Chip
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
-import { usePersonalInfo } from "../../context/PersonalInfoContext"; // Optional: for avatar display
+import { usePersonalInfo } from "../../context/PersonalInfoContext";
 
 const PortfolioPage = () => {
   const { userID } = useParams();
@@ -125,16 +126,20 @@ const PortfolioPage = () => {
                           <Typography variant="body2" gutterBottom>
                             {service.description}
                           </Typography>
+
                           <Typography variant="body2" fontWeight="bold">
                             Pricing:
                           </Typography>
                           <Typography variant="body2">{service.pricing}</Typography>
 
-                          {/* Display Day of the Week and Time */}
                           <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
-                            Day of the Week:
+                            Days Available:
                           </Typography>
-                          <Typography variant="body2">{service.dayOfTheWeek}</Typography>
+                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                            {service.daysOfTheWeek?.map((day, i) => (
+                              <Chip key={i} label={day} size="small" />
+                            ))}
+                          </Box>
 
                           <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
                             Time:

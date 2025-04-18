@@ -1,5 +1,8 @@
 package edu.cit.skillmatch.entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.*;
@@ -15,8 +18,12 @@ public class ServiceEntity {
     private String name; // Service name
     private String description; // Service description
     private String pricing; // Service pricing
-    private String dayOfTheWeek; // Day of the week for the service
     private String time; // Time of the service
+
+    @ElementCollection
+    @CollectionTable(name = "service_days", joinColumns = @JoinColumn(name = "service_id"))
+    @Column(name = "day")
+    private List<String> daysOfTheWeek = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "portfolio_id")
@@ -56,12 +63,12 @@ public class ServiceEntity {
         this.pricing = pricing;
     }
 
-    public String getDayOfTheWeek() {
-        return dayOfTheWeek;
+    public List<String> getDaysOfTheWeek() {
+        return daysOfTheWeek;
     }
-
-    public void setDayOfTheWeek(String dayOfTheWeek) {
-        this.dayOfTheWeek = dayOfTheWeek;
+    
+    public void setDaysOfTheWeek(List<String> daysOfTheWeek) {
+        this.daysOfTheWeek = daysOfTheWeek;
     }
 
     public String getTime() {

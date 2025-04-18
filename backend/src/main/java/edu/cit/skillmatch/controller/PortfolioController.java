@@ -25,7 +25,7 @@ public class PortfolioController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Create or Update Portfolio
+    // Create or Update Portfolio (POST)
     @PostMapping("/{userId}")
     public ResponseEntity<PortfolioEntity> createOrUpdatePortfolio(@PathVariable Long userId,
                                                                    @RequestBody PortfolioEntity portfolio) {
@@ -37,6 +37,20 @@ public class PortfolioController {
         }
     }
 
+    // Update Portfolio (PUT) - Updated to use userId instead of portfolioId
+    @PutMapping("/{userId}")
+    public ResponseEntity<PortfolioEntity> updatePortfolio(@PathVariable Long userId,
+                                                           @RequestBody PortfolioEntity portfolio) {
+        try {
+            System.out.println("Updating portfolio for userId: " + userId); // Debugging log
+            PortfolioEntity updatedPortfolio = portfolioService.updatePortfolio(userId, portfolio);
+            return ResponseEntity.ok(updatedPortfolio);
+        } catch (RuntimeException e) {
+            System.err.println("Error: " + e.getMessage()); // Debugging log
+            return ResponseEntity.notFound().build(); // Return 404 if portfolio not found
+        }
+    }
+    
     // Delete Portfolio
     @DeleteMapping("/{portfolioId}")
     public ResponseEntity<Void> deletePortfolio(@PathVariable Long portfolioId) {

@@ -38,6 +38,40 @@ public PortfolioEntity createOrUpdatePortfolio(Long userId, PortfolioEntity port
     }
     throw new RuntimeException("User not found");
 }
+public PortfolioEntity updatePortfolio(Long portfolioId, PortfolioEntity portfolio) {
+    Optional<PortfolioEntity> existingPortfolio = portfolioRepository.findById(portfolioId);
+    if (existingPortfolio.isPresent()) {
+        PortfolioEntity updatedPortfolio = existingPortfolio.get();
+        updatedPortfolio.setWorkExperience(portfolio.getWorkExperience());
+
+        // Update existing services or add new services
+        for (ServiceEntity newService : portfolio.getServicesOffered()) {
+            boolean exists = false;
+            for (ServiceEntity existingService : updatedPortfolio.getServicesOffered()) {
+                if (existingService.getId().equals(newService.getId())) {
+                    // Update existing service
+                    existingService.setName(newService.getName());
+                    existingService.setDescription(newService.getDescription());
+                    existingService.setPricing(newService.getPricing());
+                    existingService.setDaysOfTheWeek(newService.getDaysOfTheWeek());
+                    existingService.setTime(newService.getTime());
+                    exists = true;
+                    break;
+                }
+            }
+            if (!exists) {
+                // Add new service
+                newService.setPortfolio(updatedPortfolio);
+                updatedPortfolio.getServicesOffered().add(newService);
+            }
+        }
+
+        return portfolioRepository.save(updatedPortfolio);
+    }
+    throw new RuntimeException("Portfolio not found for portfolioId: " + portfolioId);
+}
+
+
 
     public void deletePortfolio(Long id) {
         portfolioRepository.deleteById(id);

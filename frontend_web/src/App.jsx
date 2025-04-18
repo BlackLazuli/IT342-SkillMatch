@@ -6,16 +6,21 @@ import CustomerDashboard from "./pages/customerdashboard/CustomerDashboard";
 import ProviderDashboard from "./pages/providerdashboard/ProviderDashboard";
 import PortfolioPage from "./pages/portfolio/PortfolioPage";
 import AddPortfolioPage from "./pages/portfolio/AddPortfolioPage";
-import EditPortfolioPage from "./pages/portfolio/EditPortfolioPage"; // ✅ Added
-import ProfilePage from "./pages/profile/ProfilePage"; // ✅ Added
-
-function PrivateRoute({ children }) {
-  const { personalInfo } = usePersonalInfo();
-  console.log("Checking personalInfo in PrivateRoute:", personalInfo);
-  return personalInfo && personalInfo.userId ? children : <Navigate to="/" />;
-}
+import EditPortfolioPage from "./pages/portfolio/EditPortfolioPage"; 
+import ProfilePage from "./pages/profile/ProfilePage";
 
 function App() {
+  const { personalInfo } = usePersonalInfo(); // Access context
+
+  // PrivateRoute equivalent logic
+  const PrivateRoute = ({ children }) => {
+    if (personalInfo === null) {
+      return <div>Loading...</div>; // Show loading state until personalInfo is set
+    }
+
+    return personalInfo && personalInfo.userId ? children : <Navigate to="/" />;
+  };
+
   return (
     <Router>
       <Routes>
@@ -54,7 +59,6 @@ function App() {
             </PrivateRoute>
           }
         />
-        {/* ✅ Edit Portfolio Page route */}
         <Route
           path="/edit-portfolio/:userID"
           element={
@@ -63,8 +67,6 @@ function App() {
             </PrivateRoute>
           }
         />
-
-        {/* ✅ Profile Page route */}
         <Route
           path="/profile"
           element={

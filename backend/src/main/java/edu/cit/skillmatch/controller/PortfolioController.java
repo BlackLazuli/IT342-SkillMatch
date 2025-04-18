@@ -5,6 +5,7 @@ import edu.cit.skillmatch.service.PortfolioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -24,6 +25,13 @@ public class PortfolioController {
         return portfolio.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/getAllPortfolios")
+    public ResponseEntity<List<PortfolioEntity>> getAllPortfolios() {
+    List<PortfolioEntity> portfolios = portfolioService.getAllPortfolios();
+    return ResponseEntity.ok(portfolios);
+}
+
 
     // Create or Update Portfolio (POST)
     @PostMapping("/{userId}")

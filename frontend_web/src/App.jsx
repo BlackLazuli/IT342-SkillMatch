@@ -6,6 +6,7 @@ import CustomerDashboard from "./pages/customerdashboard/CustomerDashboard";
 import ProviderDashboard from "./pages/providerdashboard/ProviderDashboard";
 import PortfolioPage from "./pages/portfolio/PortfolioPage";
 import AddPortfolioPage from "./pages/portfolio/AddPortfolioPage";
+import EditPortfolioPage from "./pages/portfolio/EditPortfolioPage"; // ✅ Added
 import ProfilePage from "./pages/profile/ProfilePage"; // ✅ Added
 
 function PrivateRoute({ children }) {
@@ -53,8 +54,17 @@ function App() {
             </PrivateRoute>
           }
         />
+        {/* ✅ Edit Portfolio Page route */}
+        <Route
+          path="/edit-portfolio/:userID"
+          element={
+            <PrivateRoute>
+              <EditPortfolioPage />
+            </PrivateRoute>
+          }
+        />
 
-        {/* ✅ New Profile Page route */}
+        {/* ✅ Profile Page route */}
         <Route
           path="/profile"
           element={

@@ -64,6 +64,10 @@ const PortfolioPage = () => {
     navigate(`/add-portfolio/${userID}`);
   };
 
+  const handleUpdatePortfolio = () => {
+    navigate(`/edit-portfolio/${userID}`);
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: "flex" }}>
@@ -102,6 +106,14 @@ const PortfolioPage = () => {
                 My Portfolio
               </Typography>
             </Box>
+
+            <Button
+              variant="contained"
+              sx={{ mb: 4 }}
+              onClick={handleUpdatePortfolio}
+            >
+              Update Portfolio
+            </Button>
 
             <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
               <CardContent>

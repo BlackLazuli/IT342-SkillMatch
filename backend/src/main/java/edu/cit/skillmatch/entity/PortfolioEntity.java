@@ -20,10 +20,9 @@ public class PortfolioEntity {
     @Column
     private String workExperience;
 
-    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL)
     private List<ServiceEntity> servicesOffered;
     
-
     @Column
     private String clientTestimonials;
 

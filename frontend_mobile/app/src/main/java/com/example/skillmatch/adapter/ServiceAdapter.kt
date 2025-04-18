@@ -38,7 +38,7 @@ class ServiceAdapter(
         fun bind(service: Service) {
             serviceName.text = service.name
             serviceDescription.text = service.description ?: "No description"
-            servicePrice.text = "SAR ${service.price?.toString() ?: "0.00"}"
+            servicePrice.text = "USD ${service.pricing ?: "0.00"}"  // Changed from price to pricing
 
             editButton.setOnClickListener { onEditClick(service) }
             deleteButton.setOnClickListener { onDeleteClick(service) }

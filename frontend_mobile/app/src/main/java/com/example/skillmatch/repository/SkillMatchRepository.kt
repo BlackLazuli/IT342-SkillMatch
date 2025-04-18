@@ -1,7 +1,7 @@
 package com.example.skillmatch.repository
 
 import android.content.Context
-import com.example.skillmatch.api.RetrofitClient
+import com.example.skillmatch.api.ApiClient
 
 import com.example.skillmatch.models.LoginRequest
 import com.example.skillmatch.models.LoginResponse
@@ -10,7 +10,7 @@ import com.example.skillmatch.models.SignupResponse
 import retrofit2.Response
 
 class SkillMatchRepository(private val context: Context) {
-    private val apiService = RetrofitClient.apiService
+    private val apiService = ApiClient.apiService
     
     // Make sure your login method looks like this
     suspend fun login(email: String, password: String): Response<LoginResponse> {

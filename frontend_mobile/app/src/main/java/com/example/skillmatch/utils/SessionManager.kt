@@ -2,6 +2,7 @@ package com.example.skillmatch.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 
 class SessionManager(context: Context) {
     private var prefs: SharedPreferences = context.getSharedPreferences("SkillMatchPrefs", Context.MODE_PRIVATE)
@@ -20,10 +21,13 @@ class SessionManager(context: Context) {
         val editor = prefs.edit()
         editor.putString(USER_TOKEN, token)
         editor.apply()
+        Log.d("SessionManager", "Token saved: $token")
     }
     
     fun getAuthToken(): String? {
-        return prefs.getString(USER_TOKEN, null)
+        val token = prefs.getString(USER_TOKEN, null)
+        Log.d("SessionManager", "Retrieved token: $token")
+        return token
     }
     
     // Add these individual methods
@@ -31,6 +35,7 @@ class SessionManager(context: Context) {
         val editor = prefs.edit()
         editor.putString(USER_ID, userId)
         editor.apply()
+        Log.d("SessionManager", "User ID saved: $userId")
     }
     
     fun saveUserType(role: String) {
@@ -47,10 +52,13 @@ class SessionManager(context: Context) {
         editor.putString(USER_FIRST_NAME, firstName)
         editor.putString(USER_LAST_NAME, lastName)
         editor.apply()
+        Log.d("SessionManager", "User details saved - ID: $userId, Role: $role")
     }
     
     fun getUserId(): String? {
-        return prefs.getString(USER_ID, null)
+        val userId = prefs.getString(USER_ID, null)
+        Log.d("SessionManager", "Retrieved user ID: $userId")
+        return userId
     }
     
     fun getUserEmail(): String? {
@@ -78,6 +86,8 @@ class SessionManager(context: Context) {
     // Add this method to your SessionManager class
     // Fix this method to use prefs instead of sharedPreferences
     fun getToken(): String? {
-        return prefs.getString(KEY_TOKEN, null)
+        val token = prefs.getString(KEY_TOKEN, null) ?: prefs.getString(USER_TOKEN, null)
+        Log.d("SessionManager", "Retrieved token from getToken(): $token")
+        return token
     }
 }

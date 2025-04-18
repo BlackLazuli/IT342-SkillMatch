@@ -30,9 +30,11 @@ public class PortfolioController {
     public ResponseEntity<PortfolioEntity> createOrUpdatePortfolio(@PathVariable Long userId,
                                                                    @RequestBody PortfolioEntity portfolio) {
         try {
+            System.out.println("Creating/updating portfolio for userId: " + userId); // Debugging log
             PortfolioEntity savedPortfolio = portfolioService.createOrUpdatePortfolio(userId, portfolio);
             return ResponseEntity.ok(savedPortfolio);
         } catch (RuntimeException e) {
+            System.err.println("Error in POST portfolio: " + e.getMessage()); // Debugging log
             return ResponseEntity.badRequest().body(null);
         }
     }
@@ -46,8 +48,8 @@ public class PortfolioController {
             PortfolioEntity updatedPortfolio = portfolioService.updatePortfolio(userId, portfolio);
             return ResponseEntity.ok(updatedPortfolio);
         } catch (RuntimeException e) {
-            System.err.println("Error: " + e.getMessage()); // Debugging log
-            return ResponseEntity.notFound().build(); // Return 404 if portfolio not found
+            System.err.println("Error in PUT portfolio: " + e.getMessage()); // Debugging log
+            return ResponseEntity.badRequest().build(); // Return 400 instead of 404 for better error handling
         }
     }
     

@@ -7,20 +7,26 @@ data class Service(
     val id: Long? = null,
     val name: String,
     val description: String? = null,
-    val price: Double? = null
+    val pricing: String? = null,  // Changed from price to pricing to match backend
+    val time: String? = null,
+    val daysOfTheWeek: List<String> = emptyList()
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readValue(Long::class.java.classLoader) as? Long,
         parcel.readString() ?: "",
         parcel.readString(),
-        parcel.readValue(Double::class.java.classLoader) as? Double
+        parcel.readString(),  // Changed to match pricing field
+        parcel.readString(),
+        parcel.createStringArrayList() ?: emptyList()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeValue(id)
         parcel.writeString(name)
         parcel.writeString(description)
-        parcel.writeValue(price)
+        parcel.writeString(pricing)  // Changed to match pricing field
+        parcel.writeString(time)
+        parcel.writeStringList(daysOfTheWeek)
     }
 
     override fun describeContents(): Int {

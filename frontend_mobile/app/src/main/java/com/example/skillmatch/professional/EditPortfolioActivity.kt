@@ -1,8 +1,9 @@
 package com.example.skillmatch.professional
 
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
-import android.widget.CalendarView
+import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.Toast
@@ -11,16 +12,23 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.skillmatch.R
 import com.example.skillmatch.adapter.ServiceAdapter
+import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.dialogs.ServiceDialogFragment
+import com.example.skillmatch.models.Portfolio
 import com.example.skillmatch.models.Service
-import java.text.SimpleDateFormat
+import com.example.skillmatch.utils.SessionManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class EditPortfolioActivity : AppCompatActivity() {
 
     private val services = mutableListOf<Service>()
-    private var selectedDates = mutableSetOf<String>()
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    private val availableDays = mutableListOf<String>()
+    private lateinit var sessionManager: SessionManager
+    private var portfolioId: Long? = null
     
     private lateinit var servicesRecyclerView: RecyclerView
     private lateinit var backButton: ImageButton
@@ -28,11 +36,22 @@ class EditPortfolioActivity : AppCompatActivity() {
     private lateinit var addServiceButton: Button
     private lateinit var workExperienceInput: EditText
     private lateinit var availabilityTimeInput: EditText
-    private lateinit var calendarView: CalendarView
+    
+    // Day checkboxes
+    private lateinit var checkboxMonday: CheckBox
+    private lateinit var checkboxTuesday: CheckBox
+    private lateinit var checkboxWednesday: CheckBox
+    private lateinit var checkboxThursday: CheckBox
+    private lateinit var checkboxFriday: CheckBox
+    private lateinit var checkboxSaturday: CheckBox
+    private lateinit var checkboxSunday: CheckBox
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_portfolio)
+
+        // Initialize session manager
+        sessionManager = SessionManager(this)
 
         // Initialize views
         servicesRecyclerView = findViewById(R.id.servicesRecyclerView)
@@ -41,11 +60,19 @@ class EditPortfolioActivity : AppCompatActivity() {
         addServiceButton = findViewById(R.id.addServiceButton)
         workExperienceInput = findViewById(R.id.workExperienceInput)
         availabilityTimeInput = findViewById(R.id.availabilityTimeInput)
-        calendarView = findViewById(R.id.calendarView)
+        
+        // Initialize day checkboxes
+        checkboxMonday = findViewById(R.id.checkboxMonday)
+        checkboxTuesday = findViewById(R.id.checkboxTuesday)
+        checkboxWednesday = findViewById(R.id.checkboxWednesday)
+        checkboxThursday = findViewById(R.id.checkboxThursday)
+        checkboxFriday = findViewById(R.id.checkboxFriday)
+        checkboxSaturday = findViewById(R.id.checkboxSaturday)
+        checkboxSunday = findViewById(R.id.checkboxSunday)
 
         setupUI()
         setupListeners()
-        loadPortfolioData()
+        fetchPortfolioData()
     }
 
     private fun setupUI() {
@@ -58,21 +85,6 @@ class EditPortfolioActivity : AppCompatActivity() {
         servicesRecyclerView.apply {
             layoutManager = LinearLayoutManager(this@EditPortfolioActivity)
             adapter = serviceAdapter
-        }
-
-        // Setup Calendar
-        calendarView.setOnDateChangeListener { _, year, month, dayOfMonth ->
-            val calendar = Calendar.getInstance()
-            calendar.set(year, month, dayOfMonth)
-            val dateString = dateFormat.format(calendar.time)
-            
-            if (selectedDates.contains(dateString)) {
-                selectedDates.remove(dateString)
-                // Unmark date visually if needed
-            } else {
-                selectedDates.add(dateString)
-                // Mark date visually if needed
-            }
         }
     }
 
@@ -93,18 +105,94 @@ class EditPortfolioActivity : AppCompatActivity() {
         }
     }
 
-    private fun loadPortfolioData() {
-        // This would typically fetch data from your API
-        // For now, we'll use dummy data
-        workExperienceInput.setText("5 years of experience in web development")
+    private fun fetchPortfolioData() {
+        val userId = sessionManager.getUserId()
+        if (userId != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    // Add authentication token
+                    val token = "Bearer ${sessionManager.getToken()}"
+                    val response = ApiClient.apiService.getPortfolio(token, userId)
+                    
+                    withContext(Dispatchers.Main) {
+                        if (response.isSuccessful && response.body() != null) {
+                            val portfolio = response.body()!!
+                            portfolioId = portfolio.id
+                            
+                            // Set work experience
+                            workExperienceInput.setText(portfolio.workExperience ?: "")
+                            
+                            // Clear and add services
+                            services.clear()
+                            portfolio.servicesOffered?.let { serviceList ->
+                                services.addAll(serviceList)
+                                servicesRecyclerView.adapter?.notifyDataSetChanged()
+                            }
+                            
+                            // Set availability days and time
+                            val firstService = portfolio.servicesOffered?.firstOrNull()
+                            firstService?.daysOfTheWeek?.let { days ->
+                                setAvailableDays(days)
+                            }
+                            
+                            firstService?.time?.let { time ->
+                                availabilityTimeInput.setText(time)
+                            }
+                        } else {
+                            // No portfolio found, create a new one
+                            Log.d("EditPortfolio", "No portfolio found, will create a new one on save")
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@EditPortfolioActivity,
+                            "Error loading portfolio: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        Log.e("EditPortfolio", "Error loading portfolio", e)
+                    }
+                }
+            }
+        }
+    }
+    
+    private fun setAvailableDays(days: List<String>) {
+        // Reset all checkboxes
+        checkboxMonday.isChecked = false
+        checkboxTuesday.isChecked = false
+        checkboxWednesday.isChecked = false
+        checkboxThursday.isChecked = false
+        checkboxFriday.isChecked = false
+        checkboxSaturday.isChecked = false
+        checkboxSunday.isChecked = false
         
-        // Add some sample services
-        services.add(Service(1, "Web Development", "Full-stack web development services", 50.0))
-        services.add(Service(2, "Mobile App Development", "Native Android and iOS apps", 60.0))
-        servicesRecyclerView.adapter?.notifyDataSetChanged()
+        // Check the days that are available
+        for (day in days) {
+            when (day) {
+                "Monday" -> checkboxMonday.isChecked = true
+                "Tuesday" -> checkboxTuesday.isChecked = true
+                "Wednesday" -> checkboxWednesday.isChecked = true
+                "Thursday" -> checkboxThursday.isChecked = true
+                "Friday" -> checkboxFriday.isChecked = true
+                "Saturday" -> checkboxSaturday.isChecked = true
+                "Sunday" -> checkboxSunday.isChecked = true
+            }
+        }
+    }
+    
+    private fun getSelectedDays(): List<String> {
+        val selectedDays = mutableListOf<String>()
         
-        // Set some sample availability dates
-        // Implementation depends on how you want to visualize selected dates
+        if (checkboxMonday.isChecked) selectedDays.add("Monday")
+        if (checkboxTuesday.isChecked) selectedDays.add("Tuesday")
+        if (checkboxWednesday.isChecked) selectedDays.add("Wednesday")
+        if (checkboxThursday.isChecked) selectedDays.add("Thursday")
+        if (checkboxFriday.isChecked) selectedDays.add("Friday")
+        if (checkboxSaturday.isChecked) selectedDays.add("Saturday")
+        if (checkboxSunday.isChecked) selectedDays.add("Sunday")
+        
+        return selectedDays
     }
 
     private fun showServiceDialog(service: Service?) {
@@ -134,13 +222,64 @@ class EditPortfolioActivity : AppCompatActivity() {
     }
 
     private fun savePortfolio() {
-        val workExperience = workExperienceInput.text.toString()
+        // Get selected days
+        val selectedDays = getSelectedDays()
+        
+        // Make a copy of the services list to avoid concurrent modification
+        val servicesCopy = ArrayList(services)
+        
+        // Update services with selected days and time
         val availabilityTime = availabilityTimeInput.text.toString()
+        val updatedServices = servicesCopy.map { service ->
+            Service(
+                id = null,  // Set service ID to null for new services
+                name = service.name,
+                description = service.description,
+                pricing = service.pricing,
+                time = availabilityTime,
+                daysOfTheWeek = selectedDays
+            )
+        }
         
-        // Here you would typically send this data to your API
-        // For now, we'll just show a success message
+        // Create portfolio object with null ID for new creation
+        val portfolioToSave = Portfolio(
+            id = null,  // Always set ID to null for new portfolio creation
+            workExperience = workExperienceInput.text.toString(),
+            servicesOffered = updatedServices,
+            clientTestimonials = null
+        )
         
-        Toast.makeText(this, "Portfolio saved successfully", Toast.LENGTH_SHORT).show()
-        finish()
+        val userId = sessionManager.getUserId()
+        if (userId != null) {
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    // Add detailed logging
+                    Log.d("EditPortfolio", "Saving portfolio for user ID: $userId")
+                    Log.d("EditPortfolio", "Portfolio data: $portfolioToSave")
+                    
+                    // Add authentication token
+                    val token = "Bearer ${sessionManager.getToken()}"
+                    val response = ApiClient.apiService.createOrUpdatePortfolio(token, userId, portfolioToSave)
+                    
+                    withContext(Dispatchers.Main) {
+                        if (response.isSuccessful) {
+                            Toast.makeText(this@EditPortfolioActivity, "Portfolio saved successfully", Toast.LENGTH_SHORT).show()
+                            finish()
+                        } else {
+                            val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                            Log.e("EditPortfolio", "Error code: ${response.code()}, Error body: $errorBody")
+                            Toast.makeText(this@EditPortfolioActivity, "Error saving portfolio: ${response.code()}", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    withContext(Dispatchers.Main) {
+                        Log.e("EditPortfolio", "Exception: ${e.message}", e)
+                        Toast.makeText(this@EditPortfolioActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        } else {
+            Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_SHORT).show()
+        }
     }
 }

@@ -42,9 +42,15 @@ id availableDays
 id availableHours
 id backButton
 id bioInput
-id calendarView
 id cancelButton
 id cancelbtn
+id checkboxFriday
+id checkboxMonday
+id checkboxSaturday
+id checkboxSunday
+id checkboxThursday
+id checkboxTuesday
+id checkboxWednesday
 id constraintLayout2
 id contactsContainer
 id contactsInput

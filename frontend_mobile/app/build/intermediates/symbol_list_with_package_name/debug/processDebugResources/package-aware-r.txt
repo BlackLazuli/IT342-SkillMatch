@@ -3320,7 +3320,6 @@ id bounceEnd
 id bounceStart
 id buttonPanel
 id cache_measures
-id calendarView
 id callMeasure
 id cancelButton
 id cancel_button
@@ -3335,6 +3334,13 @@ id chain
 id chain2
 id chains
 id checkbox
+id checkboxFriday
+id checkboxMonday
+id checkboxSaturday
+id checkboxSunday
+id checkboxThursday
+id checkboxTuesday
+id checkboxWednesday
 id checked
 id chronometer
 id circle_center

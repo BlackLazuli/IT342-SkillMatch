@@ -110,7 +110,7 @@ const LoginPage = () => {
 
         <form onSubmit={handleSubmit}>
           <TextField
-            placeholder="Username"
+            placeholder="Email"
             variant="outlined"
             fullWidth
             margin="normal"

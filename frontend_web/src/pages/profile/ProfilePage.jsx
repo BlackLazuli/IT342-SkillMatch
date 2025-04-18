@@ -51,8 +51,8 @@ const ProfilePage = () => {
         );
         if (response.data) {
           setExistingAddress(response.data.address);
-          setLatitude(Number(response.data.latitude)); // ensure numeric
-          setLongitude(Number(response.data.longitude)); // ensure numeric
+          setLatitude(Number(response.data.latitude));
+          setLongitude(Number(response.data.longitude));
         }
       } catch (error) {
         console.error("Error fetching address:", error);
@@ -98,7 +98,6 @@ const ProfilePage = () => {
       console.log("Address added:", response.data);
       alert("Address added successfully!");
 
-      // ✅ Update state immediately for map to render
       setLatitude(Number(lat));
       setLongitude(Number(lng));
       setExistingAddress(address);
@@ -111,17 +110,14 @@ const ProfilePage = () => {
   };
 
   const getCoordinatesFromAddress = async (address) => {
-    const apiKey = ""; 
+    const apiKey = "AIzaSyC5Bgywlpo6HUd7ZV-8klLuaLeIBSjXbaE";
     try {
       const response = await axios.get(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`
       );
 
-      console.log('Google Maps API response:', response.data);
-
       if (response.data.results.length > 0) {
         const { lat, lng } = response.data.results[0].geometry.location;
-        console.log('Coordinates for the address:', lat, lng);
         return { lat, lng };
       } else {
         return { lat: '', lng: '' };
@@ -143,7 +139,6 @@ const ProfilePage = () => {
 
         <Card sx={{ p: 4 }}>
           <Grid container spacing={4}>
-            {/* Profile Picture */}
             <Grid item xs={12} md={4} textAlign="center">
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                 PROFILE PICTURE
@@ -155,7 +150,6 @@ const ProfilePage = () => {
               />
             </Grid>
 
-            {/* Personal Information */}
             <Grid item xs={12} md={8}>
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                 PERSONAL INFORMATION
@@ -190,34 +184,7 @@ const ProfilePage = () => {
                 </Box>
               </Box>
 
-              {existingAddress ? (
-                <Box sx={{ mt: 3 }}>
-                  <Typography variant="h6">Address:</Typography>
-                  <Typography>{existingAddress}</Typography>
-
-                  {/* ✅ Map only renders if lat/lng are valid numbers */}
-                  {!isNaN(latitude) && !isNaN(longitude) ? (
-                    <Box sx={{ width: '100%', height: 300, mt: 2 }}>
-                      <LoadScript googleMapsApiKey="">
-                        <GoogleMap
-                          center={{ lat: Number(latitude), lng: Number(longitude) }}
-                          zoom={13}
-                          mapContainerStyle={{ width: '100%', height: '100%' }}
-                        >
-                          <Marker position={{ lat: Number(latitude), lng: Number(longitude) }} />
-                          <InfoWindow position={{ lat: Number(latitude), lng: Number(longitude) }}>
-                            <Typography>{existingAddress}</Typography>
-                          </InfoWindow>
-                        </GoogleMap>
-                      </LoadScript>
-                    </Box>
-                  ) : (
-                    <Typography color="error" sx={{ mt: 2 }}>
-                      Invalid map coordinates.
-                    </Typography>
-                  )}
-                </Box>
-              ) : (
+              {!existingAddress && (
                 <Button
                   variant="contained"
                   color="primary"
@@ -230,6 +197,47 @@ const ProfilePage = () => {
             </Grid>
           </Grid>
         </Card>
+
+        {/* My Location Section */}
+        <Box sx={{ mt: 6 }}>
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
+            My Location
+          </Typography>
+
+          <Card sx={{ p: 3 }}>
+            {existingAddress ? (
+              <>
+                <Typography variant="h6" gutterBottom>
+                  Address:
+                </Typography>
+                <Typography>{existingAddress}</Typography>
+
+                {!isNaN(latitude) && !isNaN(longitude) ? (
+                  <Box sx={{ width: '100%', height: 500, mt: 3 }}>
+                    <LoadScript googleMapsApiKey="AIzaSyC5Bgywlpo6HUd7ZV-8klLuaLeIBSjXbaE">
+                      <GoogleMap
+                        center={{ lat: Number(latitude), lng: Number(longitude) }}
+                        zoom={14}
+                        mapContainerStyle={{ width: '100%', height: '100%' }}
+                      >
+                        <Marker position={{ lat: Number(latitude), lng: Number(longitude) }} />
+                        <InfoWindow position={{ lat: Number(latitude), lng: Number(longitude) }}>
+                          <Typography>{existingAddress}</Typography>
+                        </InfoWindow>
+                      </GoogleMap>
+                    </LoadScript>
+                  </Box>
+                ) : (
+                  <Typography color="error" sx={{ mt: 2 }}>
+                    Invalid map coordinates.
+                  </Typography>
+                )}
+              </>
+            ) : (
+              <Typography>No location available. Please add your address.</Typography>
+            )}
+          </Card>
+        </Box>
 
         {/* Address Modal */}
         <Modal
@@ -248,6 +256,7 @@ const ProfilePage = () => {
               boxShadow: 24,
               p: 4,
               borderRadius: 2,
+              width: 400,
             }}
           >
             <Typography id="modal-title" variant="h6" component="h2">

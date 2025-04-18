@@ -82,7 +82,7 @@ class ServiceDialogFragment : DialogFragment() {
         service?.let {
             serviceNameInput.setText(it.name)
             serviceDescriptionInput.setText(it.description)
-            servicePricingInput.setText(it.price?.toString() ?: "")
+            servicePricingInput.setText(it.pricing)  // Changed from price to pricing
         }
 
         // Set up buttons
@@ -93,8 +93,7 @@ class ServiceDialogFragment : DialogFragment() {
         saveButton.setOnClickListener {
             val name = serviceNameInput.text.toString()
             val description = serviceDescriptionInput.text.toString()
-            val pricingText = servicePricingInput.text.toString()
-            val price = if (pricingText.isNotEmpty()) pricingText.toDoubleOrNull() else null
+            val pricing = servicePricingInput.text.toString()  // Changed variable name
 
             if (name.isBlank()) {
                 serviceNameInput.error = "Service name is required"
@@ -104,8 +103,10 @@ class ServiceDialogFragment : DialogFragment() {
             val updatedService = Service(
                 id = service?.id ?: System.currentTimeMillis(), // Generate a temporary ID if new
                 name = name,
-                description = description,
-                price = price
+                description = description.ifBlank { null },
+                pricing = pricing.ifBlank { null },  // Changed from price to pricing
+                time = service?.time,
+                daysOfTheWeek = service?.daysOfTheWeek ?: emptyList()
             )
 
             listener?.onServiceSaved(updatedService)

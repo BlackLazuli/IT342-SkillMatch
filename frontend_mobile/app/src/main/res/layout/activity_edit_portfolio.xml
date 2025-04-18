@@ -66,14 +66,6 @@
                 app:civ_border_color="#FFFFFF"
                 app:civ_border_width="2dp" />
 
-            <ImageView
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_gravity="bottom|end"
-                android:background="@drawable/circle_background"
-                android:padding="5dp"
-                android:src="@drawable/ic_camera"
-                android:contentDescription="Change Profile Picture" />
         </FrameLayout>
 
         <!-- Save Button -->
@@ -114,7 +106,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="12dp"
-                android:text="Services"
+                android:text="Work Experience"
                 android:textColor="#333333"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -185,7 +177,7 @@
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
-            <!-- Calendar View -->
+            <!-- Days of Week Selection (replacing CalendarView) -->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -193,10 +185,68 @@
                 app:cardCornerRadius="8dp"
                 app:cardElevation="2dp">
 
-                <CalendarView
-                    android:id="@+id/calendarView"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="300dp" />
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Select days you are available:"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/checkboxMonday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Monday"
+                        android:padding="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/checkboxTuesday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tuesday"
+                        android:padding="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/checkboxWednesday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Wednesday"
+                        android:padding="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/checkboxThursday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Thursday"
+                        android:padding="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/checkboxFriday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Friday"
+                        android:padding="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/checkboxSaturday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Saturday"
+                        android:padding="8dp"/>
+
+                    <CheckBox
+                        android:id="@+id/checkboxSunday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Sunday"
+                        android:padding="8dp"/>
+                </LinearLayout>
             </androidx.cardview.widget.CardView>
 
             <!-- Availability Time Input -->
@@ -206,7 +256,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="24dp"
                 android:background="@drawable/rounded_edittext"
-                android:hint="Input time of availability"
+                android:hint="Input time of availability (e.g., 9:00 AM - 5:00 PM)"
                 android:inputType="text"
                 android:padding="12dp"
                 android:textColor="#333333"

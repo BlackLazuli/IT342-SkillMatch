@@ -15,6 +15,8 @@ public class ServiceEntity {
     private String name; // Service name
     private String description; // Service description
     private String pricing; // Service pricing
+    private String dayOfTheWeek; // Day of the week for the service
+    private String time; // Time of the service
 
     @ManyToOne
     @JoinColumn(name = "portfolio_id")
@@ -52,6 +54,22 @@ public class ServiceEntity {
 
     public void setPricing(String pricing) {
         this.pricing = pricing;
+    }
+
+    public String getDayOfTheWeek() {
+        return dayOfTheWeek;
+    }
+
+    public void setDayOfTheWeek(String dayOfTheWeek) {
+        this.dayOfTheWeek = dayOfTheWeek;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public PortfolioEntity getPortfolio() {

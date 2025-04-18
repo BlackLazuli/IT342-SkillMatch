@@ -130,6 +130,17 @@ const PortfolioPage = () => {
                           </Typography>
                           <Typography variant="body2">{service.pricing}</Typography>
 
+                          {/* Display Day of the Week and Time */}
+                          <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
+                            Day of the Week:
+                          </Typography>
+                          <Typography variant="body2">{service.dayOfTheWeek}</Typography>
+
+                          <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
+                            Time:
+                          </Typography>
+                          <Typography variant="body2">{service.time}</Typography>
+
                           <Button fullWidth variant="contained" sx={{ mt: 2 }}>
                             RATINGS
                           </Button>

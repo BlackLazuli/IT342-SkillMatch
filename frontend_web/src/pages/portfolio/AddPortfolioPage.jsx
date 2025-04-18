@@ -22,6 +22,8 @@ const AddPortfolioPage = () => {
     newServiceName: "",
     newServiceDescription: "",
     newServicePricing: "",
+    newServiceDayOfTheWeek: "", // Day of the week for the service
+    newServiceTime: "", // Time for the service
   });
 
   const handleChange = (e) => {
@@ -33,12 +35,20 @@ const AddPortfolioPage = () => {
   };
 
   const handleServiceAdd = () => {
-    const { newServiceName, newServiceDescription, newServicePricing } = portfolioData;
+    const {
+      newServiceName,
+      newServiceDescription,
+      newServicePricing,
+      newServiceDayOfTheWeek,
+      newServiceTime
+    } = portfolioData;
 
     if (
       newServiceName.trim() !== "" &&
       newServiceDescription.trim() !== "" &&
-      newServicePricing.trim() !== ""
+      newServicePricing.trim() !== "" &&
+      newServiceDayOfTheWeek.trim() !== "" &&
+      newServiceTime.trim() !== ""
     ) {
       setPortfolioData((prevState) => ({
         ...prevState,
@@ -48,11 +58,15 @@ const AddPortfolioPage = () => {
             name: newServiceName,
             description: newServiceDescription,
             pricing: newServicePricing,
+            dayOfTheWeek: newServiceDayOfTheWeek,
+            time: newServiceTime,
           },
         ],
         newServiceName: "",
         newServiceDescription: "",
         newServicePricing: "",
+        newServiceDayOfTheWeek: "",
+        newServiceTime: "",
       }));
     }
   };
@@ -146,6 +160,22 @@ const AddPortfolioPage = () => {
                 fullWidth
                 margin="normal"
               />
+              <TextField
+                label="Day of the Week"
+                name="newServiceDayOfTheWeek"
+                value={portfolioData.newServiceDayOfTheWeek}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+              />
+              <TextField
+                label="Time"
+                name="newServiceTime"
+                value={portfolioData.newServiceTime}
+                onChange={handleChange}
+                fullWidth
+                margin="normal"
+              />
               <Button
                 type="button"
                 variant="outlined"
@@ -158,7 +188,7 @@ const AddPortfolioPage = () => {
                 {portfolioData.servicesOffered.map((service, index) => (
                   <Chip
                     key={index}
-                    label={`${service.name} - ${service.pricing}`}
+                    label={`${service.name} - ${service.pricing} | ${service.dayOfTheWeek} ${service.time}`}
                     onDelete={() => handleServiceRemove(service)}
                   />
                 ))}

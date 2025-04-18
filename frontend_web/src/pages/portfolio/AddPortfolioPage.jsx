@@ -7,9 +7,16 @@ import {
   Button,
   Paper,
   Chip,
-  Box as MuiBox
+  FormControlLabel,
+  Checkbox,
+  FormGroup
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
+
+const daysOfWeek = [
+  "Monday", "Tuesday", "Wednesday",
+  "Thursday", "Friday", "Saturday", "Sunday"
+];
 
 const AddPortfolioPage = () => {
   const { userID } = useParams();
@@ -22,8 +29,8 @@ const AddPortfolioPage = () => {
     newServiceName: "",
     newServiceDescription: "",
     newServicePricing: "",
-    newServiceDayOfTheWeek: "", // Day of the week for the service
-    newServiceTime: "", // Time for the service
+    newServiceDaysOfTheWeek: [], // Array of selected days
+    newServiceTime: "",
   });
 
   const handleChange = (e) => {
@@ -34,12 +41,26 @@ const AddPortfolioPage = () => {
     }));
   };
 
+  const handleDayCheckboxChange = (day) => {
+    setPortfolioData((prevState) => {
+      const currentDays = prevState.newServiceDaysOfTheWeek;
+      const updatedDays = currentDays.includes(day)
+        ? currentDays.filter((d) => d !== day)
+        : [...currentDays, day];
+
+      return {
+        ...prevState,
+        newServiceDaysOfTheWeek: updatedDays,
+      };
+    });
+  };
+
   const handleServiceAdd = () => {
     const {
       newServiceName,
       newServiceDescription,
       newServicePricing,
-      newServiceDayOfTheWeek,
+      newServiceDaysOfTheWeek,
       newServiceTime
     } = portfolioData;
 
@@ -47,7 +68,7 @@ const AddPortfolioPage = () => {
       newServiceName.trim() !== "" &&
       newServiceDescription.trim() !== "" &&
       newServicePricing.trim() !== "" &&
-      newServiceDayOfTheWeek.trim() !== "" &&
+      newServiceDaysOfTheWeek.length > 0 &&
       newServiceTime.trim() !== ""
     ) {
       setPortfolioData((prevState) => ({
@@ -58,14 +79,14 @@ const AddPortfolioPage = () => {
             name: newServiceName,
             description: newServiceDescription,
             pricing: newServicePricing,
-            dayOfTheWeek: newServiceDayOfTheWeek,
+            daysOfTheWeek: newServiceDaysOfTheWeek,
             time: newServiceTime,
           },
         ],
         newServiceName: "",
         newServiceDescription: "",
         newServicePricing: "",
-        newServiceDayOfTheWeek: "",
+        newServiceDaysOfTheWeek: [],
         newServiceTime: "",
       }));
     }
@@ -135,7 +156,7 @@ const AddPortfolioPage = () => {
               required
               margin="normal"
             />
-            <MuiBox sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
               <TextField
                 label="New Service Name"
                 name="newServiceName"
@@ -160,14 +181,20 @@ const AddPortfolioPage = () => {
                 fullWidth
                 margin="normal"
               />
-              <TextField
-                label="Day of the Week"
-                name="newServiceDayOfTheWeek"
-                value={portfolioData.newServiceDayOfTheWeek}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
+              <FormGroup row sx={{ flexWrap: "wrap", gap: 1 }}>
+                {daysOfWeek.map((day) => (
+                  <FormControlLabel
+                    key={day}
+                    control={
+                      <Checkbox
+                        checked={portfolioData.newServiceDaysOfTheWeek.includes(day)}
+                        onChange={() => handleDayCheckboxChange(day)}
+                      />
+                    }
+                    label={day}
+                  />
+                ))}
+              </FormGroup>
               <TextField
                 label="Time"
                 name="newServiceTime"
@@ -188,12 +215,12 @@ const AddPortfolioPage = () => {
                 {portfolioData.servicesOffered.map((service, index) => (
                   <Chip
                     key={index}
-                    label={`${service.name} - ${service.pricing} | ${service.dayOfTheWeek} ${service.time}`}
+                    label={`${service.name} - ${service.pricing} | ${service.daysOfTheWeek.join(", ")} ${service.time}`}
                     onDelete={() => handleServiceRemove(service)}
                   />
                 ))}
               </Box>
-            </MuiBox>
+            </Box>
             <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
               Submit
             </Button>

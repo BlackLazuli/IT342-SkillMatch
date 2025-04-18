@@ -7,6 +7,7 @@ import edu.cit.skillmatch.entity.UserEntity;
 import edu.cit.skillmatch.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -22,6 +23,11 @@ public class PortfolioService {
     public Optional<PortfolioEntity> getPortfolioByUserId(Long userId) {
         return portfolioRepository.findByUserId(userId);
     }
+
+    public List<PortfolioEntity> getAllPortfolios() {
+        return portfolioRepository.findAll();
+    }
+    
 
 public PortfolioEntity createOrUpdatePortfolio(Long userId, PortfolioEntity portfolio) {
     Optional<UserEntity> userOpt = userRepository.findById(userId);

@@ -3,24 +3,41 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 const PersonalInfoContext = createContext(null);
 
 export const PersonalInfoProvider = ({ children }) => {
-  const [personalInfo, setPersonalInfo] = useState(null);
+  const [personalInfo, setPersonalInfoState] = useState(null);
 
-  // Fetch personalInfo from localStorage if available
+  // Load personalInfo from localStorage on mount
   useEffect(() => {
     const storedPersonalInfo = localStorage.getItem("personalInfo");
     if (storedPersonalInfo) {
-      setPersonalInfo(JSON.parse(storedPersonalInfo)); // Parse and set if found
+      setPersonalInfoState(JSON.parse(storedPersonalInfo));
     }
   }, []);
 
-  // Update personalInfo and save it to localStorage
+  // Helper to update personalInfo and save to localStorage
   const updatePersonalInfo = (info) => {
-    setPersonalInfo(info);
-    localStorage.setItem("personalInfo", JSON.stringify(info)); // Save to localStorage
+    setPersonalInfoState(info);
+    localStorage.setItem("personalInfo", JSON.stringify(info));
+  };
+
+  // Separate helper to update just the profile picture
+  const updateProfilePicture = (profilePicturePath) => {
+    if (personalInfo) {
+      const updatedInfo = {
+        ...personalInfo,
+        profilePicture: profilePicturePath,
+      };
+      updatePersonalInfo(updatedInfo);
+    }
   };
 
   return (
-    <PersonalInfoContext.Provider value={{ personalInfo, setPersonalInfo: updatePersonalInfo }}>
+    <PersonalInfoContext.Provider
+      value={{
+        personalInfo,
+        setPersonalInfo: updatePersonalInfo,
+        updateProfilePicture,
+      }}
+    >
       {children}
     </PersonalInfoContext.Provider>
   );

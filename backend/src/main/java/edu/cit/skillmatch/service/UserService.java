@@ -3,11 +3,12 @@ package edu.cit.skillmatch.service;
 import edu.cit.skillmatch.repository.UserRepository;
 import edu.cit.skillmatch.entity.UserEntity;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +16,10 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    // Directory for storing profile pictures
+    @Value("${profile.picture.upload.dir}")
+    private String PROFILE_PICTURE_UPLOAD_DIR;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -64,6 +69,46 @@ public class UserService {
             return userRepository.save(user);
         });
     }
+
+    // Method to upload profile picture after the user is created
+  // Method to upload profile picture after the user is created
+public UserEntity uploadProfilePicture(Long userId, MultipartFile file) throws IOException {
+    Optional<UserEntity> userOpt = userRepository.findById(userId);
+    if (userOpt.isPresent()) {
+        UserEntity user = userOpt.get();
+
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("No file uploaded");
+        }
+
+        String originalFileName = file.getOriginalFilename();
+        if (originalFileName == null) {
+            throw new IllegalArgumentException("Invalid file name");
+        }
+
+        // Generate a unique file name to avoid name collisions
+        String uniqueFileName = System.currentTimeMillis() + "_" + originalFileName;
+
+        // Ensure directory exists
+        File uploadDir = new File(PROFILE_PICTURE_UPLOAD_DIR);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+
+        // Save the file to the local filesystem
+        File destinationFile = new File(uploadDir, uniqueFileName);
+        file.transferTo(destinationFile);
+
+        // ✅ Store the *web-accessible path*, not the full system path
+        String webPath = "/uploads/profile-pictures/" + uniqueFileName;
+        user.setProfilePicture(webPath);
+
+        return userRepository.save(user);
+    } else {
+        throw new IllegalArgumentException("User not found");
+    }
+}
+
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

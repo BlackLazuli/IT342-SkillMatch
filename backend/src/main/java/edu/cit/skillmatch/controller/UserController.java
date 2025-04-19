@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
  
 @RestController
 @RequestMapping("/api/users")
@@ -68,6 +69,15 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{id}/uploadProfilePicture")
+    public ResponseEntity<UserEntity> uploadProfilePicture(@PathVariable Long id, @RequestParam("file") MultipartFile file) {
+        try {
+            UserEntity updatedUser = userService.uploadProfilePicture(id, file);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
     @DeleteMapping("/deleteUser/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);

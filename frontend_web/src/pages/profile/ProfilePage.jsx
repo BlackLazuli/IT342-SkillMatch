@@ -26,6 +26,7 @@ const ProfilePage = () => {
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
   const token = localStorage.getItem("token");
   const { updateProfilePicture } = usePersonalInfo();
+  const [bio, setBio] = useState('');
 
   if (!personalInfo) {
     return <Typography variant="h6">Loading profile...</Typography>;
@@ -47,16 +48,19 @@ const ProfilePage = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-
+  
         const user = userRes.data;
         if (user.profilePicture) {
           setProfilePictureUrl(`http://localhost:8080${user.profilePicture}`);
+        }
+        if (user.bio) {  // Assuming bio is part of the user response
+          setBio(user.bio);
         }
       } catch (err) {
         console.error("Failed to fetch user profile:", err);
       }
     };
-
+  
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
@@ -76,10 +80,11 @@ const ProfilePage = () => {
         console.error("Error fetching address:", error);
       }
     };
-
+  
     fetchUserDetails();
     fetchAddress();
   }, [userId, token]);
+  
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
@@ -240,6 +245,12 @@ const ProfilePage = () => {
                   </Typography>
                   <Typography>{contactNumber || '-'}</Typography>
                 </Box>
+                <Box sx={{ display: 'flex' }}>
+                  <Typography fontWeight="medium" sx={{ width: 180 }}>
+                    Bio:
+                  </Typography>
+                  <Typography>{bio || 'No bio available.'}</Typography>
+                </Box>
               </Box>
 
               {!existingAddress && (
@@ -253,6 +264,7 @@ const ProfilePage = () => {
                 </Button>
               )}
             </Grid>
+
           </Grid>
         </Card>
 

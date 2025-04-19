@@ -1,5 +1,6 @@
 package com.example.skillmatch.professional
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
@@ -232,7 +233,7 @@ class EditPortfolioActivity : AppCompatActivity() {
         val availabilityTime = availabilityTimeInput.text.toString()
         val updatedServices = servicesCopy.map { service ->
             Service(
-                id = null,  // Set service ID to null for new services
+                id = service.id, // Only set to null if it's a new service
                 name = service.name,
                 description = service.description,
                 pricing = service.pricing,
@@ -240,35 +241,48 @@ class EditPortfolioActivity : AppCompatActivity() {
                 daysOfTheWeek = selectedDays
             )
         }
-        
-        // Create portfolio object with null ID for new creation
         val portfolioToSave = Portfolio(
-            id = null,  // Always set ID to null for new portfolio creation
+            id = portfolioId,
             workExperience = workExperienceInput.text.toString(),
             servicesOffered = updatedServices,
             clientTestimonials = null
         )
         
-        val userId = sessionManager.getUserId()
+        // Add more detailed logging
+        Log.d("EditPortfolio", "Portfolio to save: ${portfolioToSave}")
+        
+        val userId = sessionManager.getUserId()?.toString()
         if (userId != null) {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     // Add detailed logging
                     Log.d("EditPortfolio", "Saving portfolio for user ID: $userId")
-                    Log.d("EditPortfolio", "Portfolio data: $portfolioToSave")
+                    Log.d("EditPortfolio", "Portfolio data: ${portfolioToSave}")
                     
                     // Add authentication token
                     val token = "Bearer ${sessionManager.getToken()}"
-                    val response = ApiClient.apiService.createOrUpdatePortfolio(token, userId, portfolioToSave)
+                    Log.d("EditPortfolio", "portfolioId to update: $portfolioId") // This should print 1, not 2
+                    val response = if (portfolioId != null) {
+                        Log.d("EditPortfolio", "Updating existing portfolio with PUT")
+                        ApiClient.apiService.updatePortfolio(token, userId, portfolioToSave)
+                    } else {
+                        Log.d("EditPortfolio", "Creating new portfolio with POST")
+                        ApiClient.apiService.createOrUpdatePortfolio(token, userId, portfolioToSave)
+                    }
+                    
+                    // Log the raw request body for debugging
+                    Log.d("EditPortfolio", "Request body: ${portfolioToSave}")
                     
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
                             Toast.makeText(this@EditPortfolioActivity, "Portfolio saved successfully", Toast.LENGTH_SHORT).show()
+                            val intent = Intent(this@EditPortfolioActivity, PortfolioActivity::class.java)
+                            startActivity(intent)
                             finish()
                         } else {
                             val errorBody = response.errorBody()?.string() ?: "Unknown error"
                             Log.e("EditPortfolio", "Error code: ${response.code()}, Error body: $errorBody")
-                            Toast.makeText(this@EditPortfolioActivity, "Error saving portfolio: ${response.code()}", Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@EditPortfolioActivity, "Error saving portfolio: ${response.code()} - $errorBody", Toast.LENGTH_LONG).show()
                         }
                     }
                 } catch (e: Exception) {

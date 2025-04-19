@@ -49,7 +49,8 @@ interface ApiService {
         @Path("userId") userId: String,
         @Body portfolio: Portfolio
     ): Response<Portfolio>
-    
+
+    // Update this method to use userId in the path, not portfolioId
     @PUT("portfolios/{userId}")
     suspend fun updatePortfolio(
         @Header("Authorization") token: String,

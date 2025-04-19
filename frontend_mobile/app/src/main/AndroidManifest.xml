@@ -50,6 +50,7 @@
         <activity android:name=".customer.EditCustomerProfile" android:exported="false" />
         <activity android:name=".professional.EditPortfolioActivity" android:exported="false" />
         <activity android:name=".professional.EditProfessionalProfile" android:exported="false" />
+        <activity android:name=".professional.PortfolioActivity" android:exported="false" />
         
     </application>
 </manifest>

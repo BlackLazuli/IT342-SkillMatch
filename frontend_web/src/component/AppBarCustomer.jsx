@@ -11,12 +11,12 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import { Home, Person, Event, Settings } from "@mui/icons-material";
+import { Home, Person, Work, Event, Settings } from "@mui/icons-material";
 import { usePersonalInfo } from "../context/PersonalInfoContext";
 
 const drawerWidth = 240;
 
-const AppBarCustomer = () => {
+const AppBar = () => {
   const { personalInfo } = usePersonalInfo();
   const navigate = useNavigate();
 
@@ -27,7 +27,20 @@ const AppBarCustomer = () => {
   ];
 
   const handleNavigation = (path) => {
+    if (path.includes("/portfolio/") && !personalInfo?.userId) {
+      alert("You need to log in to access your portfolio.");
+      return;
+    }
     navigate(path);
+  };
+
+  const getProfilePictureUrl = () => {
+    if (personalInfo?.profilePicture) {
+      return personalInfo.profilePicture.startsWith("http")
+        ? personalInfo.profilePicture
+        : `http://localhost:8080${personalInfo.profilePicture}`;
+    }
+    return "/default-avatar.png";
   };
 
   return (
@@ -99,16 +112,18 @@ const AppBarCustomer = () => {
           <ListItemIcon sx={{ color: "#333" }}>
             <Settings />
           </ListItemIcon>
-          <ListItemText
-            primary="Settings"
-            primaryTypographyProps={{ fontWeight: 500 }}
-          />
+          <ListItemText primary="Settings" primaryTypographyProps={{ fontWeight: 500 }} />
         </ListItem>
 
         <Box sx={{ display: "flex", alignItems: "center", mt: 3, px: 1 }}>
-          <Avatar sx={{ bgcolor: "#a3d2d3", mr: 2 }}>
-            {personalInfo?.firstName ? personalInfo.firstName[0] : "?"}
+          <Avatar
+            src={getProfilePictureUrl()}
+            alt="Profile"
+            sx={{ width: 40, height: 40, mr: 2 }}
+          >
+            {!personalInfo?.profilePicture && (personalInfo?.firstName?.[0] || "?")}
           </Avatar>
+
           <Box>
             <Typography variant="body2" fontWeight="bold">
               {personalInfo?.firstName || "Guest"} {personalInfo?.lastName || ""}
@@ -123,4 +138,4 @@ const AppBarCustomer = () => {
   );
 };
 
-export default AppBarCustomer;
+export default AppBar;

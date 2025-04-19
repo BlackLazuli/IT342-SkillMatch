@@ -44,8 +44,9 @@ public PortfolioEntity createOrUpdatePortfolio(Long userId, PortfolioEntity port
     }
     throw new RuntimeException("User not found");
 }
-public PortfolioEntity updatePortfolio(Long portfolioId, PortfolioEntity portfolio) {
-    Optional<PortfolioEntity> existingPortfolio = portfolioRepository.findById(portfolioId);
+public PortfolioEntity updatePortfolio(Long userId, PortfolioEntity portfolio) {
+    // Find portfolio by userId instead of portfolioId
+    Optional<PortfolioEntity> existingPortfolio = portfolioRepository.findByUserId(userId);
     if (existingPortfolio.isPresent()) {
         PortfolioEntity updatedPortfolio = existingPortfolio.get();
         updatedPortfolio.setWorkExperience(portfolio.getWorkExperience());
@@ -54,7 +55,8 @@ public PortfolioEntity updatePortfolio(Long portfolioId, PortfolioEntity portfol
         for (ServiceEntity newService : portfolio.getServicesOffered()) {
             boolean exists = false;
             for (ServiceEntity existingService : updatedPortfolio.getServicesOffered()) {
-                if (existingService.getId().equals(newService.getId())) {
+                if (existingService.getId() != null && newService.getId() != null && 
+                    existingService.getId().equals(newService.getId())) {
                     // Update existing service
                     existingService.setName(newService.getName());
                     existingService.setDescription(newService.getDescription());
@@ -74,7 +76,7 @@ public PortfolioEntity updatePortfolio(Long portfolioId, PortfolioEntity portfol
 
         return portfolioRepository.save(updatedPortfolio);
     }
-    throw new RuntimeException("Portfolio not found for portfolioId: " + portfolioId);
+    throw new RuntimeException("Portfolio not found for userId: " + userId);
 }
 
 

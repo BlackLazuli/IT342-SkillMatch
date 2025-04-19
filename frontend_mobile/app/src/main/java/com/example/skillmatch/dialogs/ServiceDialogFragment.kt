@@ -101,10 +101,12 @@ class ServiceDialogFragment : DialogFragment() {
             }
 
             val updatedService = Service(
-                id = service?.id ?: System.currentTimeMillis(), // Generate a temporary ID if new
+                // Use null for new services to let the backend generate the ID
+                // For existing services, keep the original ID
+                id = service?.id,
                 name = name,
                 description = description.ifBlank { null },
-                pricing = pricing.ifBlank { null },  // Changed from price to pricing
+                pricing = pricing.ifBlank { null },
                 time = service?.time,
                 daysOfTheWeek = service?.daysOfTheWeek ?: emptyList()
             )

@@ -9,7 +9,9 @@ import {
   Card,
   CardContent,
   Grid,
-  Chip
+  Chip,
+  Divider,
+  Rating
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
 import { usePersonalInfo } from "../../context/PersonalInfoContext";
@@ -18,24 +20,23 @@ const PortfolioPage = () => {
   const { userID } = useParams();
   const navigate = useNavigate();
   const [portfolio, setPortfolio] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const { personalInfo } = usePersonalInfo();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please log in first.");
+      return;
+    }
+
     const fetchPortfolio = async () => {
-      const token = localStorage.getItem("token");
-
-      if (!token) {
-        alert("Please log in first.");
-        return;
-      }
-
       try {
         const response = await fetch(`http://localhost:8080/api/portfolios/${userID}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (response.status === 404) {
@@ -50,23 +51,54 @@ const PortfolioPage = () => {
 
         const portfolioData = await response.json();
         setPortfolio(portfolioData);
+        fetchComments(portfolioData.id);
+        fetchRatings(userID);
       } catch (error) {
-        setError("Failed to load portfolio.");
+        console.error(error);
       } finally {
         setLoading(false);
+      }
+    };
+
+    const fetchComments = async (portfolioId) => {
+      try {
+        const res = await fetch(`http://localhost:8080/api/comments/portfolio/${portfolioId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        setComments(data);
+      } catch {
+        setComments([]);
+      }
+    };
+
+    const fetchRatings = async (userId) => {
+      try {
+        const res = await fetch(`http://localhost:8080/api/ratings/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (res.ok) {
+          const ratingsData = await res.json();
+          if (ratingsData.length > 0) {
+            const avg =
+              ratingsData.reduce((acc, curr) => acc + curr.rating, 0) / ratingsData.length;
+            setRating(avg);
+          } else {
+            setRating(0);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch ratings:", err);
+        setRating(0);
       }
     };
 
     fetchPortfolio();
   }, [userID]);
 
-  const handleAddPortfolio = () => {
-    navigate(`/add-portfolio/${userID}`);
-  };
-
-  const handleUpdatePortfolio = () => {
-    navigate(`/edit-portfolio/${userID}`);
-  };
+  const handleAddPortfolio = () => navigate(`/add-portfolio/${userID}`);
+  const handleUpdatePortfolio = () => navigate(`/edit-portfolio/${userID}`);
 
   const getProfilePictureUrl = () => {
     if (personalInfo?.profilePicture) {
@@ -95,9 +127,7 @@ const PortfolioPage = () => {
       <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
         {!portfolio ? (
           <>
-            <Typography variant="h4" gutterBottom>
-              Portfolio
-            </Typography>
+            <Typography variant="h4" gutterBottom>Portfolio</Typography>
             <Typography>No portfolio found for this user.</Typography>
             <Button variant="contained" sx={{ mt: 2 }} onClick={handleAddPortfolio}>
               Add Portfolio
@@ -105,15 +135,22 @@ const PortfolioPage = () => {
           </>
         ) : (
           <>
-            <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
+            {/* Header Section */}
+            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
               <Avatar
                 alt={personalInfo?.firstName}
                 src={getProfilePictureUrl()}
                 sx={{ width: 80, height: 80, mr: 2 }}
               />
-              <Typography variant="h4" fontWeight="bold">
-                My Portfolio
-              </Typography>
+              <Box>
+                <Typography variant="h4" fontWeight="bold">My Portfolio</Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+                  <Rating value={rating} precision={0.1} readOnly size="small" sx={{ color: "#ffb400" }} />
+                  <Typography variant="body2" color="text.secondary">
+                    {rating.toFixed(1)} Stars
+                  </Typography>
+                </Box>
+              </Box>
             </Box>
 
             <Button
@@ -124,6 +161,7 @@ const PortfolioPage = () => {
               Update Portfolio
             </Button>
 
+            {/* Portfolio Content */}
             <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
               <CardContent>
                 <Typography variant="h5" fontWeight="bold" gutterBottom>
@@ -177,6 +215,28 @@ const PortfolioPage = () => {
                 </Grid>
               </CardContent>
             </Card>
+
+            {/* Comments Section */}
+            <Box>
+              <Divider sx={{ mb: 2 }} />
+              <Typography variant="h5" fontWeight="bold" gutterBottom>
+                Comments
+              </Typography>
+              {comments.length === 0 ? (
+                <Typography>No Comments</Typography>
+              ) : (
+                comments.map((comment, index) => (
+                  <Card key={index} sx={{ mb: 2, backgroundColor: "#f9f9f9" }}>
+                    <CardContent>
+                      <Typography variant="body1">{comment.message}</Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        — {comment.user?.firstName || "Anonymous"}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </Box>
           </>
         )}
       </Box>

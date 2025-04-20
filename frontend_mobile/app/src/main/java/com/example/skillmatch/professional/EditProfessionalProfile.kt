@@ -186,25 +186,26 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
     }
     
     private fun setupClickListeners() {
+        // Back button
         backButton.setOnClickListener {
-            finish()
+            onBackPressed()
         }
         
+        // Save button
         saveButton.setOnClickListener {
-            Toast.makeText(this, "Saving profile...", Toast.LENGTH_SHORT).show()
             saveUserProfile()
         }
         
+        // Profile image click listener
         profileImage.setOnClickListener {
-            showImageSelectionOptions()
+            showImagePickerDialog()
         }
     }
     
-    private fun showImageSelectionOptions() {
+    private fun showImagePickerDialog() {
         val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
         val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-        builder.setTitle("Select Profile Picture")
-        
+        builder.setTitle("Choose Profile Picture")
         builder.setItems(options) { dialog, item ->
             when {
                 options[item] == "Take Photo" -> {
@@ -235,25 +236,34 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
                         selectedImageUri = data?.data
                         val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedImageUri)
                         profileImage.setImageBitmap(bitmap)
-                        profileImageBase64 = encodeImageToBase64(bitmap)
+                        
+                        // Convert bitmap to base64
+                        val outputStream = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                        val imageBytes = outputStream.toByteArray()
+                        profileImageBase64 = Base64.encodeToString(imageBytes, Base64.DEFAULT)
                     } catch (e: Exception) {
-                        Toast.makeText(this, "Error loading image: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Log.e("EditProfile", "Error picking image", e)
+                        Toast.makeText(this, "Error selecting image", Toast.LENGTH_SHORT).show()
                     }
                 }
                 TAKE_PHOTO_REQUEST -> {
-                    val imageBitmap = data?.extras?.get("data") as Bitmap
-                    profileImage.setImageBitmap(imageBitmap)
-                    profileImageBase64 = encodeImageToBase64(imageBitmap)
+                    try {
+                        val bitmap = data?.extras?.get("data") as Bitmap
+                        profileImage.setImageBitmap(bitmap)
+                        
+                        // Convert bitmap to base64
+                        val outputStream = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                        val imageBytes = outputStream.toByteArray()
+                        profileImageBase64 = Base64.encodeToString(imageBytes, Base64.DEFAULT)
+                    } catch (e: Exception) {
+                        Log.e("EditProfile", "Error taking photo", e)
+                        Toast.makeText(this, "Error capturing photo", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
-    }
-    
-    private fun encodeImageToBase64(bitmap: Bitmap): String {
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos)
-        val imageBytes = baos.toByteArray()
-        return Base64.encodeToString(imageBytes, Base64.DEFAULT)
     }
     
     private fun loadUserData() {
@@ -273,52 +283,47 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
                     currentUser = response.body()
                     
                     withContext(Dispatchers.Main) {
-                        populateUserData(currentUser!!)
+                        // Populate form fields with user data
+                        firstNameInput.setText(currentUser?.firstName)
+                        lastNameInput.setText(currentUser?.lastName)
+                        emailInput.setText(currentUser?.email)
+                        phoneNumberInput.setText(currentUser?.phoneNumber)
+                        bioInput.setText(currentUser?.bio)
+                        
+                        // Set address if available
+                        currentUser?.location?.address?.let { address ->
+                            addressInput.setText(address)
+                        }
+                        
+                        // Load profile image if available
+                        currentUser?.profilePicture?.let { imageBase64 ->
+                            try {
+                                val imageBytes = Base64.decode(imageBase64, Base64.DEFAULT)
+                                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                profileImage.setImageBitmap(bitmap)
+                            } catch (e: Exception) {
+                                Log.e("EditProfile", "Error loading profile image", e)
+                            }
+                        }
+                        
+                        // Update map with user location
+                        currentUser?.location?.let { location ->
+                            val lat = location.latitude
+                            val lng = location.longitude
+                            userLocation = LatLng(lat, lng)
+                            updateMapLocation()
+                        }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Log.e("EditProfile", "Failed to load user data: ${response.code()} - ${response.errorBody()?.string()}")
-                        Toast.makeText(applicationContext, "Failed to load user data: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, "Failed to load user data", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
-                Log.e("EditProfile", "Exception loading user data", e)
+                Log.e("EditProfile", "Error loading user data", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
-            }
-        }
-    }
-    
-    private fun populateUserData(user: User) {
-        firstNameInput.setText(user.firstName)
-        lastNameInput.setText(user.lastName)
-        emailInput.setText(user.email)
-        phoneNumberInput.setText(user.phoneNumber)
-        bioInput.setText(user.bio)
-        
-        // Update address field if available
-        user.location?.address?.let {
-            addressInput.setText(it)
-        }
-        
-        // Update map with user location if available
-        user.location?.let { location ->
-            val lat = location.latitude
-            val lng = location.longitude
-            userLocation = LatLng(lat, lng)
-            updateMapLocation()
-        }
-        
-        // Load profile image if available
-        user.profileImage?.let { imageBase64 ->
-            try {
-                val imageBytes = Base64.decode(imageBase64, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                profileImage.setImageBitmap(bitmap)
-                profileImageBase64 = imageBase64
-            } catch (e: Exception) {
-                // If there's an error loading the image, just use the default
             }
         }
     }
@@ -353,7 +358,7 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
             email = email,
             phoneNumber = phoneNumber,
             bio = bio,
-            profileImage = profileImageBase64,
+            profilePicture = profileImageBase64,
             location = Location(
                 id = currentUser?.location?.id,
                 latitude = userLocation.latitude,

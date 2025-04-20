@@ -78,6 +78,15 @@ public class UserController {
             return ResponseEntity.badRequest().body(null);
         }
     }
+    @PutMapping("/{id}/uploadProfilePictureBase64")
+    public ResponseEntity<UserEntity> uploadProfilePictureBase64(@PathVariable Long id, @RequestBody String base64Image) {
+        try {
+            UserEntity updatedUser = userService.uploadProfilePictureBase64(id, base64Image);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(null);
+        }
+    }
     @DeleteMapping("/deleteUser/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);

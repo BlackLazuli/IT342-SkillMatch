@@ -57,4 +57,15 @@ interface ApiService {
         @Path("userId") userId: String,
         @Body portfolio: Portfolio
     ): Response<Portfolio>
+    
+    // Add these methods for profile picture operations
+    @PUT("users/{userId}/uploadProfilePictureBase64")
+    suspend fun uploadProfilePictureBase64(
+        @Path("userId") userId: String,
+        @Body base64Image: String
+    ): Response<User>
+    
+    // Simple method to get user with profile picture
+    @GET("users/{userId}")
+    suspend fun getUserWithProfilePicture(@Path("userId") userId: String): Response<User>
 }

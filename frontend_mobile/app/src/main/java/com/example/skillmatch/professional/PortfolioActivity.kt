@@ -1,7 +1,9 @@
 package com.example.skillmatch.professional
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.Button
 import android.widget.ImageButton
@@ -107,30 +109,51 @@ class PortfolioActivity : AppCompatActivity() {
                     val token = "Bearer ${sessionManager.getToken()}"
                     val response = ApiClient.apiService.getPortfolio(token, userId)
                     
+                    // Also fetch user data to get profile picture
+                    val userResponse = ApiClient.apiService.getUserProfile(userId)
+                    
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful && response.body() != null) {
                             val portfolio = response.body()!!
                             displayPortfolioData(portfolio)
+                            
+                            // Display profile picture if user data is available
+                            if (userResponse.isSuccessful && userResponse.body() != null) {
+                                val user = userResponse.body()!!
+                                displayProfilePicture(user.profilePicture)
+                            }
                         } else {
                             // No portfolio found
                             Log.d("Portfolio", "No portfolio found")
                             Toast.makeText(
                                 this@PortfolioActivity,
-                                "No portfolio found. Create one by clicking Edit Portfolio.",
+                                "No portfolio found. Please create one.",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
                     }
                 } catch (e: Exception) {
+                    Log.e("Portfolio", "Error fetching portfolio", e)
                     withContext(Dispatchers.Main) {
                         Toast.makeText(
                             this@PortfolioActivity,
-                            "Error loading portfolio: ${e.message}",
+                            "Error: ${e.message}",
                             Toast.LENGTH_SHORT
                         ).show()
-                        Log.e("Portfolio", "Error loading portfolio", e)
                     }
                 }
+            }
+        }
+    }
+    
+    private fun displayProfilePicture(profilePictureBase64: String?) {
+        profilePictureBase64?.let {
+            try {
+                val imageBytes = Base64.decode(it, Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                profileImage.setImageBitmap(bitmap)
+            } catch (e: Exception) {
+                Log.e("Portfolio", "Error loading profile image", e)
             }
         }
     }

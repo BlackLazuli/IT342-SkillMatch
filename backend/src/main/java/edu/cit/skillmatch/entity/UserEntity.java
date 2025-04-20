@@ -1,14 +1,11 @@
 package edu.cit.skillmatch.entity;
 
 import jakarta.persistence.*;
-import java.util.List;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -60,7 +57,12 @@ public class UserEntity {
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments;
 
-    // Getters and Setters
+    // New field to store the profile picture path
+    @Column
+    private String profilePicture;
+
+    // Getters and Setters for all fields including profilePicture
+
     public Long getId() {
         return id;
     }
@@ -171,5 +173,14 @@ public class UserEntity {
 
     public void setComments(List<CommentEntity> comments) {
         this.comments = comments;
+    }
+
+    // Getter and Setter for profilePicture
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }

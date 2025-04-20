@@ -39,93 +39,107 @@ const AppBar = () => {
     navigate(path);
   };
 
+  const getProfilePictureUrl = () => {
+    if (personalInfo?.profilePicture) {
+      return personalInfo.profilePicture.startsWith("http")
+        ? personalInfo.profilePicture
+        : `http://localhost:8080${personalInfo.profilePicture}`;
+    }
+    return "/default-avatar.png";
+  };
+
   return (
-      <Drawer
-        variant="permanent"
-        sx={{
+    <Drawer
+      variant="permanent"
+      sx={{
+        width: drawerWidth,
+        flexShrink: 0,
+        "& .MuiDrawer-paper": {
           width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            height: "100vh",
-            backgroundColor: "#f4f0ff",
-            color: "#333",
-            display: "flex",
-            flexDirection: "column",
-            px: 2,
-            py: 3,
-            boxSizing: "border-box",
-          },
-        }}
-      >
-        {/* Logo */}
-        <Box sx={{ textAlign: "center", mb: 2 }}>
-          <img
-            src="/skillmatchlogo.png"
-            alt="Skill Match Logo"
-            style={{ width: "180px", height: "70px", objectFit: "contain" }}
-          />
-        </Box>
+          height: "100vh",
+          backgroundColor: "#f4f0ff",
+          color: "#333",
+          display: "flex",
+          flexDirection: "column",
+          px: 2,
+          py: 3,
+          boxSizing: "border-box",
+        },
+      }}
+    >
+      {/* Logo */}
+      <Box sx={{ textAlign: "center", mb: 2 }}>
+        <img
+          src="/skillmatchlogo.png"
+          alt="Skill Match Logo"
+          style={{ width: "180px", height: "70px", objectFit: "contain" }}
+        />
+      </Box>
 
-        {/* Scrollable content */}
-        <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
-          <List>
-            {menuItems.map((item, index) => (
-              <ListItem
-                button
-                key={index}
-                sx={{
-                  borderRadius: 2,
-                  mb: 1,
-                  "&:hover": { backgroundColor: "#c1e3c6" },
-                }}
-                onClick={() => handleNavigation(item.path)}
-              >
-                <ListItemIcon sx={{ color: "#333" }}>{item.icon}</ListItemIcon>
-                <ListItemText
-                  primary={item.text}
-                  primaryTypographyProps={{ fontWeight: 500 }}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Box>
+      {/* Scrollable content */}
+      <Box sx={{ flexGrow: 1, overflowY: "auto" }}>
+        <List>
+          {menuItems.map((item, index) => (
+            <ListItem
+              button
+              key={index}
+              sx={{
+                borderRadius: 2,
+                mb: 1,
+                "&:hover": { backgroundColor: "#c1e3c6" },
+              }}
+              onClick={() => handleNavigation(item.path)}
+            >
+              <ListItemIcon sx={{ color: "#333" }}>{item.icon}</ListItemIcon>
+              <ListItemText
+                primary={item.text}
+                primaryTypographyProps={{ fontWeight: 500 }}
+              />
+            </ListItem>
+          ))}
+        </List>
+      </Box>
 
-        <Divider sx={{ my: 2 }} />
+      <Divider sx={{ my: 2 }} />
 
-        {/* Bottom section: settings and user */}
-        <Box>
-          <ListItem
-            button
-            sx={{
-              borderRadius: 2,
-              mb: 1,
-              "&:hover": {
-                backgroundColor: "#c1e3c6",
-              },
-            }}
+      {/* Bottom section: settings and user */}
+      <Box>
+        <ListItem
+          button
+          sx={{
+            borderRadius: 2,
+            mb: 1,
+            "&:hover": {
+              backgroundColor: "#c1e3c6",
+            },
+          }}
+        >
+          <ListItemIcon sx={{ color: "#333" }}>
+            <Settings />
+          </ListItemIcon>
+          <ListItemText primary="Settings" primaryTypographyProps={{ fontWeight: 500 }} />
+        </ListItem>
+
+        <Box sx={{ display: "flex", alignItems: "center", mt: 3, px: 1 }}>
+          <Avatar
+            src={getProfilePictureUrl()}
+            alt="Profile"
+            sx={{ width: 40, height: 40, mr: 2 }}
           >
-            <ListItemIcon sx={{ color: "#333" }}>
-              <Settings />
-            </ListItemIcon>
-            <ListItemText primary="Settings" primaryTypographyProps={{ fontWeight: 500 }} />
-          </ListItem>
+            {!personalInfo?.profilePicture && (personalInfo?.firstName?.[0] || "?")}
+          </Avatar>
 
-          <Box sx={{ display: "flex", alignItems: "center", mt: 3, px: 1 }}>
-            <Avatar sx={{ bgcolor: "#a3d2d3", mr: 2 }}>
-              {personalInfo?.firstName ? personalInfo.firstName[0] : "?"}
-            </Avatar>
-            <Box>
-              <Typography variant="body2" fontWeight="bold">
-                {personalInfo?.firstName || "Guest"} {personalInfo?.lastName || ""}
-              </Typography>
-              <Typography variant="caption" color="text.secondary">
-                {personalInfo?.email || "No email"}
-              </Typography>
-            </Box>
+          <Box>
+            <Typography variant="body2" fontWeight="bold">
+              {personalInfo?.firstName || "Guest"} {personalInfo?.lastName || ""}
+            </Typography>
+            <Typography variant="caption" color="text.secondary">
+              {personalInfo?.email || "No email"}
+            </Typography>
           </Box>
         </Box>
-      </Drawer>
+      </Box>
+    </Drawer>
   );
 };
 

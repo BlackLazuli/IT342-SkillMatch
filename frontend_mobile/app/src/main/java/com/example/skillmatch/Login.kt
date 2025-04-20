@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.skillmatch.customer.EditCustomerProfile
 import com.example.skillmatch.professional.EditProfessionalProfile
+import com.example.skillmatch.professional.ProfessionalProfileActivity
 import com.example.skillmatch.repository.SkillMatchRepository
 import com.example.skillmatch.utils.SessionManager
 import com.google.android.material.textfield.TextInputEditText
@@ -84,7 +85,7 @@ class Login : AppCompatActivity() {
                             startActivity(intent)
                             finish()
                         } else if (loginResponse.role == "SERVICE_PROVIDER") {
-                            val intent = Intent(this@Login, EditProfessionalProfile::class.java)
+                            val intent = Intent(this@Login, ProfessionalProfileActivity::class.java)
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)
                             finish()

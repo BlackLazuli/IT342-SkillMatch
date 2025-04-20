@@ -41,6 +41,8 @@ import android.os.Looper
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
+import com.example.skillmatch.professional.EditProfessionalProfile
+import com.example.skillmatch.professional.ProfessionalProfileActivity
 import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 
@@ -398,7 +400,9 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
                         
                         // Delay finish to show success message
                         Handler(Looper.getMainLooper()).postDelayed({
-                            finish()
+                            val intent = Intent(this@EditCustomerProfile, CustomerProfileActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(intent)
                         }, 1500)
                     } else {
                         val errorCode = response.code()

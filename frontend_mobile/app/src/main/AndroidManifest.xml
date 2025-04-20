@@ -48,6 +48,7 @@
         <activity android:name=".SignUp" android:exported="false" />
         <activity android:name=".ChooseRole" android:exported="false" />
         <activity android:name=".customer.EditCustomerProfile" android:exported="false" />
+        <activity android:name=".customer.CustomerProfileActivity" android:exported="false" />
         <activity android:name=".professional.EditPortfolioActivity" android:exported="false" />
         <activity android:name=".professional.EditProfessionalProfile" android:exported="false" />
         <activity android:name=".professional.PortfolioActivity" android:exported="false" />

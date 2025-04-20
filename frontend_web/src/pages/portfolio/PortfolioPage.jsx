@@ -68,6 +68,15 @@ const PortfolioPage = () => {
     navigate(`/edit-portfolio/${userID}`);
   };
 
+  const getProfilePictureUrl = () => {
+    if (personalInfo?.profilePicture) {
+      return personalInfo.profilePicture.startsWith("http")
+        ? personalInfo.profilePicture
+        : `http://localhost:8080${personalInfo.profilePicture}`;
+    }
+    return "/default-avatar.png";
+  };
+
   if (loading) {
     return (
       <Box sx={{ display: "flex" }}>
@@ -99,7 +108,7 @@ const PortfolioPage = () => {
             <Box sx={{ display: "flex", alignItems: "center", mb: 4 }}>
               <Avatar
                 alt={personalInfo?.firstName}
-                src="/placeholder-avatar.png"
+                src={getProfilePictureUrl()}
                 sx={{ width: 80, height: 80, mr: 2 }}
               />
               <Typography variant="h4" fontWeight="bold">

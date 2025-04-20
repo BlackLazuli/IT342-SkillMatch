@@ -22,6 +22,7 @@ const RegistrationPage = () => {
     password: "",
     role: "CUSTOMER",
     phoneNumber: "",
+    bio: "", // Add bio to formData
   });
 
   const [error, setError] = useState("");
@@ -43,7 +44,8 @@ const RegistrationPage = () => {
       !formData.lastName ||
       !formData.email ||
       !formData.password ||
-      !formData.phoneNumber
+      !formData.phoneNumber ||
+      !formData.bio // Ensure bio is filled out
     ) {
       setError("All fields are required.");
       return;
@@ -178,6 +180,21 @@ const RegistrationPage = () => {
             InputProps={{
               sx: { backgroundColor: "#c1e3c6", borderRadius: 1 },
             }}
+          />
+          {/* Bio field */}
+          <TextField
+            fullWidth
+            placeholder="Short Bio"
+            name="bio"
+            value={formData.bio}
+            onChange={handleChange}
+            margin="normal"
+            required
+            InputProps={{
+              sx: { backgroundColor: "#c1e3c6", borderRadius: 1 },
+            }}
+            multiline
+            rows={4}
           />
 
           <Typography variant="body1" sx={{ mt: 2, mb: 1 }}>

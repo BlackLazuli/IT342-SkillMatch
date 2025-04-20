@@ -24,7 +24,7 @@ public class SecurityConfig {
                 .and()
                 .csrf().disable()
                 .authorizeRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/users/**").permitAll()
+                        .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/users/**", "/uploads/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

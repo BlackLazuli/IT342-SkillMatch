@@ -23,7 +23,10 @@ const ProfilePage = () => {
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [existingAddress, setExistingAddress] = useState(null);
+  const [profilePictureUrl, setProfilePictureUrl] = useState('');
   const token = localStorage.getItem("token");
+  const { updateProfilePicture } = usePersonalInfo();
+  const [bio, setBio] = useState('');
 
   if (!personalInfo) {
     return <Typography variant="h6">Loading profile...</Typography>;
@@ -34,11 +37,30 @@ const ProfilePage = () => {
     lastName,
     email,
     contactNumber,
-    profilePictureUrl,
     userId,
   } = personalInfo;
 
   useEffect(() => {
+    const fetchUserDetails = async () => {
+      try {
+        const userRes = await axios.get(`http://localhost:8080/api/users/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
+        const user = userRes.data;
+        if (user.profilePicture) {
+          setProfilePictureUrl(`http://localhost:8080${user.profilePicture}`);
+        }
+        if (user.bio) {  // Assuming bio is part of the user response
+          setBio(user.bio);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user profile:", err);
+      }
+    };
+  
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
@@ -58,9 +80,11 @@ const ProfilePage = () => {
         console.error("Error fetching address:", error);
       }
     };
-
+  
+    fetchUserDetails();
     fetchAddress();
   }, [userId, token]);
+  
 
   const handleOpenModal = () => setOpenModal(true);
   const handleCloseModal = () => setOpenModal(false);
@@ -128,6 +152,35 @@ const ProfilePage = () => {
     }
   };
 
+  const handleProfilePicChange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.put(
+        `http://localhost:8080/api/users/${userId}/uploadProfilePicture`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      const newPath = response.data.profilePicture;
+      updateProfilePicture(newPath); // This updates context and localStorage
+      setProfilePictureUrl(`http://localhost:8080${newPath}`);
+      alert('Profile picture updated successfully!');
+    } catch (error) {
+      console.error("Error uploading profile picture: ", error);
+      alert('Error uploading profile picture');
+    }
+  };
+
   return (
     <Box sx={{ display: 'flex' }}>
       <AppBar />
@@ -143,11 +196,21 @@ const ProfilePage = () => {
               <Typography variant="subtitle1" fontWeight="bold" gutterBottom>
                 PROFILE PICTURE
               </Typography>
-              <Avatar
-                src={profilePictureUrl || '/default-avatar.png'}
-                alt="Profile"
-                sx={{ width: 150, height: 150, mx: 'auto' }}
-              />
+              <Box sx={{ position: 'relative', display: 'inline-block' }}>
+                <Avatar
+                  src={profilePictureUrl || '/default-avatar.png'}
+                  alt="Profile"
+                  sx={{ width: 150, height: 150, mx: 'auto', cursor: 'pointer' }}
+                  onClick={() => document.getElementById('profile-pic-input').click()}
+                />
+                <input
+                  id="profile-pic-input"
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  onChange={handleProfilePicChange}
+                />
+              </Box>
             </Grid>
 
             <Grid item xs={12} md={8}>
@@ -182,6 +245,12 @@ const ProfilePage = () => {
                   </Typography>
                   <Typography>{contactNumber || '-'}</Typography>
                 </Box>
+                <Box sx={{ display: 'flex' }}>
+                  <Typography fontWeight="medium" sx={{ width: 180 }}>
+                    Bio:
+                  </Typography>
+                  <Typography>{bio || 'No bio available.'}</Typography>
+                </Box>
               </Box>
 
               {!existingAddress && (
@@ -195,6 +264,7 @@ const ProfilePage = () => {
                 </Button>
               )}
             </Grid>
+
           </Grid>
         </Card>
 

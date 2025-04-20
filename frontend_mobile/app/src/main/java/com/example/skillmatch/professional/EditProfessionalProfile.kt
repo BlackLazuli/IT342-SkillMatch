@@ -392,7 +392,7 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
                         // Add a small delay before navigation to ensure the toast is visible
                         Handler(Looper.getMainLooper()).postDelayed({
                             // Explicitly navigate to EditPortfolioActivity with flags to clear previous activities
-                            val intent = Intent(this@EditProfessionalProfile, EditPortfolioActivity::class.java)
+                            val intent = Intent(this@EditProfessionalProfile, ProfessionalProfileActivity::class.java)
                             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                             startActivity(intent)
                         }, 500) // 500ms delay

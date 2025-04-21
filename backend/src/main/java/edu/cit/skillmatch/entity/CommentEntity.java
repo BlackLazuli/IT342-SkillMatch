@@ -24,6 +24,9 @@ public class CommentEntity {
     @Column(nullable = false)
     private LocalDateTime timestamp;
 
+    @Column(nullable = false)
+    private int rating; // The rating for the portfolio (e.g., 1 to 5)
+
     public CommentEntity() {
         this.timestamp = LocalDateTime.now();
     }
@@ -58,5 +61,13 @@ public class CommentEntity {
 
     public LocalDateTime getTimestamp() {
         return timestamp;
+    }
+
+    public int getRating() {
+        return rating;
+    }
+
+    public void setRating(int rating) {
+        this.rating = rating;
     }
 }

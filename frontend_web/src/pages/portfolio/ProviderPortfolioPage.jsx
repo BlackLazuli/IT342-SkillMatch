@@ -12,6 +12,11 @@ import {
   Chip,
   Divider,
   Rating,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
 import { usePersonalInfo } from "../../context/PersonalInfoContext";
@@ -24,9 +29,13 @@ const ProviderPortfolioPage = () => {
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(true);
   const [userDetails, setUserDetails] = useState(null);
+  const [commentModalOpen, setCommentModalOpen] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [newRating, setNewRating] = useState(0);
   const { personalInfo } = usePersonalInfo();
 
-  useEffect(() => {
+  // Fetch portfolio data
+  const fetchPortfolio = async () => {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -34,79 +43,86 @@ const ProviderPortfolioPage = () => {
       return;
     }
 
-    const fetchPortfolio = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/portfolios/${userID}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+    try {
+      const res = await fetch(`http://localhost:8080/api/portfolios/${userID}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-        if (res.status === 404) {
-          setPortfolio(null);
-          setLoading(false);
-          return;
-        }
-
-        if (!res.ok) throw new Error("Failed to fetch portfolio.");
-
-        const data = await res.json();
-        setPortfolio(data);
-        fetchComments(data.id);
-        fetchRatings(userID);
-      } catch (error) {
-        console.error(error);
-      } finally {
+      if (res.status === 404) {
+        setPortfolio(null);
         setLoading(false);
+        return;
       }
-    };
 
-    const fetchComments = async (portfolioId) => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/comments/portfolio/${portfolioId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+      if (!res.ok) throw new Error("Failed to fetch portfolio.");
+
+      const data = await res.json();
+      setPortfolio(data);
+      fetchComments(data.id);  // Fetch comments when portfolio is loaded
+      fetchRatings(userID);    // Fetch ratings when portfolio is loaded
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch comments for a portfolio
+
+  const fetchComments = async (portfolioId) => {
+    try {
+      const res = await fetch(`http://localhost:8080/api/comments/portfolio/${portfolioId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      setComments(data);
+    } catch {
+      setComments([]);
+    }
+  };
+
+  // Fetch ratings for a user
+  const fetchRatings = async (userId) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`http://localhost:8080/api/ratings/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const ratingsData = await res.json();
+        const avg = ratingsData.length
+          ? ratingsData.reduce((acc, curr) => acc + curr.rating, 0) / ratingsData.length
+          : 0;
+        setRating(avg);
+      }
+    } catch (err) {
+      console.error("Failed to fetch ratings:", err);
+      setRating(0);
+    }
+  };
+
+  // Fetch user details
+  const fetchUserDetails = async () => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`http://localhost:8080/api/users/${userID}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
         const data = await res.json();
-        setComments(data);
-      } catch {
-        setComments([]);
+        setUserDetails(data);
       }
-    };
+    } catch (err) {
+      console.error("Failed to fetch user details:", err);
+    }
+  };
 
-    const fetchRatings = async (userId) => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/ratings/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const ratingsData = await res.json();
-          const avg = ratingsData.length
-            ? ratingsData.reduce((acc, curr) => acc + curr.rating, 0) / ratingsData.length
-            : 0;
-          setRating(avg);
-        }
-      } catch (err) {
-        console.error("Failed to fetch ratings:", err);
-        setRating(0);
-      }
-    };
-
-    const fetchUserDetails = async () => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/users/${userID}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setUserDetails(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch user details:", err);
-      }
-    };
-
+  useEffect(() => {
     fetchPortfolio();
     fetchUserDetails();
   }, [userID]);
 
+  // Get the profile picture URL
   const getProfilePictureUrl = () => {
     const pic = userDetails?.profilePicture || personalInfo?.profilePicture;
     if (pic) {
@@ -115,6 +131,54 @@ const ProviderPortfolioPage = () => {
     return "/default-avatar.png";
   };
 
+  // Handle feedback submission (comment + rating)
+  const handleSubmitFeedback = async () => {
+    const token = localStorage.getItem("token");
+  
+    try {
+      // Submit comment with rating
+      await fetch(
+        `http://localhost:8080/api/comments/${personalInfo.userId}/${portfolio.id}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: newComment,
+            rating: newRating,
+          }),
+        }
+      );
+  
+      // Submit rating (for the separate ratings table)
+      await fetch(`http://localhost:8080/api/ratings/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user: { id: personalInfo.userId },
+          rating: newRating,
+          review: newComment,
+        }),
+      });
+  
+      // Reset form
+      setCommentModalOpen(false);
+      setNewComment("");
+      setNewRating(0);
+  
+      // Refresh both
+      fetchComments(portfolio.id);
+      fetchRatings(personalInfo.userId);
+    } catch (error) {
+      console.error("Failed to submit feedback", error);
+    }
+  };
+  
   if (loading) {
     return (
       <Box sx={{ display: "flex" }}>
@@ -210,29 +274,79 @@ const ProviderPortfolioPage = () => {
               </CardContent>
             </Card>
 
+            {/* Add Comment Button */}
+            <Button
+              variant="contained"
+              sx={{ mb: 2 }}
+              onClick={() => setCommentModalOpen(true)}
+            >
+              Add a Comment
+            </Button>
+
             {/* Comments */}
             <Box>
-              <Divider sx={{ mb: 2 }} />
-              <Typography variant="h5" fontWeight="bold" gutterBottom>
-                Comments
-              </Typography>
-              {comments.length === 0 ? (
-                <Typography>No Comments</Typography>
-              ) : (
-                comments.map((comment, index) => (
-                  <Card key={index} sx={{ mb: 2, backgroundColor: "#f9f9f9" }}>
-                    <CardContent>
-                      <Typography variant="body1">{comment.message}</Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        — {comment.user?.firstName || "Anonymous"}
-                      </Typography>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+  <Divider sx={{ mb: 2 }} />
+  <Typography variant="h5" fontWeight="bold" gutterBottom>
+    Comments
+  </Typography>
+  {comments.length === 0 ? (
+    <Typography>No Comments</Typography>
+  ) : (
+    comments.map((comment, index) => (
+      <Card key={index} sx={{ mb: 2, backgroundColor: "#f9f9f9" }}>
+        <CardContent sx={{ display: "flex", alignItems: "flex-start" }}>
+          <Avatar
+            alt={comment.authorName || "Anonymous"}
+            src={comment.authorProfilePicture ? `http://localhost:8080${comment.authorProfilePicture}` : "/default-avatar.png"}
+            sx={{ width: 40, height: 40, mr: 2 }}
+          />
+          <Box sx={{ flex: 1 }}>
+            <Typography variant="body1" fontWeight="bold" gutterBottom>
+              {comment.authorName || "Anonymous"}
+            </Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Rating value={comment.authorRating} precision={0.1} readOnly size="small" sx={{ color: "#ffb400" }} />
             </Box>
+            <Typography variant="body2">
+              {comment.message}
+            </Typography>
+          </Box>
+        </CardContent>
+      </Card>
+    ))
+  )}
+</Box>
           </>
         )}
+
+        {/* Comment Modal */}
+        <Dialog open={commentModalOpen} onClose={() => setCommentModalOpen(false)}>
+          <DialogTitle>Add Comment</DialogTitle>
+          <DialogContent>
+            <TextField
+              label="Comment"
+              variant="outlined"
+              multiline
+              fullWidth
+              rows={4}
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+            />
+            <Rating
+              value={newRating}
+              onChange={(event, newValue) => setNewRating(newValue)}
+              sx={{ mt: 2 }}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setCommentModalOpen(false)} color="primary">
+              Cancel
+            </Button>
+            <Button onClick={handleSubmitFeedback} color="primary">
+              Submit
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Box>
     </Box>
   );

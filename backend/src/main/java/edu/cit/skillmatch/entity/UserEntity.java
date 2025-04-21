@@ -43,11 +43,11 @@ public class UserEntity {
     private Double rating; // Average rating for service providers
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference("user-location")  // Managed side
     private LocationEntity location;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonBackReference
+    @JsonBackReference("portfolio-user")  // This is the back-reference side
     private PortfolioEntity portfolio;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

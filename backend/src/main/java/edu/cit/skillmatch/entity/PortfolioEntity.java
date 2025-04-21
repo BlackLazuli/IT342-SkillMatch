@@ -15,7 +15,7 @@ public class PortfolioEntity {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonManagedReference
+    @JsonManagedReference("portfolio-user")  // This is the managed side
     private UserEntity user;
 
     @Column

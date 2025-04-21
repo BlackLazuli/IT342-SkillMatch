@@ -3,6 +3,8 @@ package edu.cit.skillmatch.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "comments")
 public class CommentEntity {
@@ -11,12 +13,14 @@ public class CommentEntity {
     private Long id;
 
     @ManyToOne
+    @JsonBackReference("comment-author")  // Unique name for this back-reference
     @JoinColumn(name = "author_id", nullable = false)
-    private UserEntity author; // The user who wrote the comment
+    private UserEntity author;
 
     @ManyToOne
+    @JsonBackReference("comment-portfolio")  // Unique name for this back-reference
     @JoinColumn(name = "portfolio_id", nullable = false)
-    private PortfolioEntity portfolio; // The portfolio being commented on
+    private PortfolioEntity portfolio;
 
     @Column(nullable = false, length = 1000)
     private String message;

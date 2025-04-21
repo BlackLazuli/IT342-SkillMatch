@@ -189,7 +189,7 @@ class ProfessionalProfileActivity : AppCompatActivity(), OnMapReadyCallback {
         emailText.text = user.email
 
         // Load profile image if available
-        user.profileImage?.let { imageBase64 ->
+        user.profilePicture?.let { imageBase64 ->
             try {
                 val imageBytes = Base64.decode(imageBase64, Base64.DEFAULT)
                 val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)

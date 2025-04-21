@@ -34,9 +34,9 @@ data class SignupResponse(
     val role: String,
     val token: String
 )
-// Update the User data class to include profileImage
+// Update the User data class to include profilePicture (renamed from profileImage)
 data class User(
-    val id: String,
+    val id: String?,
     val firstName: String?,
     val lastName: String?,
     val email: String?,
@@ -49,8 +49,8 @@ data class User(
     val availableHours: String?, // For service providers
     val location: Location?,
     val portfolio: Portfolio?,
-    val profileImage: String?, // Base64 encoded image
-    val userId: String
+    val profilePicture: String?, // Renamed from profileImage to match backend
+    val userId: String? = null // Made nullable with default value
 )
 
 
@@ -59,5 +59,5 @@ data class Location(
     val id: Long? = null,
     val latitude: Double,
     val longitude: Double,
-    val address: String
+    val address: String? = null
 )

@@ -41,6 +41,8 @@ import android.os.Looper
 import android.provider.MediaStore
 import android.util.Base64
 import android.util.Log
+import com.example.skillmatch.professional.EditProfessionalProfile
+import com.example.skillmatch.professional.ProfessionalProfileActivity
 import java.io.ByteArrayOutputStream
 import java.io.FileNotFoundException
 
@@ -186,27 +188,26 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
     }
     
     private fun setupClickListeners() {
+        // Back button
         backButton.setOnClickListener {
-            finish()
+            onBackPressed()
         }
         
-        // Make sure the save button has a proper click listener
+        // Save button
         saveButton.setOnClickListener {
-            // Show a loading indicator
-            Toast.makeText(this, "Saving profile...", Toast.LENGTH_SHORT).show()
             saveUserProfile()
         }
         
+        // Profile image click listener
         profileImage.setOnClickListener {
-            showImageSelectionOptions()
+            showImagePickerDialog()
         }
     }
     
-    private fun showImageSelectionOptions() {
+    private fun showImagePickerDialog() {
         val options = arrayOf("Take Photo", "Choose from Gallery", "Cancel")
         val builder = androidx.appcompat.app.AlertDialog.Builder(this)
-        builder.setTitle("Select Profile Picture")
-        
+        builder.setTitle("Choose Profile Picture")
         builder.setItems(options) { dialog, item ->
             when {
                 options[item] == "Take Photo" -> {
@@ -237,30 +238,38 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
                         selectedImageUri = data?.data
                         val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedImageUri)
                         profileImage.setImageBitmap(bitmap)
-                        profileImageBase64 = encodeImageToBase64(bitmap)
+                        
+                        // Convert bitmap to base64
+                        val outputStream = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                        val imageBytes = outputStream.toByteArray()
+                        profileImageBase64 = Base64.encodeToString(imageBytes, Base64.DEFAULT)
                     } catch (e: Exception) {
-                        Toast.makeText(this, "Error loading image: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Log.e("EditProfile", "Error picking image", e)
+                        Toast.makeText(this, "Error selecting image", Toast.LENGTH_SHORT).show()
                     }
                 }
                 TAKE_PHOTO_REQUEST -> {
-                    val imageBitmap = data?.extras?.get("data") as Bitmap
-                    profileImage.setImageBitmap(imageBitmap)
-                    profileImageBase64 = encodeImageToBase64(imageBitmap)
+                    try {
+                        val bitmap = data?.extras?.get("data") as Bitmap
+                        profileImage.setImageBitmap(bitmap)
+                        
+                        // Convert bitmap to base64
+                        val outputStream = ByteArrayOutputStream()
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
+                        val imageBytes = outputStream.toByteArray()
+                        profileImageBase64 = Base64.encodeToString(imageBytes, Base64.DEFAULT)
+                    } catch (e: Exception) {
+                        Log.e("EditProfile", "Error taking photo", e)
+                        Toast.makeText(this, "Error capturing photo", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
     }
     
-    private fun encodeImageToBase64(bitmap: Bitmap): String {
-        val baos = ByteArrayOutputStream()
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, baos)
-        val imageBytes = baos.toByteArray()
-        return Base64.encodeToString(imageBytes, Base64.DEFAULT)
-    }
-    
     private fun loadUserData() {
         val userId = sessionManager.getUserId()
-        val token = sessionManager.getToken() // This should now get the correct token
         
         if (userId.isNullOrEmpty()) {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
@@ -268,62 +277,54 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         
-        Log.d("EditProfile", "Loading user data for ID: $userId with token: $token")
-        
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Add authorization header to your API service call
                 val response = ApiClient.apiService.getUserProfile(userId)
                 
                 if (response.isSuccessful && response.body() != null) {
                     currentUser = response.body()
                     
                     withContext(Dispatchers.Main) {
-                        populateUserData(currentUser!!)
+                        // Populate form fields with user data
+                        firstNameInput.setText(currentUser?.firstName)
+                        lastNameInput.setText(currentUser?.lastName)
+                        emailInput.setText(currentUser?.email)
+                        phoneNumberInput.setText(currentUser?.phoneNumber)
+                        
+                        // Set address if available
+                        currentUser?.location?.address?.let { address ->
+                            addressInput.setText(address)
+                        }
+                        
+                        // Load profile image if available
+                        currentUser?.profilePicture?.let { imageBase64 ->
+                            try {
+                                val imageBytes = Base64.decode(imageBase64, Base64.DEFAULT)
+                                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                profileImage.setImageBitmap(bitmap)
+                            } catch (e: Exception) {
+                                Log.e("EditProfile", "Error loading profile image", e)
+                            }
+                        }
+                        
+                        // Update map with user location
+                        currentUser?.location?.let { location ->
+                            val lat = location.latitude
+                            val lng = location.longitude
+                            userLocation = LatLng(lat, lng)
+                            updateMapLocation()
+                        }
                     }
                 } else {
                     withContext(Dispatchers.Main) {
-                        Log.e("EditProfile", "Failed to load user data: ${response.code()} - ${response.errorBody()?.string()}")
-                        Toast.makeText(applicationContext, "Failed to load user data: ${response.code()}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(applicationContext, "Failed to load user data", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
-                Log.e("EditProfile", "Exception loading user data", e)
+                Log.e("EditProfile", "Error loading user data", e)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
-            }
-        }
-    }
-    
-    private fun populateUserData(user: User) {
-        firstNameInput.setText(user.firstName)
-        lastNameInput.setText(user.lastName)
-        emailInput.setText(user.email)
-        phoneNumberInput.setText(user.phoneNumber)
-        
-        // Update address field if available
-        user.location?.address?.let {
-            addressInput.setText(it)
-        }
-        
-        // Update map with user location if available
-        user.location?.let { location ->
-            val lat = location.latitude
-            val lng = location.longitude
-            userLocation = LatLng(lat, lng)
-            updateMapLocation()
-        }
-        
-        // Load profile image if available
-        user.profileImage?.let { imageBase64 ->
-            try {
-                val imageBytes = Base64.decode(imageBase64, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                profileImage.setImageBitmap(bitmap)
-                profileImageBase64 = imageBase64
-            } catch (e: Exception) {
-                // If there's an error loading the image, just use the default
             }
         }
     }
@@ -363,7 +364,7 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
             lastName = lastName,
             email = email,
             phoneNumber = phoneNumber,
-            profileImage = profileImageBase64,
+            profilePicture = profileImageBase64,
             location = Location(
                 id = currentUser?.location?.id,
                 latitude = userLocation.latitude,
@@ -399,7 +400,9 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
                         
                         // Delay finish to show success message
                         Handler(Looper.getMainLooper()).postDelayed({
-                            finish()
+                            val intent = Intent(this@EditCustomerProfile, CustomerProfileActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                            startActivity(intent)
                         }, 1500)
                     } else {
                         val errorCode = response.code()

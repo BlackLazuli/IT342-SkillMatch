@@ -21,6 +21,10 @@ interface ApiService {
     @GET("users/{userId}")
     suspend fun getUserProfile(@Path("userId") userId: String): Response<User>
     
+    // Add this endpoint to get all users (for finding professionals)
+    @GET("users/getAllUsers")
+    suspend fun getAllUsers(): Response<List<User>>
+    
     // Updated to match the backend controller endpoint
     @PUT("users/updateUser/{userId}")
     suspend fun updateUserProfile(
@@ -57,4 +61,15 @@ interface ApiService {
         @Path("userId") userId: String,
         @Body portfolio: Portfolio
     ): Response<Portfolio>
+    
+    // Add these methods for profile picture operations
+    @PUT("users/{userId}/uploadProfilePictureBase64")
+    suspend fun uploadProfilePictureBase64(
+        @Path("userId") userId: String,
+        @Body base64Image: String
+    ): Response<User>
+    
+    // Simple method to get user with profile picture
+    @GET("users/{userId}")
+    suspend fun getUserWithProfilePicture(@Path("userId") userId: String): Response<User>
 }

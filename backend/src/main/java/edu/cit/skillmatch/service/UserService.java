@@ -71,44 +71,62 @@ public class UserService {
     }
 
     // Method to upload profile picture after the user is created
-  // Method to upload profile picture after the user is created
-public UserEntity uploadProfilePicture(Long userId, MultipartFile file) throws IOException {
-    Optional<UserEntity> userOpt = userRepository.findById(userId);
-    if (userOpt.isPresent()) {
-        UserEntity user = userOpt.get();
+    public UserEntity uploadProfilePicture(Long userId, MultipartFile file) throws IOException {
+        Optional<UserEntity> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            UserEntity user = userOpt.get();
 
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("No file uploaded");
+            if (file.isEmpty()) {
+                throw new IllegalArgumentException("No file uploaded");
+            }
+
+            String originalFileName = file.getOriginalFilename();
+            if (originalFileName == null) {
+                throw new IllegalArgumentException("Invalid file name");
+            }
+
+            // Generate a unique file name to avoid name collisions
+            String uniqueFileName = System.currentTimeMillis() + "_" + originalFileName;
+
+            // Ensure directory exists
+            File uploadDir = new File(PROFILE_PICTURE_UPLOAD_DIR);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdirs();
+            }
+
+            // Save the file to the local filesystem
+            File destinationFile = new File(uploadDir, uniqueFileName);
+            file.transferTo(destinationFile);
+
+            // ✅ Store the *web-accessible path*, not the full system path
+            String webPath = "/uploads/profile-pictures/" + uniqueFileName;
+            user.setProfilePicture(webPath);
+
+            return userRepository.save(user);
+        } else {
+            throw new IllegalArgumentException("User not found");
         }
-
-        String originalFileName = file.getOriginalFilename();
-        if (originalFileName == null) {
-            throw new IllegalArgumentException("Invalid file name");
-        }
-
-        // Generate a unique file name to avoid name collisions
-        String uniqueFileName = System.currentTimeMillis() + "_" + originalFileName;
-
-        // Ensure directory exists
-        File uploadDir = new File(PROFILE_PICTURE_UPLOAD_DIR);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
-        // Save the file to the local filesystem
-        File destinationFile = new File(uploadDir, uniqueFileName);
-        file.transferTo(destinationFile);
-
-        // ✅ Store the *web-accessible path*, not the full system path
-        String webPath = "/uploads/profile-pictures/" + uniqueFileName;
-        user.setProfilePicture(webPath);
-
-        return userRepository.save(user);
-    } else {
-        throw new IllegalArgumentException("User not found");
     }
-}
-
+    
+    // Method to handle Base64 encoded profile pictures from mobile app
+    public UserEntity uploadProfilePictureBase64(Long userId, String base64Image) {
+        Optional<UserEntity> userOpt = userRepository.findById(userId);
+        if (userOpt.isPresent()) {
+            UserEntity user = userOpt.get();
+            
+            if (base64Image == null || base64Image.isEmpty()) {
+                throw new IllegalArgumentException("No image data provided");
+            }
+            
+            // Store the Base64 string directly in the database
+            // This is more efficient for mobile apps than file storage
+            user.setProfilePicture(base64Image);
+            
+            return userRepository.save(user);
+        } else {
+            throw new IllegalArgumentException("User not found");
+        }
+    }
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);

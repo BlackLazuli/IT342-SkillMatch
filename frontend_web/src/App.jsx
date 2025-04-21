@@ -1,21 +1,24 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { usePersonalInfo } from "./context/PersonalInfoContext";
+
+// Page imports
 import LoginPage from "./pages/login/LoginPage";
 import RegistrationPage from "./pages/registration/RegistrationPage";
 import CustomerDashboard from "./pages/customerdashboard/CustomerDashboard";
 import ProviderDashboard from "./pages/providerdashboard/ProviderDashboard";
 import PortfolioPage from "./pages/portfolio/PortfolioPage";
 import AddPortfolioPage from "./pages/portfolio/AddPortfolioPage";
-import EditPortfolioPage from "./pages/portfolio/EditPortfolioPage"; 
+import EditPortfolioPage from "./pages/portfolio/EditPortfolioPage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import ProviderPortfolioPage from "./pages/portfolio/ProviderPortfolioPage"; // ✅ Imported
 
 function App() {
   const { personalInfo } = usePersonalInfo(); // Access context
 
-  // PrivateRoute equivalent logic
+  // PrivateRoute logic
   const PrivateRoute = ({ children }) => {
     if (personalInfo === null) {
-      return <div>Loading...</div>; // Show loading state until personalInfo is set
+      return <div>Loading...</div>; // Show loading until context is ready
     }
 
     return personalInfo && personalInfo.userId ? children : <Navigate to="/" />;
@@ -24,9 +27,11 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Public Routes */}
         <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegistrationPage />} />
 
+        {/* Protected Routes */}
         <Route
           path="/customer-dashboard"
           element={
@@ -72,6 +77,14 @@ function App() {
           element={
             <PrivateRoute>
               <ProfilePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/provider-portfolio/:userID"
+          element={
+            <PrivateRoute>
+              <ProviderPortfolioPage />
             </PrivateRoute>
           }
         />

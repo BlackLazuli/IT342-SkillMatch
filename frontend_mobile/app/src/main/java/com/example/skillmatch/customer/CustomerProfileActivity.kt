@@ -126,9 +126,9 @@ class CustomerProfileActivity : AppCompatActivity(), OnMapReadyCallback {
         // Bottom navigation buttons
         homeButton.setOnClickListener {
             // Navigate to home screen (CustomerDashboard)
-/*   val intent = Intent(this, CustomerDashboard::class.java)
+ val intent = Intent(this, CustomerDashboard::class.java)
  intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
- startActivity(intent)*/
+ startActivity(intent)
 }
 
 calendarButton.setOnClickListener {

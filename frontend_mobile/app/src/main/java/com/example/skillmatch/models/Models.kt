@@ -59,5 +59,5 @@ data class Location(
     val id: Long? = null,
     val latitude: Double,
     val longitude: Double,
-    val address: String
+    val address: String? = null
 )

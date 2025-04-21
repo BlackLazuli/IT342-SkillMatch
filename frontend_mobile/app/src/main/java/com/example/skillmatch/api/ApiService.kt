@@ -21,6 +21,10 @@ interface ApiService {
     @GET("users/{userId}")
     suspend fun getUserProfile(@Path("userId") userId: String): Response<User>
     
+    // Add this endpoint to get all users (for finding professionals)
+    @GET("users/getAllUsers")
+    suspend fun getAllUsers(): Response<List<User>>
+    
     // Updated to match the backend controller endpoint
     @PUT("users/updateUser/{userId}")
     suspend fun updateUserProfile(

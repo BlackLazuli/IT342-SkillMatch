@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
     // Update this to your actual backend URL
-    private const val BASE_URL = "http://10.0.2.2:8080/api/"  // For Android emulator pointing to localhost
+    internal const val BASE_URL = "http://10.0.2.2:8080/api/"  // For Android emulator pointing to localhost
     
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

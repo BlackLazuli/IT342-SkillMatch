@@ -12,9 +12,10 @@ public class LocationEntity {
     private Long id;
 
     @OneToOne
-    @JsonBackReference
+    @JsonBackReference("user-location")  // Back-reference side
     @JoinColumn(name = "user_id", nullable = false, unique = true)
-    private UserEntity user; // Each user has one location
+    private UserEntity user;
+    
 
     @Column(nullable = false)
     private double latitude;

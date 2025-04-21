@@ -3,6 +3,8 @@ package edu.cit.skillmatch.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "ratings")
 public class RatingEntity {
@@ -11,8 +13,9 @@ public class RatingEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user; // The user receiving the rating (customer or service provider)
+    @JsonBackReference("rating-user")  // Unique name for this back-reference
+    @JoinColumn(name = "author_id", nullable = false)
+    private UserEntity user;
 
     @Column(nullable = false)
     private int rating; // 1 to 5 stars

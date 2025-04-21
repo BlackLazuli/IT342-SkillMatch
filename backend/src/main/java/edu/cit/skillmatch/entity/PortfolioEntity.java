@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "portfolios")
@@ -14,7 +15,7 @@ public class PortfolioEntity {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-     @JsonBackReference
+    @JsonManagedReference("portfolio-user")  // This is the managed side
     private UserEntity user;
 
     @Column

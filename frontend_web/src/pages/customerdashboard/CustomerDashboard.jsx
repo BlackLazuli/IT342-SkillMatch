@@ -7,8 +7,9 @@ import {
   Card,
   CardContent,
   Grid,
+  Avatar,
   Button,
-  Collapse,
+  Rating,
 } from "@mui/material";
 
 const drawerWidth = 240;
@@ -16,7 +17,6 @@ const drawerWidth = 240;
 const ProviderDashboard = () => {
   const [portfolios, setPortfolios] = useState([]);
   const [error, setError] = useState("");
-  const [openPortfolioIds, setOpenPortfolioIds] = useState([]);
 
   useEffect(() => {
     const fetchPortfolios = async () => {
@@ -39,10 +39,11 @@ const ProviderDashboard = () => {
     fetchPortfolios();
   }, []);
 
-  const togglePortfolio = (id) => {
-    setOpenPortfolioIds((prev) =>
-      prev.includes(id) ? prev.filter((pid) => pid !== id) : [...prev, id]
-    );
+  const getProfilePictureUrl = (user) => {
+    if (!user?.profilePicture) return "/default-avatar.png";
+    return user.profilePicture.startsWith("http")
+      ? user.profilePicture
+      : `http://localhost:8080${user.profilePicture}`;
   };
 
   return (
@@ -50,10 +51,7 @@ const ProviderDashboard = () => {
       <AppBar />
       <Box sx={{ flexGrow: 1, p: 3, ml: `${drawerWidth}px` }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Welcome, Customer!
-        </Typography>
-        <Typography variant="body1" gutterBottom>
-          Here are the services offered by our providers:
+          Professionals Near You
         </Typography>
 
         {error && (
@@ -62,58 +60,66 @@ const ProviderDashboard = () => {
           </Typography>
         )}
 
-        <Grid container spacing={2}>
-        {portfolios.map((portfolio) =>
-  portfolio.servicesOffered?.map((service) => (
-    <Grid item xs={12} md={6} key={service.id}>
-      <Card variant="outlined">
-        <CardContent>
-          <Typography variant="h6">{service.name}</Typography>
+        <Grid container spacing={4}>
+          {portfolios.flatMap((portfolio) =>
+            portfolio.servicesOffered?.map((service, index) => (
+              <Grid item xs={12} sm={6} md={4} key={`${portfolio.id}-${index}`}>
+                <Card
+                  elevation={3}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    backgroundColor: "#e0f7fa",
+                    borderRadius: 2,
+                    padding: 2,
+                    textAlign: "center",
+                  }}
+                >
+                  <Avatar
+                    src={getProfilePictureUrl(portfolio.user)}
+                    alt={portfolio.user?.firstName || "User"}
+                    sx={{ width: 100, height: 100, mb: 1 }}
+                  />
+                  <Typography variant="h6" fontWeight="bold">
+                    {portfolio.user?.firstName || "Unknown"} {portfolio.user?.lastName || ""}
+                  </Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    {service.name}
+                  </Typography>
 
-          {/* Description removed */}
+                  <Box sx={{ mt: 1, mb: 1 }}>
+                    <Rating value={5} readOnly size="small" />
+                  </Box>
 
-          <Typography variant="body2">Pricing: {service.pricing}</Typography>
-          <Typography variant="body2">Time: {service.time}</Typography>
-          <Typography variant="body2">
-            Days: {service.daysOfTheWeek.join(", ")}
-          </Typography>
+                  <Typography variant="body2">
+                    <strong>Price:</strong> {service.pricing}
+                  </Typography>
 
-          <Button
-            size="small"
-            sx={{ mt: 1 }}
-            onClick={() => togglePortfolio(portfolio.id)}
-          >
-            {openPortfolioIds.includes(portfolio.id)
-              ? "Hide Portfolio"
-              : "View Portfolio"}
-          </Button>
+                  <Button
+                      variant="contained"
+                      sx={{
+                        mt: 2,
+                        backgroundColor: "#607d8b",
+                        ":hover": { backgroundColor: "#455a64" },
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                      onClick={() =>
+                        window.location.href = `/provider-portfolio/${portfolio.user.id}`
+                      }
+                    >
+                      MORE
+                    </Button>
 
-          <Collapse in={openPortfolioIds.includes(portfolio.id)}>
-            <Box mt={2}>
-              <Typography variant="subtitle1" fontWeight="bold">
-                Work Experience
-              </Typography>
-              <Typography variant="body2" gutterBottom>
-                {portfolio.workExperience || "N/A"}
-              </Typography>
-
-              <Typography variant="subtitle1" fontWeight="bold">
-                Client Testimonials
-              </Typography>
-              <Typography variant="body2">
-                {portfolio.clientTestimonials || "N/A"}
-              </Typography>
-            </Box>
-          </Collapse>
-        </CardContent>
-      </Card>
-    </Grid>
-  ))
-)}
-        </Grid>
-      </Box>
-    </Box>
-  );
-};
+                                    </Card>
+                                  </Grid>
+                                ))
+                              )}
+                            </Grid>
+                          </Box>
+                        </Box>
+                      );
+                    };
 
 export default ProviderDashboard;

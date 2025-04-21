@@ -27,7 +27,12 @@ public class CommentService {
         return commentRepository.findByPortfolioId(portfolioId);
     }
 
-    public CommentEntity addComment(Long userId, Long portfolioId, String message) {
+    public CommentEntity addComment(Long userId, Long portfolioId, String message, Integer rating) {
+        // Validate rating to be between 1 and 5
+        if (rating < 1 || rating > 5) {
+            throw new IllegalArgumentException("Rating must be between 1 and 5.");
+        }
+
         Optional<UserEntity> user = userRepository.findById(userId);
         Optional<PortfolioEntity> portfolio = portfolioRepository.findById(portfolioId);
 
@@ -36,6 +41,7 @@ public class CommentService {
             comment.setAuthor(user.get());
             comment.setPortfolio(portfolio.get());
             comment.setMessage(message);
+            comment.setRating(rating); // Set the rating
             return commentRepository.save(comment);
         } else {
             throw new RuntimeException("User or Portfolio not found");

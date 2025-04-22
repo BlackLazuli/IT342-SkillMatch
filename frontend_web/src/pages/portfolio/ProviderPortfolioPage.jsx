@@ -33,6 +33,7 @@ const ProviderPortfolioPage = () => {
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState(0);
   const { personalInfo } = usePersonalInfo();
+  const token = localStorage.getItem("token");
 
   // Fetch portfolio data
   const fetchPortfolio = async () => {
@@ -59,7 +60,6 @@ const ProviderPortfolioPage = () => {
       const data = await res.json();
       setPortfolio(data);
       fetchComments(data.id);  // Fetch comments when portfolio is loaded
-      fetchRatings(userID);    // Fetch ratings when portfolio is loaded
     } catch (error) {
       console.error(error);
     } finally {
@@ -68,7 +68,6 @@ const ProviderPortfolioPage = () => {
   };
 
   // Fetch comments for a portfolio
-
   const fetchComments = async (portfolioId) => {
     try {
       const res = await fetch(`http://localhost:8080/api/comments/portfolio/${portfolioId}`, {
@@ -76,28 +75,16 @@ const ProviderPortfolioPage = () => {
       });
       const data = await res.json();
       setComments(data);
+
+      // Calculate the average rating from comments
+      const avgRating = data.length
+        ? data.reduce((acc, curr) => acc + curr.rating, 0) / data.length
+        : 0;
+
+      setRating(avgRating); // Set the average rating
     } catch {
       setComments([]);
-    }
-  };
-
-  // Fetch ratings for a user
-  const fetchRatings = async (userId) => {
-    const token = localStorage.getItem("token");
-    try {
-      const res = await fetch(`http://localhost:8080/api/ratings/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const ratingsData = await res.json();
-        const avg = ratingsData.length
-          ? ratingsData.reduce((acc, curr) => acc + curr.rating, 0) / ratingsData.length
-          : 0;
-        setRating(avg);
-      }
-    } catch (err) {
-      console.error("Failed to fetch ratings:", err);
-      setRating(0);
+      setRating(0); // Default to 0 if there's an error
     }
   };
 
@@ -173,12 +160,11 @@ const ProviderPortfolioPage = () => {
   
       // Refresh both
       fetchComments(portfolio.id);
-      fetchRatings(personalInfo.userId);
     } catch (error) {
       console.error("Failed to submit feedback", error);
     }
   };
-  
+
   if (loading) {
     return (
       <Box sx={{ display: "flex" }}>
@@ -285,37 +271,57 @@ const ProviderPortfolioPage = () => {
 
             {/* Comments */}
             <Box>
-  <Divider sx={{ mb: 2 }} />
-  <Typography variant="h5" fontWeight="bold" gutterBottom>
-    Comments
-  </Typography>
-  {comments.length === 0 ? (
-    <Typography>No Comments</Typography>
-  ) : (
-    comments.map((comment, index) => (
-      <Card key={index} sx={{ mb: 2, backgroundColor: "#f9f9f9" }}>
-        <CardContent sx={{ display: "flex", alignItems: "flex-start" }}>
-          <Avatar
-            alt={comment.authorName || "Anonymous"}
-            src={comment.authorProfilePicture ? `http://localhost:8080${comment.authorProfilePicture}` : "/default-avatar.png"}
-            sx={{ width: 40, height: 40, mr: 2 }}
-          />
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="body1" fontWeight="bold" gutterBottom>
-              {comment.authorName || "Anonymous"}
-            </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-              <Rating value={comment.authorRating} precision={0.1} readOnly size="small" sx={{ color: "#ffb400" }} />
+              <Divider sx={{ mb: 2 }} />
+              <Typography variant="h5" fontWeight="bold" gutterBottom>
+                Comments
+              </Typography>
+              {comments.length === 0 ? (
+                <Typography>No Comments</Typography>
+              ) : (
+                comments.map((comment, index) => (
+                  <Card key={index} sx={{ mb: 2, backgroundColor: "#f9f9f9" }}>
+                    <CardContent sx={{ display: "flex", alignItems: "flex-start" }}>
+                      <Avatar
+                        alt={comment.authorName || "Anonymous"}
+                        src={
+                          comment.profilePicture
+                            ? comment.profilePicture.startsWith("http")
+                              ? comment.profilePicture
+                              : `http://localhost:8080${comment.profilePicture}`
+                            : "/default-avatar.png"
+                        }
+                        sx={{ width: 40, height: 40, mr: 2 }}
+                      />
+                      <Box sx={{ flex: 1 }}>
+                        <Typography variant="body1" fontWeight="bold" gutterBottom>
+                          {comment.authorName || "Anonymous"}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" gutterBottom>
+                          {new Date(comment.timestamp).toLocaleString()}
+                        </Typography>
+
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+                          <Rating
+                            value={comment.rating}
+                            precision={0.1}
+                            readOnly
+                            size="small"
+                            sx={{ color: "#ffb400" }}
+                          />
+                          <Typography variant="body2" color="text.secondary">
+                            {comment.rating.toFixed(1)}
+                          </Typography>
+                        </Box>
+
+                        <Typography variant="body2">
+                          {comment.message}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
             </Box>
-            <Typography variant="body2">
-              {comment.message}
-            </Typography>
-          </Box>
-        </CardContent>
-      </Card>
-    ))
-  )}
-</Box>
           </>
         )}
 

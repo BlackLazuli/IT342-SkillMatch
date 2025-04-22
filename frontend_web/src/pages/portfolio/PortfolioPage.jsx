@@ -27,6 +27,12 @@ const PortfolioPage = () => {
   const { personalInfo } = usePersonalInfo();
 
   useEffect(() => {
+    console.log("Debug - personalInfo ID:", personalInfo?.userId);
+    console.log("Debug - URL userID:", userID);
+    console.log("Should show button?", personalInfo?.userId === userID);
+  }, [personalInfo, userID]);
+
+  useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -51,7 +57,6 @@ const PortfolioPage = () => {
         const data = await res.json();
         setPortfolio(data);
         fetchComments(data.id);
-        fetchRatings(userID);
       } catch (error) {
         console.error(error);
       } finally {
@@ -66,10 +71,19 @@ const PortfolioPage = () => {
         });
         const data = await res.json();
         setComments(data);
+    
+        // Calculate the average rating from comments
+        const avgRating = data.length
+          ? data.reduce((acc, curr) => acc + curr.rating, 0) / data.length
+          : 0;
+    
+        setRating(avgRating); // Set the average rating from comments
       } catch {
         setComments([]);
+        setRating(0); // Set default rating if there's an error
       }
     };
+    
 
     const fetchRatings = async (userId) => {
       try {
@@ -150,24 +164,24 @@ const PortfolioPage = () => {
                 src={getProfilePictureUrl()}
                 sx={{ width: 80, height: 80, mr: 2 }}
               />
-              <Box>
-                <Typography variant="h4" fontWeight="bold">
-                  {userDetails?.firstName || "User"}'s Portfolio
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
-                  <Rating value={rating} precision={0.1} readOnly size="small" sx={{ color: "#ffb400" }} />
-                  <Typography variant="body2" color="text.secondary">
-                    {rating.toFixed(1)} Stars
-                  </Typography>
-                </Box>
-              </Box>
+<Box>
+  <Typography variant="h4" fontWeight="bold">
+    {userDetails?.firstName || "User"}'s Portfolio
+  </Typography>
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
+    <Rating value={rating} precision={0.1} readOnly size="small" sx={{ color: "#ffb400" }} />
+    <Typography variant="body2" color="text.secondary">
+      {rating.toFixed(1)} Stars
+    </Typography>
+  </Box>
+</Box>
             </Box>
 
-            {personalInfo?.userId === userID && (
-              <Button variant="contained" sx={{ mb: 4 }} onClick={handleUpdatePortfolio}>
-                Update Portfolio
-              </Button>
-            )}
+{personalInfo?.userId === Number(userID) && (
+  <Button variant="contained" sx={{ mb: 4 }} onClick={handleUpdatePortfolio}>
+    Update Portfolio
+  </Button>
+)}
 
             {/* Portfolio Content */}
             <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
@@ -233,25 +247,48 @@ const PortfolioPage = () => {
   ) : (
     comments.map((comment, index) => (
       <Card key={index} sx={{ mb: 2, backgroundColor: "#f9f9f9" }}>
-        <CardContent sx={{ display: "flex", alignItems: "flex-start" }}>
-          <Avatar
-            alt={comment.authorName || "Anonymous"}
-            src={comment.authorProfilePicture ? `http://localhost:8080${comment.authorProfilePicture}` : "/default-avatar.png"}
-            sx={{ width: 40, height: 40, mr: 2 }}
-          />
-          <Box sx={{ flex: 1 }}>
-            <Typography variant="body1" fontWeight="bold" gutterBottom>
-              {comment.authorName || "Anonymous"}
-            </Typography>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-              <Rating value={comment.authorRating} precision={0.1} readOnly size="small" sx={{ color: "#ffb400" }} />
-            </Box>
-            <Typography variant="body2">
-              {comment.message}
+      <CardContent sx={{ display: "flex", alignItems: "flex-start" }}>
+        <Avatar
+          alt={comment.authorName || "Anonymous"}
+          src={
+            comment.profilePicture
+              ? comment.profilePicture.startsWith("http")
+                ? comment.profilePicture
+                : `http://localhost:8080${comment.profilePicture}`
+              : "/default-avatar.png"
+          }
+          sx={{ width: 40, height: 40, mr: 2 }}
+        />
+    
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="body1" fontWeight="bold" gutterBottom>
+            {comment.authorName || "Anonymous"}
+          </Typography>
+    
+          <Typography variant="caption" color="text.secondary" gutterBottom>
+            {new Date(comment.timestamp).toLocaleString()}
+          </Typography>
+    
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+            <Rating
+              value={comment.rating}
+              precision={0.1}
+              readOnly
+              size="small"
+              sx={{ color: "#ffb400" }}
+            />
+            <Typography variant="body2" color="text.secondary">
+              {comment.rating.toFixed(1)}
             </Typography>
           </Box>
-        </CardContent>
-      </Card>
+    
+          <Typography variant="body2">
+            {comment.message}
+          </Typography>
+        </Box>
+      </CardContent>
+    </Card>
+    
     ))
   )}
 </Box>

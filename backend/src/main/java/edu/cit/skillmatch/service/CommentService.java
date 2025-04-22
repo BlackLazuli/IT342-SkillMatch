@@ -1,5 +1,6 @@
 package edu.cit.skillmatch.service;
 
+import edu.cit.skillmatch.dto.CommentDTO;
 import edu.cit.skillmatch.entity.CommentEntity;
 import edu.cit.skillmatch.entity.PortfolioEntity;
 import edu.cit.skillmatch.entity.UserEntity;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -23,8 +25,23 @@ public class CommentService {
         this.portfolioRepository = portfolioRepository;
     }
 
-    public List<CommentEntity> getCommentsByPortfolio(Long portfolioId) {
-        return commentRepository.findByPortfolioId(portfolioId);
+    public List<CommentDTO> getCommentsByPortfolio(Long portfolioId) {
+        List<CommentEntity> comments = commentRepository.findByPortfolioId(portfolioId);
+
+        return comments.stream().map(comment -> {
+            UserEntity author = comment.getAuthor();
+            String authorName = author.getFirstName() + " " + author.getLastName();
+            String profilePicture = author.getProfilePicture();
+
+            return new CommentDTO(
+                    comment.getId(),
+                    comment.getMessage(),
+                    comment.getTimestamp(),
+                    comment.getRating(),
+                    authorName,
+                    profilePicture
+            );
+        }).collect(Collectors.toList());
     }
 
     public CommentEntity addComment(Long userId, Long portfolioId, String message, Integer rating) {
@@ -41,7 +58,7 @@ public class CommentService {
             comment.setAuthor(user.get());
             comment.setPortfolio(portfolio.get());
             comment.setMessage(message);
-            comment.setRating(rating); // Set the rating
+            comment.setRating(rating);
             return commentRepository.save(comment);
         } else {
             throw new RuntimeException("User or Portfolio not found");

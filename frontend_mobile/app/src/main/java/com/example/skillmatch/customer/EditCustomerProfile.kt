@@ -60,7 +60,7 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
     
     private var currentUser: User? = null
     private var googleMap: GoogleMap? = null
-    private var userLocation: LatLng = LatLng(14.5995, 120.9842) // Default to Manila, Philippines
+    private var userLocation: LatLng = LatLng(10.3157, 123.8854) // Default to Cebu, Philippines
     private var geocoder: Geocoder? = null // For address lookup
     private var selectedImageUri: Uri? = null
     private var profileImageBase64: String? = null

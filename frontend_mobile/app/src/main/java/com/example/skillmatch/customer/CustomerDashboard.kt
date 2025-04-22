@@ -90,9 +90,10 @@ class CustomerDashboard : AppCompatActivity() {
 
     private fun setupRecyclerView() {
         professionalsAdapter = ProfessionalsAdapter(professionals) { professional ->
-            // Handle professional click - navigate to professional details
-            Toast.makeText(this, "Selected: ${professional.getFullName()}", Toast.LENGTH_SHORT).show()
-            // TODO: Navigate to professional details screen
+            // Navigate to CustomerViewCardActivity with professional ID
+            val intent = Intent(this, CustomerViewCardActivity::class.java)
+            intent.putExtra(CustomerViewCardActivity.EXTRA_PROFESSIONAL_ID, professional.id)
+            startActivity(intent)
         }
         
         recyclerView.apply {

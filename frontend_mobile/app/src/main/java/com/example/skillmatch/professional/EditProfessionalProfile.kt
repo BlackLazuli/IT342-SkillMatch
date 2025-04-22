@@ -57,7 +57,7 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
     
     private var currentUser: User? = null
     private var googleMap: GoogleMap? = null
-    private var userLocation: LatLng = LatLng(24.7136, 46.6753) // Default location (Riyadh)
+    private var userLocation:  LatLng = LatLng(10.3157, 123.8854)// Default location (Cebu)
     private var geocoder: Geocoder? = null // For address lookup
     private var selectedImageUri: android.net.Uri? = null
     private var profileImageBase64: String? = null

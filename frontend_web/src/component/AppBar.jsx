@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Drawer,
   List,
@@ -20,6 +21,32 @@ const AppBar = () => {
   const { personalInfo } = usePersonalInfo();
   const navigate = useNavigate();
 
+  const [user, setUser] = useState(null);
+  const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        if (personalInfo?.userId) {
+          const res = await axios.get(`http://localhost:8080/api/users/${personalInfo.userId}`);
+          const userData = res.data;
+          setUser(userData);
+          if (userData.profilePicture) {
+            setProfilePictureUrl(
+              userData.profilePicture.startsWith("http")
+                ? userData.profilePicture
+                : `http://localhost:8080${userData.profilePicture}`
+            );
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching user info:", err);
+      }
+    };
+
+    fetchUserInfo();
+  }, [personalInfo?.userId]);
+
   const menuItems = [
     { text: "Home", icon: <Home />, path: "/" },
     { text: "Profile", icon: <Person />, path: "/profile" },
@@ -37,15 +64,6 @@ const AppBar = () => {
       return;
     }
     navigate(path);
-  };
-
-  const getProfilePictureUrl = () => {
-    if (personalInfo?.profilePicture) {
-      return personalInfo.profilePicture.startsWith("http")
-        ? personalInfo.profilePicture
-        : `http://localhost:8080${personalInfo.profilePicture}`;
-    }
-    return "/default-avatar.png";
   };
 
   return (
@@ -122,19 +140,19 @@ const AppBar = () => {
 
         <Box sx={{ display: "flex", alignItems: "center", mt: 3, px: 1 }}>
           <Avatar
-            src={getProfilePictureUrl()}
+            src={profilePictureUrl}
             alt="Profile"
             sx={{ width: 40, height: 40, mr: 2 }}
           >
-            {!personalInfo?.profilePicture && (personalInfo?.firstName?.[0] || "?")}
+            {!user?.profilePicture && (user?.firstName?.[0] || "?")}
           </Avatar>
 
           <Box>
             <Typography variant="body2" fontWeight="bold">
-              {personalInfo?.firstName || "Guest"} {personalInfo?.lastName || ""}
+              {user?.firstName || "Guest"} {user?.lastName || ""}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {personalInfo?.email || "No email"}
+              {user?.email || "No email"}
             </Typography>
           </Box>
         </Box>

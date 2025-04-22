@@ -27,9 +27,10 @@ public class CommentController {
     @PostMapping("/{userId}/{portfolioId}")
     public ResponseEntity<CommentEntity> addComment(@PathVariable Long userId,
                                                     @PathVariable Long portfolioId,
-                                                    @RequestBody CommentEntity comment) {
+                                                    @RequestBody CommentEntity comment) throws IllegalArgumentException {
         try {
-            CommentEntity savedComment = commentService.addComment(userId, portfolioId, comment.getMessage());
+            // Pass the rating along with the message
+            CommentEntity savedComment = commentService.addComment(userId, portfolioId, comment.getMessage(), comment.getRating());
             return ResponseEntity.ok(savedComment);
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().build();

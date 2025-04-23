@@ -3,7 +3,6 @@ package edu.cit.skillmatch.entity;
 import jakarta.persistence.*;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity

@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 import android.util.Log
 import com.example.skillmatch.customer.EditCustomerProfile
+import com.example.skillmatch.professional.EditProfessionalProfile
 
 class SignUp : AppCompatActivity() {
 
@@ -122,7 +123,7 @@ class SignUp : AppCompatActivity() {
                             finish()
                         } else if (signupResponse.role == "PROFESSIONAL" || 
                                   signupResponse.role == "SERVICE_PROVIDER") {
-                            val intent = Intent(this@SignUp, EditCustomerProfile::class.java)
+                            val intent = Intent(this@SignUp, EditProfessionalProfile::class.java)
                             intent.putExtra("USER_ID", signupResponse.userId)
                             startActivity(intent)
                             finish()

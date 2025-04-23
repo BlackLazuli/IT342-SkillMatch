@@ -7,7 +7,7 @@ data class Service(
     val id: Long? = null,
     val name: String,
     val description: String? = null,
-    val pricing: String? = null,  // Changed from price to pricing to match backend
+    val pricing: String? = null,
     val time: String? = null,
     val daysOfTheWeek: List<String> = emptyList()
 ) : Parcelable {

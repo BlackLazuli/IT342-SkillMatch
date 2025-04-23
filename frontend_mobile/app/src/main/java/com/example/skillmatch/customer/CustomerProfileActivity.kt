@@ -94,8 +94,10 @@ class CustomerProfileActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setupClickListeners() {
         // Back button click listener
+        // In setupClickListeners() method
         backButton.setOnClickListener {
-            finish()
+        // Use finish() instead of onBackPressed()
+        finish()
         }
 
         // Edit profile button click listener

@@ -92,7 +92,8 @@ class EditPortfolioActivity : AppCompatActivity() {
     private fun setupListeners() {
         // Back button
         backButton.setOnClickListener {
-            onBackPressed()
+            // Replace onBackPressed() with finish()
+            finish()
         }
         
         // Save button

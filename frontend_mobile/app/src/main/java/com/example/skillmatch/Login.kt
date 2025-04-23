@@ -7,6 +7,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.skillmatch.customer.CustomerDashboard
+import com.example.skillmatch.customer.CustomerProfileActivity
 import com.example.skillmatch.customer.EditCustomerProfile
 import com.example.skillmatch.professional.EditProfessionalProfile
 import com.example.skillmatch.professional.ProfessionalProfileActivity
@@ -80,7 +82,7 @@ class Login : AppCompatActivity() {
                         
                         // Navigate based on user type
                         if (loginResponse.role == "CUSTOMER") {
-                            val intent = Intent(this@Login, EditCustomerProfile::class.java)
+                            val intent = Intent(this@Login, CustomerDashboard::class.java)
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)
                             finish()

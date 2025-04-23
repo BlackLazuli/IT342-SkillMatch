@@ -69,8 +69,10 @@ class PortfolioActivity : AppCompatActivity() {
     
     private fun setupListeners() {
         // Back button
+        // In setupListeners() method
         backButton.setOnClickListener {
-            onBackPressed()
+        // Replace onBackPressed() with finish()
+        finish()
         }
         
         // Edit portfolio button

@@ -5,18 +5,20 @@ import {
   Box,
   Typography,
   Card,
-  CardContent,
   Grid,
   Avatar,
   Button,
   Rating,
+  TextField,
 } from "@mui/material";
 
 const drawerWidth = 240;
 
 const ProviderDashboard = () => {
   const [portfolios, setPortfolios] = useState([]);
+  const [ratings, setRatings] = useState({});
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchPortfolios = async () => {
@@ -30,9 +32,36 @@ const ProviderDashboard = () => {
         });
 
         setPortfolios(response.data);
+
+        for (const portfolio of response.data) {
+          await fetchAverageRating(portfolio.id);
+        }
       } catch (err) {
         console.error("Error fetching portfolios:", err);
         setError("Failed to fetch portfolios.");
+      }
+    };
+
+    const fetchAverageRating = async (portfolioId) => {
+      const token = localStorage.getItem("token");
+      try {
+        const response = await axios.get(
+          `http://localhost:8080/api/comments/portfolio/${portfolioId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const comments = response.data;
+        const avg =
+          comments.length > 0
+            ? comments.reduce((acc, c) => acc + (c.rating || 0), 0) / comments.length
+            : 0;
+
+        setRatings((prev) => ({ ...prev, [portfolioId]: avg }));
+      } catch (err) {
+        console.error(`Error fetching comments for portfolio ${portfolioId}:`, err);
+        setRatings((prev) => ({ ...prev, [portfolioId]: 0 }));
       }
     };
 
@@ -46,6 +75,18 @@ const ProviderDashboard = () => {
       : `http://localhost:8080${user.profilePicture}`;
   };
 
+  const filteredPortfolios = portfolios.flatMap((portfolio) =>
+    portfolio.servicesOffered
+      ?.filter((service) =>
+        service.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .map((service, index) => ({
+        ...portfolio,
+        service,
+        key: `${portfolio.id}-${index}`,
+      }))
+  );
+
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar />
@@ -54,6 +95,15 @@ const ProviderDashboard = () => {
           Professionals Near You
         </Typography>
 
+        <TextField
+          label="Search by service name"
+          variant="outlined"
+          fullWidth
+          margin="normal"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
         {error && (
           <Typography color="error" mb={2}>
             {error}
@@ -61,65 +111,70 @@ const ProviderDashboard = () => {
         )}
 
         <Grid container spacing={4}>
-          {portfolios.flatMap((portfolio) =>
-            portfolio.servicesOffered?.map((service, index) => (
-              <Grid item xs={12} sm={6} md={4} key={`${portfolio.id}-${index}`}>
-                <Card
-                  elevation={3}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    backgroundColor: "#e0f7fa",
-                    borderRadius: 2,
-                    padding: 2,
-                    textAlign: "center",
-                  }}
-                >
-                  <Avatar
-                    src={getProfilePictureUrl(portfolio.user)}
-                    alt={portfolio.user?.firstName || "User"}
-                    sx={{ width: 100, height: 100, mb: 1 }}
+          {filteredPortfolios.map(({ key, user, service, id: portfolioId }) => (
+            <Grid item xs={12} sm={6} md={4} key={key}>
+              <Card
+                elevation={3}
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  backgroundColor: "#e0f7fa",
+                  borderRadius: 2,
+                  padding: 2,
+                  textAlign: "center",
+                }}
+              >
+                <Avatar
+                  src={getProfilePictureUrl(user)}
+                  alt={user?.firstName || "User"}
+                  sx={{ width: 100, height: 100, mb: 1 }}
+                />
+                <Typography variant="h6" fontWeight="bold">
+                  {user?.firstName || "Unknown"} {user?.lastName || ""}
+                </Typography>
+                <Typography variant="body2" color="textSecondary">
+                  {service.name}
+                </Typography>
+
+                <Box sx={{ mt: 1, mb: 1 }}>
+                  <Rating
+                    value={ratings[portfolioId] || 0}
+                    precision={0.1}
+                    readOnly
+                    size="small"
                   />
-                  <Typography variant="h6" fontWeight="bold">
-                    {portfolio.user?.firstName || "Unknown"} {portfolio.user?.lastName || ""}
+                  <Typography variant="caption" color="text.secondary">
+                    {ratings[portfolioId]?.toFixed(1) || "0.0"} Stars
                   </Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    {service.name}
-                  </Typography>
+                </Box>
 
-                  <Box sx={{ mt: 1, mb: 1 }}>
-                    <Rating value={5} readOnly size="small" />
-                  </Box>
+                <Typography variant="body2">
+                  <strong>Price:</strong> {service.pricing}
+                </Typography>
 
-                  <Typography variant="body2">
-                    <strong>Price:</strong> {service.pricing}
-                  </Typography>
-
-                  <Button
-                      variant="contained"
-                      sx={{
-                        mt: 2,
-                        backgroundColor: "#607d8b",
-                        ":hover": { backgroundColor: "#455a64" },
-                        color: "white",
-                        fontWeight: "bold",
-                      }}
-                      onClick={() =>
-                        window.location.href = `/provider-portfolio/${portfolio.user.id}`
-                      }
-                    >
-                      MORE
-                    </Button>
-
-                                    </Card>
-                                  </Grid>
-                                ))
-                              )}
-                            </Grid>
-                          </Box>
-                        </Box>
-                      );
-                    };
+                <Button
+                  variant="contained"
+                  sx={{
+                    mt: 2,
+                    backgroundColor: "#607d8b",
+                    ":hover": { backgroundColor: "#455a64" },
+                    color: "white",
+                    fontWeight: "bold",
+                  }}
+                  onClick={() =>
+                    (window.location.href = `/provider-portfolio/${user.id}`)
+                  }
+                >
+                  MORE
+                </Button>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    </Box>
+  );
+};
 
 export default ProviderDashboard;

@@ -10,7 +10,11 @@ import PortfolioPage from "./pages/portfolio/PortfolioPage";
 import AddPortfolioPage from "./pages/portfolio/AddPortfolioPage";
 import EditPortfolioPage from "./pages/portfolio/EditPortfolioPage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import ProfilePageCustomer from "./pages/profile/ProfilePageCustomer";
 import ProviderPortfolioPage from "./pages/portfolio/ProviderPortfolioPage"; // ✅ Imported
+import AppointmentDetailsPage from "./pages/appointment/AppointmentDetailsPage";
+import AppointmentDetailsCustomerPage from "./pages/appointment/AppointmentDetailsCustomerPage";
+
 
 function App() {
   const { personalInfo } = usePersonalInfo(); // Access context
@@ -80,6 +84,14 @@ function App() {
             </PrivateRoute>
           }
         />
+                <Route
+          path="/profile-customer"
+          element={
+            <PrivateRoute>
+              <ProfilePageCustomer />
+            </PrivateRoute>
+          }
+        />
         <Route
           path="/provider-portfolio/:userID"
           element={
@@ -88,7 +100,26 @@ function App() {
             </PrivateRoute>
           }
         />
+
+<Route
+    path="/appointments/:userID"
+    element={
+      <PrivateRoute>
+        <AppointmentDetailsPage />
+      </PrivateRoute>
+    }
+  />
+
+<Route
+  path="/appointments-customer/:userID"
+  element={
+    <PrivateRoute>
+      <AppointmentDetailsCustomerPage />
+    </PrivateRoute>
+  }
+/>
       </Routes>
+
     </Router>
   );
 }

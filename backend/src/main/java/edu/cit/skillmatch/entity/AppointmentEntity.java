@@ -3,6 +3,8 @@ package edu.cit.skillmatch.entity;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 @Entity
 @Table(name = "appointments")
 public class AppointmentEntity {
@@ -11,8 +13,15 @@ public class AppointmentEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user; // The user booking or providing the appointment
+    @JoinColumn(name = "user_id")
+    @JsonBackReference("user-appointments")  // Back-reference for appointments
+    private UserEntity user;
+    
+
+    @ManyToOne
+    @JoinColumn(name = "portfolio_id", nullable = false)
+    @JsonBackReference("portfolio-appointments")  // Back reference to prevent circular reference
+    private PortfolioEntity portfolio;
 
     @Column(nullable = false)
     private String role; // "CUSTOMER" or "SERVICE_PROVIDER"
@@ -45,6 +54,14 @@ public class AppointmentEntity {
 
     public void setUser(UserEntity user) {
         this.user = user;
+    }
+
+    public PortfolioEntity getPortfolio() {
+        return portfolio;
+    }
+
+    public void setPortfolio(PortfolioEntity portfolio) {
+        this.portfolio = portfolio;
     }
 
     public String getRole() {

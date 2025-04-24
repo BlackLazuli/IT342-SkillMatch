@@ -12,13 +12,13 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import { Home, Person, Work, Event, Settings } from "@mui/icons-material";
+import { Home, Person, Work, Event, Settings, Logout } from "@mui/icons-material";
 import { usePersonalInfo } from "../context/PersonalInfoContext";
 
 const drawerWidth = 240;
 
 const AppBar = () => {
-  const { personalInfo } = usePersonalInfo();
+  const { personalInfo, setPersonalInfo } = usePersonalInfo();
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
@@ -47,23 +47,34 @@ const AppBar = () => {
     fetchUserInfo();
   }, [personalInfo?.userId]);
 
+  const handleLogout = () => {
+    setPersonalInfo(null); // Clear context
+    navigate("/"); // Navigate to homepage
+  };
+
   const menuItems = [
-    { text: "Home", icon: <Home />, path: "/" },
+    { text: "Home", icon: <Home />, path: "/provider-dashboard" },
     { text: "Profile", icon: <Person />, path: "/profile" },
     {
       text: "Portfolio",
       icon: <Work />,
       path: personalInfo?.userId ? `/portfolio/${personalInfo.userId}` : "/",
     },
-    { text: "Appointments", icon: <Event />, path: "/appointments" },
+    { text: "Appointments", icon: <Event />, path: "/appointments-customer" },
   ];
 
   const handleNavigation = (path) => {
-    if (path.includes("/portfolio/") && !personalInfo?.userId) {
-      alert("You need to log in to access your portfolio.");
+    if (!personalInfo?.userId) {
+      alert("You need to log in to access this page.");
       return;
     }
-    navigate(path);
+  
+    // If path needs dynamic user info
+    if (path === "/appointments-customer") {
+      navigate(`/appointments-customer/${personalInfo.userId}`); // Or fetch latest appointment
+    } else {
+      navigate(path);
+    }
   };
 
   return (
@@ -120,7 +131,7 @@ const AppBar = () => {
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Bottom section: settings and user */}
+      {/* Bottom section: settings, logout and user info */}
       <Box>
         <ListItem
           button
@@ -136,6 +147,23 @@ const AppBar = () => {
             <Settings />
           </ListItemIcon>
           <ListItemText primary="Settings" primaryTypographyProps={{ fontWeight: 500 }} />
+        </ListItem>
+
+        <ListItem
+          button
+          sx={{
+            borderRadius: 2,
+            mb: 1,
+            "&:hover": {
+              backgroundColor: "#f2c6c6",
+            },
+          }}
+          onClick={handleLogout}
+        >
+          <ListItemIcon sx={{ color: "#333" }}>
+            <Logout />
+          </ListItemIcon>
+          <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 500 }} />
         </ListItem>
 
         <Box sx={{ display: "flex", alignItems: "center", mt: 3, px: 1 }}>

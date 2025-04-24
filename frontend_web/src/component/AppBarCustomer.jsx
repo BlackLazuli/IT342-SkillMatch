@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   Drawer,
   List,
@@ -11,36 +12,64 @@ import {
   Typography,
   Box,
 } from "@mui/material";
-import { Home, Person, Work, Event, Settings } from "@mui/icons-material";
+import { Home, Person, Work, Event, Settings, Logout } from "@mui/icons-material";
 import { usePersonalInfo } from "../context/PersonalInfoContext";
 
 const drawerWidth = 240;
 
 const AppBar = () => {
-  const { personalInfo } = usePersonalInfo();
+  const { personalInfo, setPersonalInfo } = usePersonalInfo();
   const navigate = useNavigate();
 
+  const [user, setUser] = useState(null);
+  const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        if (personalInfo?.userId) {
+          const res = await axios.get(`http://localhost:8080/api/users/${personalInfo.userId}`);
+          const userData = res.data;
+          setUser(userData);
+          if (userData.profilePicture) {
+            setProfilePictureUrl(
+              userData.profilePicture.startsWith("http")
+                ? userData.profilePicture
+                : `http://localhost:8080${userData.profilePicture}`
+            );
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching user info:", err);
+      }
+    };
+
+    fetchUserInfo();
+  }, [personalInfo?.userId]);
+
+  const handleLogout = () => {
+    setPersonalInfo(null); // Clear context
+    navigate("/"); // Navigate to homepage
+  };
+
   const menuItems = [
-    { text: "Home", icon: <Home />, path: "/" },
-    { text: "Profile", icon: <Person />, path: "/profile" },
-    { text: "Appointments", icon: <Event />, path: "/appointments" },
+    { text: "Home", icon: <Home />, path: "/customer-dashboard" },
+    { text: "Profile", icon: <Person />, path: "/profile-customer" },
+    { text: "Appointments", icon: <Event />, path: "/appointments-customer" },
   ];
 
   const handleNavigation = (path) => {
-    if (path.includes("/portfolio/") && !personalInfo?.userId) {
-      alert("You need to log in to access your portfolio.");
+    if (!personalInfo?.userId) {
+      alert("You need to log in to access this page.");
       return;
     }
-    navigate(path);
-  };
-
-  const getProfilePictureUrl = () => {
-    if (personalInfo?.profilePicture) {
-      return personalInfo.profilePicture.startsWith("http")
-        ? personalInfo.profilePicture
-        : `http://localhost:8080${personalInfo.profilePicture}`;
+  
+    // If path needs dynamic user info
+    if (path === "/appointments-customer") {
+      navigate(`/appointments-customer/${personalInfo.userId}`); // Or fetch latest appointment
+    } else {
+      navigate(path);
     }
-    return "/default-avatar.png";
   };
 
   return (
@@ -97,7 +126,7 @@ const AppBar = () => {
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Bottom section: settings and user */}
+      {/* Bottom section: settings, logout and user info */}
       <Box>
         <ListItem
           button
@@ -115,21 +144,38 @@ const AppBar = () => {
           <ListItemText primary="Settings" primaryTypographyProps={{ fontWeight: 500 }} />
         </ListItem>
 
+        <ListItem
+          button
+          sx={{
+            borderRadius: 2,
+            mb: 1,
+            "&:hover": {
+              backgroundColor: "#f2c6c6",
+            },
+          }}
+          onClick={handleLogout}
+        >
+          <ListItemIcon sx={{ color: "#333" }}>
+            <Logout />
+          </ListItemIcon>
+          <ListItemText primary="Logout" primaryTypographyProps={{ fontWeight: 500 }} />
+        </ListItem>
+
         <Box sx={{ display: "flex", alignItems: "center", mt: 3, px: 1 }}>
           <Avatar
-            src={getProfilePictureUrl()}
+            src={profilePictureUrl}
             alt="Profile"
             sx={{ width: 40, height: 40, mr: 2 }}
           >
-            {!personalInfo?.profilePicture && (personalInfo?.firstName?.[0] || "?")}
+            {!user?.profilePicture && (user?.firstName?.[0] || "?")}
           </Avatar>
 
           <Box>
             <Typography variant="body2" fontWeight="bold">
-              {personalInfo?.firstName || "Guest"} {personalInfo?.lastName || ""}
+              {user?.firstName || "Guest"} {user?.lastName || ""}
             </Typography>
             <Typography variant="caption" color="text.secondary">
-              {personalInfo?.email || "No email"}
+              {user?.email || "No email"}
             </Typography>
           </Box>
         </Box>

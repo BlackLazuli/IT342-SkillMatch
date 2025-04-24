@@ -55,7 +55,7 @@ const AppBar = () => {
   const menuItems = [
     { text: "Home", icon: <Home />, path: "/customer-dashboard" },
     { text: "Profile", icon: <Person />, path: "/profile-customer" },
-    { text: "Appointments", icon: <Event />, path: "/appointments" },
+    { text: "Appointments", icon: <Event />, path: "/appointments-customer" },
   ];
 
   const handleNavigation = (path) => {
@@ -65,8 +65,8 @@ const AppBar = () => {
     }
   
     // If path needs dynamic user info
-    if (path === "/appointments") {
-      navigate(`/appointments/${personalInfo.userId}`); // Or fetch latest appointment
+    if (path === "/appointments-customer") {
+      navigate(`/appointments-customer/${personalInfo.userId}`); // Or fetch latest appointment
     } else {
       navigate(path);
     }

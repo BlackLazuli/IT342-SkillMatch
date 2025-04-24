@@ -79,4 +79,22 @@ public class AppointmentService {
     public List<AppointmentEntity> getAppointmentsByPortfolioAndStatus(Long portfolioId, AppointmentStatus status) {
         return appointmentRepository.findByPortfolioIdAndStatus(portfolioId, status);
     }
+
+    public List<AppointmentEntity> getAllAppointmentsForUser(Long userId) {
+        // Appointments booked by the user (customer)
+        List<AppointmentEntity> asCustomer = appointmentRepository.findByUserId(userId);
+    
+        // Get all portfolios owned by the user (as provider)
+        List<PortfolioEntity> portfolios = portfolioRepository.findAllByUserId(userId);
+    
+        // Appointments linked to any of their portfolios (as provider)
+        List<AppointmentEntity> asProvider = portfolios.stream()
+                .flatMap(p -> appointmentRepository.findByPortfolioId(p.getId()).stream())
+                .toList();
+    
+        // Combine both lists
+        asCustomer.addAll(asProvider);
+        return asCustomer;
+    }
+    
 }

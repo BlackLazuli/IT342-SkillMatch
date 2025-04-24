@@ -102,7 +102,7 @@ function App() {
         />
 
 <Route
-    path="/appointments/:appointmentId"
+    path="/appointments/:userID"
     element={
       <PrivateRoute>
         <AppointmentDetailsPage />
@@ -111,13 +111,13 @@ function App() {
   />
 
 <Route
-    path="/appointments-customer/:appointmentId"
-    element={
-      <PrivateRoute>
-        <AppointmentDetailsCustomerPage />
-      </PrivateRoute>
-    }
-  />
+  path="/appointments-customer/:userID"
+  element={
+    <PrivateRoute>
+      <AppointmentDetailsCustomerPage />
+    </PrivateRoute>
+  }
+/>
       </Routes>
 
     </Router>

@@ -146,4 +146,27 @@ public class AppointmentController {
         List<AppointmentEntity> appointments = appointmentService.getAppointmentsByPortfolio(portfolioId);
         return ResponseEntity.ok(appointments);
     }
+
+    @GetMapping("/all/{userId}")
+public ResponseEntity<List<AppointmentDTO>> getAllAppointmentsForUser(@PathVariable Long userId) {
+    List<AppointmentEntity> appointments = appointmentService.getAllAppointmentsForUser(userId);
+
+    List<AppointmentDTO> dtos = appointments.stream().map(appointment -> {
+        AppointmentDTO dto = new AppointmentDTO();
+        dto.setId(appointment.getId());
+        dto.setUserId(appointment.getUser().getId());
+        dto.setUserFirstName(appointment.getUser().getFirstName());
+        dto.setUserLastName(appointment.getUser().getLastName());
+        dto.setRole(appointment.getRole());
+        dto.setAppointmentTime(appointment.getAppointmentTime());
+        dto.setStatus(appointment.getStatus());
+        dto.setNotes(appointment.getNotes());
+        dto.setCreatedAt(appointment.getCreatedAt());
+        dto.setPortfolioId(appointment.getPortfolio().getId());
+        return dto;
+    }).toList();
+
+    return ResponseEntity.ok(dtos);
+}
+
 }

@@ -55,11 +55,6 @@ const AppBar = () => {
   const menuItems = [
     { text: "Home", icon: <Home />, path: "/customer-dashboard" },
     { text: "Profile", icon: <Person />, path: "/profile-customer" },
-    {
-      text: "Portfolio",
-      icon: <Work />,
-      path: personalInfo?.userId ? `/portfolio/${personalInfo.userId}` : "/",
-    },
     { text: "Appointments", icon: <Event />, path: "/appointments" },
   ];
 

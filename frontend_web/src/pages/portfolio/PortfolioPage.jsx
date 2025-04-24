@@ -25,6 +25,7 @@ const PortfolioPage = () => {
   const [loading, setLoading] = useState(true);
   const [userDetails, setUserDetails] = useState(null);
   const { personalInfo } = usePersonalInfo();
+  
 
   useEffect(() => {
     console.log("Debug - personalInfo ID:", personalInfo?.userId);
@@ -185,13 +186,33 @@ const PortfolioPage = () => {
 
             {/* Portfolio Content */}
             <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
-              <CardContent>
-                <Typography variant="h5" fontWeight="bold" gutterBottom>
-                  Work Experience
-                </Typography>
-                <Typography variant="body2" gutterBottom>
-                  {portfolio?.workExperience || "Not provided."}
-                </Typography>
+  <CardContent>
+    <Typography variant="h5" fontWeight="bold" gutterBottom>
+      Work Experience
+    </Typography>
+    <Typography variant="body2" gutterBottom>
+      {portfolio?.workExperience || "Not provided."}
+    </Typography>
+
+    {/* New Availability Section */}
+    <Typography variant="body2" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
+      Days Avaiable
+    </Typography>
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
+      {portfolio?.daysAvailable?.length > 0 ? (
+        portfolio.daysAvailable.map((day, index) => (
+          <Chip key={index} label={day} size="small" />
+        ))
+      ) : (
+        <Typography variant="body2">No days specified.</Typography>
+      )}
+    </Box>
+    <Typography variant="body2" fontWeight="bold">
+      Time:
+    </Typography>
+    <Typography variant="body2" gutterBottom>
+      {portfolio?.time || "Not specified."}
+    </Typography>
 
                 <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
                   Services Offered
@@ -210,24 +231,6 @@ const PortfolioPage = () => {
 
                           <Typography variant="body2" fontWeight="bold">Pricing:</Typography>
                           <Typography variant="body2">{service.pricing}</Typography>
-
-                          <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
-                            Days Available:
-                          </Typography>
-                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                            {service.daysOfTheWeek?.map((day, i) => (
-                              <Chip key={i} label={day} size="small" />
-                            )) || "N/A"}
-                          </Box>
-
-                          <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
-                            Time:
-                          </Typography>
-                          <Typography variant="body2">{service.time}</Typography>
-
-                          <Button fullWidth variant="contained" sx={{ mt: 2 }}>
-                            View Ratings
-                          </Button>
                         </CardContent>
                       </Card>
                     </Grid>

@@ -51,11 +51,15 @@ public PortfolioEntity updatePortfolio(Long userId, PortfolioEntity portfolio) {
         PortfolioEntity updatedPortfolio = existingPortfolio.get();
         updatedPortfolio.setWorkExperience(portfolio.getWorkExperience());
 
+        // Update the portfolio-wide fields (daysAvailable and time)
+        updatedPortfolio.setDaysAvailable(portfolio.getDaysAvailable());
+        updatedPortfolio.setTime(portfolio.getTime());
+
         // Update existing services or add new services
         for (ServiceEntity newService : portfolio.getServicesOffered()) {
             boolean exists = false;
             for (ServiceEntity existingService : updatedPortfolio.getServicesOffered()) {
-                if (existingService.getId() != null && newService.getId() != null && 
+                if (existingService.getId() != null && newService.getId() != null &&
                     existingService.getId().equals(newService.getId())) {
                     // Update existing service
                     existingService.setName(newService.getName());
@@ -74,10 +78,12 @@ public PortfolioEntity updatePortfolio(Long userId, PortfolioEntity portfolio) {
             }
         }
 
+        // Save the updated portfolio
         return portfolioRepository.save(updatedPortfolio);
     }
     throw new RuntimeException("Portfolio not found for userId: " + userId);
 }
+
 
 
 

@@ -75,16 +75,10 @@ const ProviderDashboard = () => {
       : `http://localhost:8080${user.profilePicture}`;
   };
 
-  const filteredPortfolios = portfolios.flatMap((portfolio) =>
-    portfolio.servicesOffered
-      ?.filter((service) =>
-        service.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-      .map((service, index) => ({
-        ...portfolio,
-        service,
-        key: `${portfolio.id}-${index}`,
-      }))
+  const filteredPortfolios = portfolios.filter((portfolio) =>
+    portfolio.workExperience
+      ?.toLowerCase()
+      .includes(searchQuery.toLowerCase()) // Search using workExperience string
   );
 
   return (
@@ -96,7 +90,7 @@ const ProviderDashboard = () => {
         </Typography>
 
         <TextField
-          label="Search by service name"
+          label="Search by job title"
           variant="outlined"
           fullWidth
           margin="normal"
@@ -111,8 +105,8 @@ const ProviderDashboard = () => {
         )}
 
         <Grid container spacing={4}>
-          {filteredPortfolios.map(({ key, user, service, id: portfolioId }) => (
-            <Grid item xs={12} sm={6} md={4} key={key}>
+          {filteredPortfolios.map(({ id: portfolioId, user, workExperience }) => (
+            <Grid item xs={12} sm={6} md={4} key={portfolioId}>
               <Card
                 elevation={3}
                 sx={{
@@ -133,9 +127,6 @@ const ProviderDashboard = () => {
                 <Typography variant="h6" fontWeight="bold">
                   {user?.firstName || "Unknown"} {user?.lastName || ""}
                 </Typography>
-                <Typography variant="body2" color="textSecondary">
-                  {service.name}
-                </Typography>
 
                 <Box sx={{ mt: 1, mb: 1 }}>
                   <Rating
@@ -150,7 +141,7 @@ const ProviderDashboard = () => {
                 </Box>
 
                 <Typography variant="body2">
-                  <strong>Price:</strong> {service.pricing}
+                  <strong>Work Experience:</strong> {workExperience || "Not specified"}
                 </Typography>
 
                 <Button

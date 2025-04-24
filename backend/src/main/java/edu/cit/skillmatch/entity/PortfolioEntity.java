@@ -14,26 +14,32 @@ public class PortfolioEntity {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonManagedReference("portfolio-user")  // This is the managed side
+    @JsonManagedReference("portfolio-user")
     private UserEntity user;
 
     @Column
     private String workExperience;
 
+    @Column
+    private List<String> daysAvailable; // Comma-separated list like "Monday,Tuesday,Friday"
+
+    @Column
+    private String time; // Example: "9:00 AM - 5:00 PM"
+
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL)
     private List<ServiceEntity> servicesOffered;
-    
+
     @Column
     private String clientTestimonials;
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<CommentEntity> comments; // Comments related to the portfolio
+    private List<CommentEntity> comments;
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference("portfolio-appointments")  // Managed side to handle appointments
+    @JsonManagedReference("portfolio-appointments")
     private List<AppointmentEntity> appointments;
-    
-    // Getters and Setters
+
+    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -52,6 +58,22 @@ public class PortfolioEntity {
 
     public void setWorkExperience(String workExperience) {
         this.workExperience = workExperience;
+    }
+
+    public List<String> getDaysAvailable() {
+        return daysAvailable;
+    }
+
+    public void setDaysAvailable(List<String> daysAvailable) {
+        this.daysAvailable = daysAvailable;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
     }
 
     public List<ServiceEntity> getServicesOffered() {

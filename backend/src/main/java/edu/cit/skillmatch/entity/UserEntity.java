@@ -54,7 +54,9 @@ public class UserEntity {
     private List<RatingEntity> ratings; // Ratings received by this user
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AppointmentEntity> appointments; 
+    @JsonManagedReference("user-appointments")  // Managed side for appointments
+    private List<AppointmentEntity> appointments;
+
 
     @OneToMany(mappedBy = "author", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments;

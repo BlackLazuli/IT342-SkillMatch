@@ -10,6 +10,7 @@ import PortfolioPage from "./pages/portfolio/PortfolioPage";
 import AddPortfolioPage from "./pages/portfolio/AddPortfolioPage";
 import EditPortfolioPage from "./pages/portfolio/EditPortfolioPage";
 import ProfilePage from "./pages/profile/ProfilePage";
+import ProfilePageCustomer from "./pages/profile/ProfilePageCustomer";
 import ProviderPortfolioPage from "./pages/portfolio/ProviderPortfolioPage"; // ✅ Imported
 
 function App() {
@@ -77,6 +78,14 @@ function App() {
           element={
             <PrivateRoute>
               <ProfilePage />
+            </PrivateRoute>
+          }
+        />
+                <Route
+          path="/profile-customer"
+          element={
+            <PrivateRoute>
+              <ProfilePageCustomer />
             </PrivateRoute>
           }
         />

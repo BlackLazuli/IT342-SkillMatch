@@ -2,8 +2,10 @@ package edu.cit.skillmatch.service;
 
 import edu.cit.skillmatch.entity.AppointmentEntity;
 import edu.cit.skillmatch.entity.AppointmentStatus;
+import edu.cit.skillmatch.entity.PortfolioEntity;
 import edu.cit.skillmatch.entity.UserEntity;
 import edu.cit.skillmatch.repository.AppointmentRepository;
+import edu.cit.skillmatch.repository.PortfolioRepository;
 import edu.cit.skillmatch.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +17,12 @@ import java.util.Optional;
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final UserRepository userRepository;
+    private final PortfolioRepository portfolioRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, UserRepository userRepository, PortfolioRepository portfolioRepository) {
         this.appointmentRepository = appointmentRepository;
         this.userRepository = userRepository;
+        this.portfolioRepository = portfolioRepository;
     }
 
     public List<AppointmentEntity> getAppointmentsByUser(Long userId, String role) {
@@ -29,22 +33,29 @@ public class AppointmentService {
         return appointmentRepository.findById(id);
     }
 
-    public AppointmentEntity bookAppointment(Long userId, String role, LocalDateTime appointmentTime, String notes) {
+    public AppointmentEntity bookAppointment(Long userId, String role, Long portfolioId, LocalDateTime appointmentTime, String notes) {
         Optional<UserEntity> user = userRepository.findById(userId);
-
+        Optional<PortfolioEntity> portfolio = portfolioRepository.findById(portfolioId); // Fetch the portfolio
+    
         if (user.isEmpty()) {
             throw new RuntimeException("User not found");
         }
-
+        
+        if (portfolio.isEmpty()) {
+            throw new RuntimeException("Portfolio not found");
+        }
+    
         AppointmentEntity appointment = new AppointmentEntity();
         appointment.setUser(user.get());
         appointment.setRole(role);
         appointment.setAppointmentTime(appointmentTime);
-        appointment.setStatus(AppointmentStatus.SCHEDULED);
+        appointment.setStatus(AppointmentStatus.SCHEDULED); // Default status
         appointment.setNotes(notes);
-
+        appointment.setPortfolio(portfolio.get()); // Set the portfolio
+    
         return appointmentRepository.save(appointment);
     }
+    
 
     public Optional<AppointmentEntity> rescheduleAppointment(Long id, LocalDateTime newTime) {
         return appointmentRepository.findById(id).map(appointment -> {
@@ -59,5 +70,13 @@ public class AppointmentService {
             appointment.setStatus(AppointmentStatus.CANCELED);
             return appointmentRepository.save(appointment);
         });
+    }
+
+    public List<AppointmentEntity> getAppointmentsByPortfolio(Long portfolioId) {
+        return appointmentRepository.findByPortfolioId(portfolioId);
+    }
+
+    public List<AppointmentEntity> getAppointmentsByPortfolioAndStatus(Long portfolioId, AppointmentStatus status) {
+        return appointmentRepository.findByPortfolioIdAndStatus(portfolioId, status);
     }
 }

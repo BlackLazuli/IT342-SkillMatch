@@ -18,7 +18,7 @@ import {
   DialogActions,
   TextField,
 } from "@mui/material";
-import AppBar from "../../component/AppBar";
+import AppBar from "../../component/AppBarCustomer";
 import { usePersonalInfo } from "../../context/PersonalInfoContext";
 
 const ProviderPortfolioPage = () => {
@@ -34,7 +34,50 @@ const ProviderPortfolioPage = () => {
   const [newRating, setNewRating] = useState(0);
   const { personalInfo } = usePersonalInfo();
   const token = localStorage.getItem("token");
+  const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
+  const [appointmentDateTime, setAppointmentDateTime] = useState("");
+  const [appointmentNotes, setAppointmentNotes] = useState("");
 
+  
+  // Handle appointment submission
+const handleSubmitAppointment = async () => {
+  if (!appointmentDateTime) return alert("Please select a date and time.");
+
+  try {
+    const res = await fetch("http://localhost:8080/api/appointments/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user: { id: personalInfo.userId },  // The user booking the appointment
+        role: "CUSTOMER", // The role of the user (can be "CUSTOMER" or "SERVICE_PROVIDER")
+        portfolio: { id: portfolio.id }, // Pass the portfolio ID
+        appointmentTime: appointmentDateTime,
+        notes: appointmentNotes,
+      }),
+    });
+
+    if (!res.ok) throw new Error("Failed to book appointment");
+
+    const data = await res.json();  // The returned AppointmentDTO
+
+    setAppointmentModalOpen(false);
+    setAppointmentDateTime("");
+    setAppointmentNotes("");
+    
+    alert("Appointment booked successfully!");
+    console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
+
+  } catch (error) {
+    console.error("Appointment booking failed", error);
+    alert("Failed to book appointment");
+  }
+};
+
+  
+  
   // Fetch portfolio data
   const fetchPortfolio = async () => {
     const token = localStorage.getItem("token");
@@ -269,6 +312,15 @@ const ProviderPortfolioPage = () => {
               Add a Comment
             </Button>
 
+            <Button
+  variant="outlined"
+  sx={{ mb: 2, ml: 2 }}
+  onClick={() => setAppointmentModalOpen(true)}
+>
+  Book Appointment
+</Button>
+
+
             {/* Comments */}
             <Box>
               <Divider sx={{ mb: 2 }} />
@@ -353,6 +405,34 @@ const ProviderPortfolioPage = () => {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <Dialog open={appointmentModalOpen} onClose={() => setAppointmentModalOpen(false)}>
+  <DialogTitle>Book Appointment</DialogTitle>
+  <DialogContent>
+    <TextField
+      label="Appointment Time"
+      type="datetime-local"
+      fullWidth
+      InputLabelProps={{ shrink: true }}
+      value={appointmentDateTime}
+      onChange={(e) => setAppointmentDateTime(e.target.value)}
+      sx={{ mb: 2 }}
+    />
+    <TextField
+      label="Notes (optional)"
+      fullWidth
+      multiline
+      rows={3}
+      value={appointmentNotes}
+      onChange={(e) => setAppointmentNotes(e.target.value)}
+    />
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={() => setAppointmentModalOpen(false)}>Cancel</Button>
+    <Button onClick={handleSubmitAppointment}>Book</Button>
+  </DialogActions>
+</Dialog>
+
       </Box>
     </Box>
   );

@@ -29,6 +29,11 @@ public class PortfolioEntity {
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments; // Comments related to the portfolio
 
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("portfolio-appointments")  // Managed side to handle appointments
+    private List<AppointmentEntity> appointments;
+    
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -52,7 +57,7 @@ public class PortfolioEntity {
     public List<ServiceEntity> getServicesOffered() {
         return servicesOffered;
     }
-    
+
     public void setServicesOffered(List<ServiceEntity> servicesOffered) {
         this.servicesOffered = servicesOffered;
     }
@@ -71,5 +76,13 @@ public class PortfolioEntity {
 
     public void setComments(List<CommentEntity> comments) {
         this.comments = comments;
+    }
+
+    public List<AppointmentEntity> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<AppointmentEntity> appointments) {
+        this.appointments = appointments;
     }
 }

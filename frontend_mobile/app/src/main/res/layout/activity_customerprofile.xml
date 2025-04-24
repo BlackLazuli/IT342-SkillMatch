@@ -235,10 +235,10 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        android:id="@+id/paymentHistoryIcon"
+                        android:id="@+id/SettingsIcon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
-                        android:src="@drawable/briefcase"
+                        android:src="@drawable/settings"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -247,16 +247,17 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
-                        android:text="Payment History"
+                        android:layout_marginEnd="224dp"
+                        android:text="Settings"
                         android:textColor="#333333"
                         android:textSize="16sp"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toStartOf="@id/paymentHistoryArrow"
-                        app:layout_constraintStart_toEndOf="@id/paymentHistoryIcon"
+                        app:layout_constraintEnd_toStartOf="@id/settingsArrow"
+                        app:layout_constraintStart_toEndOf="@id/SettingsIcon"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <ImageView
-                        android:id="@+id/paymentHistoryArrow"
+                        android:id="@+id/settingsArrow"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:src="@drawable/next"

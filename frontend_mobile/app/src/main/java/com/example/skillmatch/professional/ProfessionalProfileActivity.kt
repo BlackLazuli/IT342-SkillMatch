@@ -94,8 +94,10 @@ class ProfessionalProfileActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private fun setupClickListeners() {
         // Back button click listener
+        // In setupClickListeners() method
         backButton.setOnClickListener {
-            finish()
+        // Already using finish(), which is correct
+        finish()
         }
 
         // Edit profile button click listener

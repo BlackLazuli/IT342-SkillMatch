@@ -99,9 +99,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
-                        android:text="Monday - Friday"
-                        android:textColor="#666666"
-                        android:textSize="12sp" />
+                        android:text=""
+                        android:textColor="#333333"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
 
                 <View
@@ -126,8 +127,9 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="4dp"
                         android:text="10:00 - 5:00 PM"
-                        android:textColor="#666666"
-                        android:textSize="12sp" />
+                        android:textColor="#333333"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

@@ -1,11 +1,11 @@
 package com.example.skillmatch.customer
 
-import android.content.Intent
+import android.view.View
+import android.view.ViewGroup
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -19,6 +19,7 @@ import com.example.skillmatch.models.Portfolio
 import com.example.skillmatch.models.Professional
 import com.example.skillmatch.models.Service
 import com.example.skillmatch.services.ProfessionalService
+import com.example.skillmatch.utils.SessionManager
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,6 +44,8 @@ class CustomerViewCardActivity : AppCompatActivity() {
     
     private lateinit var professionalService: ProfessionalService
     private var professionalId: Long = 0
+    private var servicesList: List<Service> = emptyList()
+    private lateinit var sessionManager: SessionManager  // Add SessionManager
 
     companion object {
         private const val TAG = "CustomerViewCard"
@@ -52,6 +55,9 @@ class CustomerViewCardActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_customer_view_card)
+        
+        // Initialize SessionManager
+        sessionManager = SessionManager(this)
         
         // Initialize service
         professionalService = ProfessionalService()
@@ -92,8 +98,10 @@ class CustomerViewCardActivity : AppCompatActivity() {
     
     private fun setupListeners() {
         // Back button
+        // In setupListeners() method
         backButton.setOnClickListener {
-            onBackPressed()
+        // Replace onBackPressed() with finish()
+        finish()
         }
         
         // Contact button
@@ -106,27 +114,28 @@ class CustomerViewCardActivity : AppCompatActivity() {
     private fun loadProfessionalData() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                // Get professional details
                 val professional = professionalService.getProfessionalById(professionalId)
-                
-                if (professional != null) {
-                    // Also try to get portfolio data if available
-                    var portfolio: Portfolio? = null
-                    try {
-                        val response = ApiClient.apiService.getPortfolio("", professionalId.toString())
+                var portfolio: Portfolio? = null
+                try {
+                    // Get token from SessionManager instead of SharedPreferences
+                    val token = sessionManager.getToken()
+                    if (token.isNullOrEmpty()) {
+                        Log.e(TAG, "Token is missing or empty")
+                    } else {
+                        val response = ApiClient.apiService.getPortfolio("Bearer $token", professionalId.toString())
                         if (response.isSuccessful && response.body() != null) {
                             portfolio = response.body()
+                        } else {
+                            Log.e(TAG, "Portfolio fetch failed: ${response.code()} - ${response.errorBody()?.string()}")
                         }
-                    } catch (e: Exception) {
-                        Log.e(TAG, "Error fetching portfolio", e)
-                        // Continue without portfolio data
                     }
-                    
-                    withContext(Dispatchers.Main) {
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error fetching portfolio", e)
+                }
+                withContext(Dispatchers.Main) {
+                    if (professional != null) {
                         displayProfessionalData(professional, portfolio)
-                    }
-                } else {
-                    withContext(Dispatchers.Main) {
+                    } else {
                         Toast.makeText(
                             this@CustomerViewCardActivity,
                             "Professional not found",
@@ -148,20 +157,72 @@ class CustomerViewCardActivity : AppCompatActivity() {
             }
         }
     }
+    private fun displayPortfolioServices(services: List<Service>) {
+        // Clear existing views
+        servicesContainer.removeAllViews()
+        pricingContainer.removeAllViews()
     
+        if (services.isEmpty()) {
+            // Add a message when no services are available
+            val noServicesText = TextView(this).apply {
+                text = "No services available"
+                textSize = 14f
+                setTextColor(resources.getColor(android.R.color.darker_gray, theme))
+                setPadding(16, 16, 16, 16)
+            }
+            servicesContainer.addView(noServicesText)
+            return
+        }
+    
+        // Display each service with name and description only
+        services.forEach { service ->
+            // Create service name text
+            val serviceNameText = TextView(this).apply {
+                text = "• ${service.name}"
+                textSize = 16f
+                setTextColor(resources.getColor(android.R.color.black, theme))
+                setPadding(0, 8, 0, 4)
+                textAlignment = View.TEXT_ALIGNMENT_TEXT_START
+            }
+            servicesContainer.addView(serviceNameText)
+            
+            // Create service description text if available
+            if (!service.description.isNullOrEmpty()) {
+                val serviceDescText = TextView(this).apply {
+                    text = "Description: ${service.description}"
+                    textSize = 14f
+                    setTextColor(resources.getColor(android.R.color.darker_gray, theme))
+                    setPadding(16, 0, 0, 8)
+                }
+                servicesContainer.addView(serviceDescText)
+            }
+            
+            // Create pricing text if available
+            if (!service.pricing.isNullOrEmpty()) {
+                val pricingText = TextView(this).apply {
+                    text = "• Cost: ${service.pricing}"
+                    textSize = 14f
+                    setTextColor(resources.getColor(android.R.color.black, theme))
+                    setPadding(0, 4, 0, 8)
+                }
+                pricingContainer.addView(pricingText)
+            }
+        }
+    }
+
     private fun displayProfessionalData(professional: Professional, portfolio: Portfolio?) {
         // Display basic info
         professionalNameText.text = professional.getFullName()
         occupationText.text = professional.occupation
-        
+
         // Display rating
         val rating = professional.rating?.toFloat() ?: 0f
         ratingBar.rating = rating
         ratingText.text = String.format("%.1f", rating)
-        
+
         // Display bio
         bioText.text = professional.bio ?: "No bio available"
-        
+
         // Display profile picture if available
         professional.profilePicture?.let { profilePicBase64 ->
             try {
@@ -172,84 +233,40 @@ class CustomerViewCardActivity : AppCompatActivity() {
                 Log.e(TAG, "Error loading profile image", e)
             }
         }
-        
+
         // Display location
         locationText.text = professional.location?.address.orEmpty().ifEmpty { "Location not specified" }
-        
-        // Display availability
-        val daysText = if (professional.availableDays.isNotEmpty()) {
-            professional.availableDays.joinToString(", ")
-        } else {
-            "Not specified"
-        }
-        availableDaysText.text = daysText
-        
-        availableTimeText.text = if (professional.availableHours.isNotEmpty()) {
-            professional.availableHours
-        } else {
-            "Not specified"
-        }
-        
-        // Display services and pricing from portfolio if available
+
+        // Display services from portfolio if available
         if (portfolio != null && !portfolio.servicesOffered.isNullOrEmpty()) {
+            Log.d(TAG, "Displaying ${portfolio.servicesOffered.size} services from portfolio")
             displayPortfolioServices(portfolio.servicesOffered)
+            
+            // Get availability info from services
+            val allServiceDays = portfolio.servicesOffered.flatMap { it.daysOfTheWeek ?: emptyList() }.distinct()
+            val allServiceHours = portfolio.servicesOffered.mapNotNull { it.time }.firstOrNull { it.isNotEmpty() }
+            
+            // Display availability
+            availableDaysText.text = if (allServiceDays.isNotEmpty()) {
+                allServiceDays.joinToString(", ")
+            } else {
+                professional.availableDays.joinToString(", ").ifEmpty { "Not specified" }
+            }
+            
+            availableTimeText.text = if (!allServiceHours.isNullOrEmpty()) {
+                allServiceHours
+            } else {
+                professional.availableHours.ifEmpty { "Not specified" }
+            }
         } else {
-            // If no portfolio, show a message
-            val noServicesText = TextView(this).apply {
-                text = "No services information available"
-                textSize = 14f
-                setTextColor(resources.getColor(android.R.color.darker_gray, theme))
-            }
-            servicesContainer.addView(noServicesText)
+            // No portfolio services, display professional's availability
+            Log.d(TAG, "No portfolio services available, using professional data")
+            availableDaysText.text = professional.availableDays.joinToString(", ").ifEmpty { "Not specified" }
+            availableTimeText.text = professional.availableHours.ifEmpty { "Not specified" }
             
-            val noPricingText = TextView(this).apply {
-                text = "No pricing information available"
-                textSize = 14f
-                setTextColor(resources.getColor(android.R.color.darker_gray, theme))
-            }
-            pricingContainer.addView(noPricingText)
-        }
-    }
-    
-    private fun displayPortfolioServices(services: List<Service>) {
-        // Clear containers first
-        servicesContainer.removeAllViews()
-        pricingContainer.removeAllViews()
-        
-        if (services.isEmpty()) {
-            val noServicesText = TextView(this).apply {
-                text = "No services listed"
-                textSize = 14f
-                setTextColor(resources.getColor(android.R.color.darker_gray, theme))
-            }
-            servicesContainer.addView(noServicesText)
-            return
-        }
-        
-        // Add each service to the view
-        services.forEach { service ->
-            // Add service name and description
-            val serviceTextView = TextView(this).apply {
-                text = "• ${service.name}"
-                if (!service.description.isNullOrEmpty()) {
-                    text = "$text\nDescription: ${service.description}"
-                }
-                textSize = 14f
-                setTextColor(resources.getColor(android.R.color.black, theme))
-                setPadding(0, 4, 0, 4)
-            }
-            servicesContainer.addView(serviceTextView)
-            
-            // Add pricing
-            if (!service.pricing.isNullOrEmpty()) {
-                val pricingTextView = TextView(this).apply {
-                    text = "• ${service.name}: ${service.pricing}"
-                    textSize = 14f
-                    setTextColor(resources.getColor(android.R.color.black, theme))
-                    setPadding(0, 4, 0, 4)
-                }
-                pricingContainer.addView(pricingTextView)
-            }
+            // Display empty services message
+            val emptyList = listOf<Service>()
+            displayPortfolioServices(emptyList)
         }
     }
 }

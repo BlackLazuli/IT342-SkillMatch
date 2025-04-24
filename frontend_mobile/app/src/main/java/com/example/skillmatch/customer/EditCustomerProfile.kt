@@ -101,6 +101,29 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
         profileImage = findViewById(R.id.profileImage)
         saveButton = findViewById(R.id.saveButton)
         backButton = findViewById(R.id.backButton)
+        
+        // Add text watcher to address input
+        addressInput.addTextChangedListener(object : android.text.TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            
+            override fun afterTextChanged(s: android.text.Editable?) {
+                // Don't trigger for every keystroke to avoid excessive API calls
+            }
+        })
+        
+        // Add focus change listener to address input
+        addressInput.setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) {
+                val addressText = addressInput.text.toString().trim()
+                if (addressText.isNotEmpty()) {
+                    updateLocationFromAddress(addressText)
+                }
+            }
+        }
+        
+        // No search button needed as we're using focus change listener
     }
     
     private fun initializeMap() {
@@ -189,8 +212,10 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
     
     private fun setupClickListeners() {
         // Back button
+        // In setupClickListeners() method or wherever backButton click listener is defined
         backButton.setOnClickListener {
-            onBackPressed()
+        // Replace onBackPressed() with finish()
+        finish()
         }
         
         // Save button
@@ -201,6 +226,23 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
         // Profile image click listener
         profileImage.setOnClickListener {
             showImagePickerDialog()
+        }
+        
+        // Add a button to manually trigger address search
+        addressInput.setOnEditorActionListener { _, actionId, event ->
+            if (actionId == android.view.inputmethod.EditorInfo.IME_ACTION_SEARCH ||
+                actionId == android.view.inputmethod.EditorInfo.IME_ACTION_DONE ||
+                (event != null && event.action == android.view.KeyEvent.ACTION_DOWN && event.keyCode == android.view.KeyEvent.KEYCODE_ENTER)) {
+                val addressText = addressInput.text.toString().trim()
+                if (addressText.isNotEmpty()) {
+                    updateLocationFromAddress(addressText)
+                    // Hide keyboard
+                    val imm = getSystemService(android.content.Context.INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager
+                    imm.hideSoftInputFromWindow(addressInput.windowToken, 0)
+                    return@setOnEditorActionListener true
+                }
+            }
+            false
         }
     }
     
@@ -416,6 +458,61 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
                 withContext(Dispatchers.Main) {
                     progressDialog.dismiss()
                     Toast.makeText(applicationContext, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+    
+    // Method to update location from address - moved inside the class
+    private fun updateLocationFromAddress(address: String) {
+        // Show a loading indicator
+        val progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Finding location...")
+        progressDialog.setCancelable(true)
+        progressDialog.show()
+        
+        // Use a coroutine to perform geocoding off the main thread
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Handle both older and newer Android versions
+                // For Android SDK 33+ (Tiramisu), we need to use the new API
+                val addresses = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    // New API with callback
+                    var locationList: List<android.location.Address>? = null
+                    geocoder?.getFromLocationName(address, 1) { results ->
+                        locationList = results
+                    }
+                    // Wait a bit for the callback to complete
+                    kotlinx.coroutines.delay(1000)
+                    locationList
+                } else {
+                    // Legacy API for older versions
+                    @Suppress("DEPRECATION")
+                    geocoder?.getFromLocationName(address, 1)
+                }
+                
+                withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
+                    
+                    if (!addresses.isNullOrEmpty()) {
+                        val location = addresses[0]
+                        val latLng = LatLng(location.latitude, location.longitude)
+                        userLocation = latLng
+                        updateMapLocation()
+                        Toast.makeText(this@EditCustomerProfile, "Location updated", Toast.LENGTH_SHORT).show()
+                        
+                        // Log for debugging
+                        Log.d("EditProfile", "Updated location from address: $latLng")
+                    } else {
+                        Toast.makeText(this@EditCustomerProfile, "Could not find location for this address", Toast.LENGTH_SHORT).show()
+                        Log.d("EditProfile", "No location found for address: $address")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("EditProfile", "Error finding location from address", e)
+                withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
+                    Toast.makeText(this@EditCustomerProfile, "Error finding location: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }

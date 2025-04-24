@@ -1,5 +1,6 @@
 package com.example.skillmatch.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,11 +12,21 @@ import com.bumptech.glide.Glide
 import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.models.Professional
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
+import com.example.skillmatch.utils.SessionManager
 
 class ProfessionalsAdapter(
     private var professionals: List<Professional>,
     private val onProfessionalClicked: (Professional) -> Unit
 ) : RecyclerView.Adapter<ProfessionalsAdapter.ProfessionalViewHolder>() {
+
+    companion object {
+        private const val TAG = "ProfessionalsAdapter"
+    }
 
     class ProfessionalViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val initialCircle: TextView = itemView.findViewById(R.id.initialCircle)
@@ -34,59 +45,132 @@ class ProfessionalsAdapter(
         return ProfessionalViewHolder(view)
     }
 
+    // In the ProfessionalsAdapter class, update the onBindViewHolder method
     override fun onBindViewHolder(holder: ProfessionalViewHolder, position: Int) {
         val professional = professionals[position]
         
         // Set professional name
-        holder.professionalName.text = professional.getFullName()
+        holder.professionalName.text = "${professional.firstName} ${professional.lastName}"
         
         // Set occupation
         holder.professionalOccupation.text = professional.occupation
+        
+        // Set initial circle
+        val initial = professional.firstName.firstOrNull()?.toString() ?: "?"
+        holder.initialCircle.text = initial
         
         // Set rating
         val rating = professional.rating?.toFloat() ?: 0f
         holder.ratingBar.rating = rating
         holder.ratingText.text = String.format("%.1f", rating)
         
-        // Set schedule
-        val daysText = if (professional.availableDays.isNotEmpty()) {
-            professional.availableDays.joinToString(", ")
-        } else {
-            "Not specified"
-        }
-        holder.scheduleText.text = daysText
-        
-        // Set hours
-        holder.hoursText.text = if (professional.availableHours.isNotEmpty()) {
-            professional.availableHours
-        } else {
-            "Not specified"
-        }
-        
-        // Set profile image or initial circle
-        if (professional.profilePicture != null && holder.profileImage != null) {
-            // If we have a profile image view and a profile picture URL
-            Glide.with(holder.itemView.context)
-                .load(ApiClient.BASE_URL + professional.profilePicture)
-                .placeholder(R.drawable.user)
-                .error(R.drawable.user)
-                .circleCrop()
-                .into(holder.profileImage)
-            
-            // Hide the initial circle if we're showing the profile image
-            holder.initialCircle.visibility = View.GONE
-        } else {
-            // Show the initial circle with the first letter of the name
-            holder.initialCircle.text = professional.getInitial()
-            holder.initialCircle.visibility = View.VISIBLE
-            
-            // Hide the profile image if it exists
-            holder.profileImage?.visibility = View.GONE
-        }
+        // Fetch portfolio data to get services with availability info
+        fetchPortfolioData(professional.id, holder)
         
         // Set click listener
         holder.itemView.setOnClickListener {
             onProfessionalClicked(professional)
+        }
+    }
+
+    private fun fetchPortfolioData(professionalId: Long, holder: ProfessionalViewHolder) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val sessionManager = SessionManager(holder.itemView.context)
+                val token = sessionManager.getToken()
+                
+                if (token.isNullOrEmpty()) {
+                    Log.e(TAG, "Token is missing or empty")
+                    withContext(Dispatchers.Main) {
+                        setDefaultAvailability(holder, professionals[holder.adapterPosition])
+                    }
+                    return@launch
+                }
+                
+                val response = ApiClient.apiService.getPortfolio("Bearer $token", professionalId.toString())
+                
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val portfolio = response.body()!!
+                        Log.d(TAG, "Portfolio data for professional $professionalId: ${portfolio.servicesOffered?.size ?: 0} services")
+                        
+                        // Get services with availability info
+                        val servicesWithAvailability = portfolio.servicesOffered?.filter {
+                            !it.daysOfTheWeek.isNullOrEmpty() || !it.time.isNullOrEmpty()
+                        } ?: emptyList()
+                        
+                        Log.d(TAG, "Services with availability: ${servicesWithAvailability.size}")
+                        
+                        if (servicesWithAvailability.isNotEmpty()) {
+                            // Collect all days from all services
+                            val allDays = servicesWithAvailability
+                                .flatMap { it.daysOfTheWeek ?: emptyList() }
+                                .distinct()
+                                .sorted()
+                            
+                            Log.d(TAG, "Combined days: $allDays")
+                            
+                            // Display days in a compact format
+                            val daysText = formatDaysOfWeek(allDays)
+                            holder.scheduleText.text = daysText
+                            
+                            // Get time from first service with time info
+                            val timeText = servicesWithAvailability
+                                .firstOrNull { !it.time.isNullOrEmpty() }?.time ?: ""
+                            
+                            Log.d(TAG, "Combined hours: $timeText")
+                            holder.hoursText.text = timeText
+                        } else {
+                            setDefaultAvailability(holder, professionals[holder.adapterPosition])
+                        }
+                    } else {
+                        Log.e(TAG, "Portfolio fetch failed: ${response.code()} - ${response.errorBody()?.string()}")
+                        setDefaultAvailability(holder, professionals[holder.adapterPosition])
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching portfolio", e)
+                withContext(Dispatchers.Main) {
+                    setDefaultAvailability(holder, professionals[holder.adapterPosition])
+                }
+            }
+        }
+    }
+
+    private fun formatDaysOfWeek(days: List<String>): String {
+        if (days.isEmpty()) return "Not specified"
+        
+        // Sort days in correct order
+        val orderedDays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+        val sortedDays = days.sortedBy { orderedDays.indexOf(it) }
+        
+        // If all weekdays are present, show "Weekdays"
+        val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+        if (sortedDays.containsAll(weekdays) && sortedDays.size == 5) {
+            return "Weekdays"
+        }
+        
+        // If all days are present, show "All days"
+        if (sortedDays.size == 7) {
+            return "All days"
+        }
+        
+        // Otherwise, show comma-separated list
+        return sortedDays.joinToString(", ")
+    }
+
+    private fun setDefaultAvailability(holder: ProfessionalViewHolder, professional: Professional) {
+        // Use professional's availability data if available
+        if (professional.availableDays.isNotEmpty()) {
+            holder.scheduleText.text = formatDaysOfWeek(professional.availableDays)
+        } else {
+            holder.scheduleText.text = "Not specified"
+        }
+        
+        holder.hoursText.text = if (professional.availableHours.isNotEmpty()) {
+            professional.availableHours
+        } else {
+            "Not specified"
         }
     }
 

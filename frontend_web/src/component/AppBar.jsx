@@ -60,15 +60,21 @@ const AppBar = () => {
       icon: <Work />,
       path: personalInfo?.userId ? `/portfolio/${personalInfo.userId}` : "/",
     },
-    { text: "Appointments", icon: <Event />, path: "/appointments" },
+    { text: "Appointments", icon: <Event />, path: "/appointments-customer" },
   ];
 
   const handleNavigation = (path) => {
-    if (path.includes("/portfolio/") && !personalInfo?.userId) {
-      alert("You need to log in to access your portfolio.");
+    if (!personalInfo?.userId) {
+      alert("You need to log in to access this page.");
       return;
     }
-    navigate(path);
+  
+    // If path needs dynamic user info
+    if (path === "/appointments-customer") {
+      navigate(`/appointments-customer/${personalInfo.userId}`); // Or fetch latest appointment
+    } else {
+      navigate(path);
+    }
   };
 
   return (

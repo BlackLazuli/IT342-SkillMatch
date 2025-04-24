@@ -59,11 +59,17 @@ const AppBar = () => {
   ];
 
   const handleNavigation = (path) => {
-    if (path.includes("/portfolio/") && !personalInfo?.userId) {
-      alert("You need to log in to access your portfolio.");
+    if (!personalInfo?.userId) {
+      alert("You need to log in to access this page.");
       return;
     }
-    navigate(path);
+  
+    // If path needs dynamic user info
+    if (path === "/appointments") {
+      navigate(`/appointments/${personalInfo.userId}`); // Or fetch latest appointment
+    } else {
+      navigate(path);
+    }
   };
 
   return (

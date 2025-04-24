@@ -12,6 +12,9 @@ import EditPortfolioPage from "./pages/portfolio/EditPortfolioPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import ProfilePageCustomer from "./pages/profile/ProfilePageCustomer";
 import ProviderPortfolioPage from "./pages/portfolio/ProviderPortfolioPage"; // ✅ Imported
+import AppointmentDetailsPage from "./pages/appointment/AppointmentDetailsPage";
+import AppointmentDetailsCustomerPage from "./pages/appointment/AppointmentDetailsCustomerPage";
+
 
 function App() {
   const { personalInfo } = usePersonalInfo(); // Access context
@@ -97,7 +100,26 @@ function App() {
             </PrivateRoute>
           }
         />
+
+<Route
+    path="/appointments/:appointmentId"
+    element={
+      <PrivateRoute>
+        <AppointmentDetailsPage />
+      </PrivateRoute>
+    }
+  />
+
+<Route
+    path="/appointments-customer/:appointmentId"
+    element={
+      <PrivateRoute>
+        <AppointmentDetailsCustomerPage />
+      </PrivateRoute>
+    }
+  />
       </Routes>
+
     </Router>
   );
 }

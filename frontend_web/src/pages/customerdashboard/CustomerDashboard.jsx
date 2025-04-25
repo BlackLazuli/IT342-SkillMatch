@@ -11,6 +11,7 @@ import {
   Rating,
   TextField,
 } from "@mui/material";
+import { CalendarMonth, AccessTime } from "@mui/icons-material";
 
 const drawerWidth = 240;
 
@@ -32,6 +33,7 @@ const ProviderDashboard = () => {
         });
 
         setPortfolios(response.data);
+        console.log(response.data); // inside fetchPortfolios
 
         for (const portfolio of response.data) {
           await fetchAverageRating(portfolio.id);
@@ -105,63 +107,76 @@ const ProviderDashboard = () => {
         )}
 
         <Grid container spacing={4}>
-          {filteredPortfolios.map(({ id: portfolioId, user, workExperience }) => (
-            <Grid item xs={12} sm={6} md={4} key={portfolioId}>
-              <Card
-                elevation={3}
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  backgroundColor: "#e0f7fa",
-                  borderRadius: 2,
-                  padding: 2,
-                  textAlign: "center",
-                }}
-              >
-                <Avatar
-                  src={getProfilePictureUrl(user)}
-                  alt={user?.firstName || "User"}
-                  sx={{ width: 100, height: 100, mb: 1 }}
-                />
-                <Typography variant="h6" fontWeight="bold">
-                  {user?.firstName || "Unknown"} {user?.lastName || ""}
-                </Typography>
-
-                <Box sx={{ mt: 1, mb: 1 }}>
-                  <Rating
-                    value={ratings[portfolioId] || 0}
-                    precision={0.1}
-                    readOnly
-                    size="small"
-                  />
-                  <Typography variant="caption" color="text.secondary">
-                    {ratings[portfolioId]?.toFixed(1) || "0.0"} Stars
-                  </Typography>
-                </Box>
-
-                <Typography variant="body2">
-                  <strong>Work Experience:</strong> {workExperience || "Not specified"}
-                </Typography>
-
-                <Button
-                  variant="contained"
+          {filteredPortfolios.map((portfolio) => {
+            const { id: portfolioId, user, workExperience, daysAvailable, startTime, endTime } = portfolio;
+            return (
+              <Grid item xs={12} sm={6} md={4} key={portfolioId}>
+                <Card
+                  elevation={3}
                   sx={{
-                    mt: 2,
-                    backgroundColor: "#607d8b",
-                    ":hover": { backgroundColor: "#455a64" },
-                    color: "white",
-                    fontWeight: "bold",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    backgroundColor: "#e0f7fa",
+                    borderRadius: 2,
+                    padding: 2,
+                    textAlign: "center",
                   }}
-                  onClick={() =>
-                    (window.location.href = `/provider-portfolio/${user.id}`)
-                  }
                 >
-                  MORE
-                </Button>
-              </Card>
-            </Grid>
-          ))}
+                  <Avatar
+                    src={getProfilePictureUrl(user)}
+                    alt={user?.firstName || "User"}
+                    sx={{ width: 100, height: 100, mb: 1 }}
+                  />
+                  <Typography variant="h6" fontWeight="bold">
+                    {user?.firstName || "Unknown"} {user?.lastName || ""}
+                  </Typography>
+
+                  <Box sx={{ mt: 1, mb: 1 }}>
+                    <Rating
+                      value={ratings[portfolioId] || 0}
+                      precision={0.1}
+                      readOnly
+                      size="small"
+                    />
+                  </Box>
+                  <Typography variant="h6">
+                    <strong>{workExperience || "Not specified"}</strong>
+                  </Typography>
+                  {/* Days and Time */}
+                  <Box display="flex" flexDirection="column" gap={0.5} mt={1} mb={1}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <CalendarMonth fontSize="small" color="action" />
+                      <Typography variant="body2" color="text.secondary">
+                        {portfolio.daysAvailable?.join(", ") || "N/A"}
+                      </Typography>
+                    </Box>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <AccessTime fontSize="small" color="action" />
+                      <Typography variant="body2" color="text.secondary">
+                      {portfolio.time || "Not specified"}
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Button
+                    variant="contained"
+                    sx={{
+                      mt: 2,
+                      backgroundColor: "#607d8b",
+                      ":hover": { backgroundColor: "#455a64" },
+                      color: "white",
+                      fontWeight: "bold",
+                    }}
+                    onClick={() =>
+                      (window.location.href = `/provider-portfolio/${user.id}`)
+                    }
+                  >
+                    MORE
+                  </Button>
+                </Card>
+              </Grid>
+            );
+          })}
         </Grid>
       </Box>
     </Box>

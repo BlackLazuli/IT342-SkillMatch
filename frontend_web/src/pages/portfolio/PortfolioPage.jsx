@@ -188,10 +188,10 @@ const PortfolioPage = () => {
             <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
   <CardContent>
     <Typography variant="h5" fontWeight="bold" gutterBottom>
-      Work Experience
+      About
     </Typography>
     <Typography variant="body2" gutterBottom>
-      {portfolio?.workExperience || "Not provided."}
+      {userDetails?.bio  || "Not provided."}
     </Typography>
 
     {/* New Availability Section */}

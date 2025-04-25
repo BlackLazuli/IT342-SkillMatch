@@ -254,15 +254,15 @@ const handleSubmitAppointment = async () => {
             <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
   <CardContent>
     <Typography variant="h5" fontWeight="bold" gutterBottom>
-      Work Experience
+      About
     </Typography>
     <Typography variant="body2" gutterBottom>
-      {portfolio?.workExperience || "Not provided."}
+      {userDetails?.bio  || "Not provided."}
     </Typography>
 
     {/* New Availability Section */}
     <Typography variant="body2" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
-      Days Avaiable
+      Days Available:
     </Typography>
     <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
       {portfolio?.daysAvailable?.length > 0 ? (
@@ -409,25 +409,27 @@ const handleSubmitAppointment = async () => {
         </Dialog>
 
         <Dialog open={appointmentModalOpen} onClose={() => setAppointmentModalOpen(false)}>
-  <DialogTitle>Book Appointment</DialogTitle>
-  <DialogContent>
-    <TextField
-      label="Appointment Time"
-      type="datetime-local"
-      fullWidth
-      InputLabelProps={{ shrink: true }}
-      value={appointmentDateTime}
-      onChange={(e) => setAppointmentDateTime(e.target.value)}
-      sx={{ mb: 2 }}
-    />
-    <TextField
-      label="Notes (optional)"
-      fullWidth
-      multiline
-      rows={3}
-      value={appointmentNotes}
-      onChange={(e) => setAppointmentNotes(e.target.value)}
-    />
+  <DialogTitle sx={{ pb: 1 }}>Book Appointment</DialogTitle>
+  <DialogContent sx={{ pt: 1 }}>
+    <Box sx={{ minWidth: 300 }}>
+      <TextField
+        label="Appointment Time"
+        type="datetime-local"
+        fullWidth
+        InputLabelProps={{ shrink: true }}
+        value={appointmentDateTime}
+        onChange={(e) => setAppointmentDateTime(e.target.value)}
+        sx={{ mb: 2, mt: 1 }}
+      />
+      <TextField
+        label="Notes (optional)"
+        fullWidth
+        multiline
+        rows={3}
+        value={appointmentNotes}
+        onChange={(e) => setAppointmentNotes(e.target.value)}
+      />
+    </Box>
   </DialogContent>
   <DialogActions>
     <Button onClick={() => setAppointmentModalOpen(false)}>Cancel</Button>

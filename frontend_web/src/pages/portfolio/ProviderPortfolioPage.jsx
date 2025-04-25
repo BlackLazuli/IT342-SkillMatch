@@ -252,13 +252,33 @@ const handleSubmitAppointment = async () => {
 
             {/* Portfolio Content */}
             <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
-              <CardContent>
-                <Typography variant="h5" fontWeight="bold" gutterBottom>
-                  Work Experience
-                </Typography>
-                <Typography variant="body2" gutterBottom>
-                  {portfolio?.workExperience || "Not provided."}
-                </Typography>
+  <CardContent>
+    <Typography variant="h5" fontWeight="bold" gutterBottom>
+      About
+    </Typography>
+    <Typography variant="body2" gutterBottom>
+      {userDetails?.bio  || "Not provided."}
+    </Typography>
+
+    {/* New Availability Section */}
+    <Typography variant="body2" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
+      Days Available:
+    </Typography>
+    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
+      {portfolio?.daysAvailable?.length > 0 ? (
+        portfolio.daysAvailable.map((day, index) => (
+          <Chip key={index} label={day} size="small" />
+        ))
+      ) : (
+        <Typography variant="body2">No days specified.</Typography>
+      )}
+    </Box>
+    <Typography variant="body2" fontWeight="bold">
+      Time:
+    </Typography>
+    <Typography variant="body2" gutterBottom>
+      {portfolio?.time || "Not specified."}
+    </Typography>
 
                 <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
                   Services Offered
@@ -277,24 +297,6 @@ const handleSubmitAppointment = async () => {
 
                           <Typography variant="body2" fontWeight="bold">Pricing:</Typography>
                           <Typography variant="body2">{service.pricing}</Typography>
-
-                          <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
-                            Days Available:
-                          </Typography>
-                          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                            {service.daysOfTheWeek?.map((day, i) => (
-                              <Chip key={i} label={day} size="small" />
-                            )) || "N/A"}
-                          </Box>
-
-                          <Typography variant="body2" fontWeight="bold" sx={{ mt: 1 }}>
-                            Time:
-                          </Typography>
-                          <Typography variant="body2">{service.time}</Typography>
-
-                          <Button fullWidth variant="contained" sx={{ mt: 2 }}>
-                            View Ratings
-                          </Button>
                         </CardContent>
                       </Card>
                     </Grid>
@@ -407,25 +409,27 @@ const handleSubmitAppointment = async () => {
         </Dialog>
 
         <Dialog open={appointmentModalOpen} onClose={() => setAppointmentModalOpen(false)}>
-  <DialogTitle>Book Appointment</DialogTitle>
-  <DialogContent>
-    <TextField
-      label="Appointment Time"
-      type="datetime-local"
-      fullWidth
-      InputLabelProps={{ shrink: true }}
-      value={appointmentDateTime}
-      onChange={(e) => setAppointmentDateTime(e.target.value)}
-      sx={{ mb: 2 }}
-    />
-    <TextField
-      label="Notes (optional)"
-      fullWidth
-      multiline
-      rows={3}
-      value={appointmentNotes}
-      onChange={(e) => setAppointmentNotes(e.target.value)}
-    />
+  <DialogTitle sx={{ pb: 1 }}>Book Appointment</DialogTitle>
+  <DialogContent sx={{ pt: 1 }}>
+    <Box sx={{ minWidth: 300 }}>
+      <TextField
+        label="Appointment Time"
+        type="datetime-local"
+        fullWidth
+        InputLabelProps={{ shrink: true }}
+        value={appointmentDateTime}
+        onChange={(e) => setAppointmentDateTime(e.target.value)}
+        sx={{ mb: 2, mt: 1 }}
+      />
+      <TextField
+        label="Notes (optional)"
+        fullWidth
+        multiline
+        rows={3}
+        value={appointmentNotes}
+        onChange={(e) => setAppointmentNotes(e.target.value)}
+      />
+    </Box>
   </DialogContent>
   <DialogActions>
     <Button onClick={() => setAppointmentModalOpen(false)}>Cancel</Button>

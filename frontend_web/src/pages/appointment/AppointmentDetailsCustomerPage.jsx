@@ -1,28 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Box, Typography, CircularProgress, Card, CardContent, Divider } from "@mui/material";
+import { 
+  Box, 
+  Typography, 
+  CircularProgress, 
+  Card, 
+  CardContent, 
+  Divider,
+  Chip,
+  Grid,
+  Paper,
+  Avatar,
+  Stack,
+  Button
+} from "@mui/material";
 import AppBar from "../../component/AppBarCustomer";
+import {
+  CalendarToday,
+  Person,
+  Work,
+  AccessTime,
+  CheckCircle,
+  Notes,
+  Event
+} from "@mui/icons-material";
 
 const AppointmentDetailsCustomerPage = () => {
-  const { userID } = useParams(); // Get userID from URL parameters
-  console.log("User ID from URL:", userID); 
+  const { userID } = useParams();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (!userID) {
-      console.error("User ID is not available");
-      return;
-    }
-
     const fetchAppointments = async () => {
       try {
-        if (!userID) {
-          console.error("User ID is not available");
-          return;
-        }
-    
         const res = await fetch(`http://localhost:8080/api/appointments/all/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -38,14 +49,32 @@ const AppointmentDetailsCustomerPage = () => {
       }
     };
 
-    fetchAppointments();
-  }, [userID, token]); // Only include userID and token in the dependencies
+    if (userID) fetchAppointments();
+  }, [userID, token]);
+
+  const getStatusChip = (status) => {
+    let color;
+    switch(status.toLowerCase()) {
+      case 'confirmed':
+        color = 'success';
+        break;
+      case 'pending':
+        color = 'warning';
+        break;
+      case 'cancelled':
+        color = 'error';
+        break;
+      default:
+        color = 'default';
+    }
+    return <Chip label={status} color={color} size="small" />;
+  };
 
   if (loading) {
     return (
       <Box sx={{ display: "flex" }}>
         <AppBar />
-        <Box sx={{ p: 4 }}>
+        <Box sx={{ p: 4, width: '100%', display: 'flex', justifyContent: 'center' }}>
           <CircularProgress />
         </Box>
       </Box>
@@ -56,8 +85,18 @@ const AppointmentDetailsCustomerPage = () => {
     return (
       <Box sx={{ display: "flex" }}>
         <AppBar />
-        <Box sx={{ p: 4 }}>
-          <Typography>No appointments found.</Typography>
+        <Box sx={{ p: 4, width: '100%', textAlign: 'center' }}>
+          <Paper sx={{ p: 4, maxWidth: 600, margin: '0 auto' }}>
+            <Typography variant="h5" gutterBottom>
+              No Appointments Found
+            </Typography>
+            <Typography variant="body1" color="text.secondary">
+              You don't have any appointments scheduled yet.
+            </Typography>
+            <Button variant="contained" sx={{ mt: 2 }}>
+              Book an Appointment
+            </Button>
+          </Paper>
         </Box>
       </Box>
     );
@@ -66,50 +105,95 @@ const AppointmentDetailsCustomerPage = () => {
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar />
-      <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
-        <Typography variant="h4" gutterBottom>
-          Appointment Details
+      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, md: 4 } }}>
+        <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
+          My Appointments
         </Typography>
 
-        {appointments.map((appointment) => (
-          <Card key={appointment.id}>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Appointment ID: {appointment.id}
-              </Typography>
+        <Grid container spacing={3}>
+          {appointments.map((appointment) => (
+            <Grid item xs={12} md={6} lg={4} key={appointment.id}>
+              <Card sx={{ 
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                transition: '0.3s',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 3
+                }
+              }}>
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Stack direction="row" spacing={2} alignItems="center" mb={2}>
+                    <Avatar sx={{ bgcolor: 'primary.main' }}>
+                      <CalendarToday />
+                    </Avatar>
+                    <Typography variant="h6" component="div">
+  Appointment #{appointments.indexOf(appointment) + 1}
+</Typography>
+                  </Stack>
 
-              <Divider sx={{ my: 2 }} />
+                  <Divider sx={{ my: 2 }} />
 
-              <Typography variant="body1">
-                <strong>User:</strong> {appointment.userFirstName} {appointment.userLastName}
-              </Typography>
+                  <Stack spacing={2}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Person color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body1">
+                        <strong>Client:</strong> {appointment.userFirstName} {appointment.userLastName}
+                      </Typography>
+                    </Box>
 
-              <Typography variant="body1">
-                <strong>Role:</strong> {appointment.role}
-              </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Work color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body1">
+                        <strong>Role:</strong> {appointment.role}
+                      </Typography>
+                    </Box>
 
-              <Typography variant="body1">
-                <strong>Time:</strong> {new Date(appointment.appointmentTime).toLocaleString()}
-              </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <AccessTime color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body1">
+                        <strong>Time:</strong> {new Date(appointment.appointmentTime).toLocaleString()}
+                      </Typography>
+                    </Box>
 
-              <Typography variant="body1">
-                <strong>Status:</strong> {appointment.status}
-              </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <CheckCircle color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body1">
+                        <strong>Status:</strong> {getStatusChip(appointment.status)}
+                      </Typography>
+                    </Box>
 
-              <Typography variant="body1">
-                <strong>Notes:</strong> {appointment.notes || "None"}
-              </Typography>
+                    {appointment.notes && (
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start' }}>
+                        <Notes color="action" sx={{ mr: 1, mt: 0.5 }} />
+                        <Typography variant="body1">
+                          <strong>Notes:</strong> {appointment.notes}
+                        </Typography>
+                      </Box>
+                    )}
 
-              <Typography variant="body1">
-                <strong>Portfolio ID:</strong> {appointment.portfolioId}
-              </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Event color="action" sx={{ mr: 1 }} />
+                      <Typography variant="body2" color="text.secondary">
+                        Created: {new Date(appointment.createdAt).toLocaleString()}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                </CardContent>
 
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-                Created At: {new Date(appointment.createdAt).toLocaleString()}
-              </Typography>
-            </CardContent>
-          </Card>
-        ))}
+                <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
+
+                  {appointment.status.toLowerCase() === 'pending' && (
+                    <Button size="small" color="error" sx={{ ml: 1 }}>
+                      Cancel
+                    </Button>
+                  )}
+                </Box>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       </Box>
     </Box>
   );

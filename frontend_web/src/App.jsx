@@ -14,6 +14,7 @@ import ProfilePageCustomer from "./pages/profile/ProfilePageCustomer";
 import ProviderPortfolioPage from "./pages/portfolio/ProviderPortfolioPage"; // ✅ Imported
 import AppointmentDetailsPage from "./pages/appointment/AppointmentDetailsPage";
 import AppointmentDetailsCustomerPage from "./pages/appointment/AppointmentDetailsCustomerPage";
+import ClientProfilePage from './pages/profile/ClientProfilePage'; 
 
 
 function App() {
@@ -118,6 +119,16 @@ function App() {
     </PrivateRoute>
   }
 />
+
+<Route
+  path="/client-profile/:userId"
+  element={
+    <PrivateRoute>
+      <ClientProfilePage />
+    </PrivateRoute>
+  }
+/>
+
       </Routes>
 
     </Router>

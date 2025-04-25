@@ -9,7 +9,7 @@ import {
   Chip,
   FormControlLabel,
   Checkbox,
-  FormGroup
+  FormGroup,
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
 
@@ -29,8 +29,8 @@ const AddPortfolioPage = () => {
     newServiceName: "",
     newServiceDescription: "",
     newServicePricing: "",
-    newServiceDaysOfTheWeek: [], // Array of selected days
-    newServiceTime: "",
+    daysAvailable: [], // Global availability
+    availableTime: "", // Global availability
   });
 
   const handleChange = (e) => {
@@ -43,14 +43,13 @@ const AddPortfolioPage = () => {
 
   const handleDayCheckboxChange = (day) => {
     setPortfolioData((prevState) => {
-      const currentDays = prevState.newServiceDaysOfTheWeek;
+      const currentDays = prevState.daysAvailable;
       const updatedDays = currentDays.includes(day)
         ? currentDays.filter((d) => d !== day)
         : [...currentDays, day];
-
       return {
         ...prevState,
-        newServiceDaysOfTheWeek: updatedDays,
+        daysAvailable: updatedDays,
       };
     });
   };
@@ -60,16 +59,12 @@ const AddPortfolioPage = () => {
       newServiceName,
       newServiceDescription,
       newServicePricing,
-      newServiceDaysOfTheWeek,
-      newServiceTime
     } = portfolioData;
 
     if (
-      newServiceName.trim() !== "" &&
-      newServiceDescription.trim() !== "" &&
-      newServicePricing.trim() !== "" &&
-      newServiceDaysOfTheWeek.length > 0 &&
-      newServiceTime.trim() !== ""
+      newServiceName.trim() &&
+      newServiceDescription.trim() &&
+      newServicePricing.trim()
     ) {
       setPortfolioData((prevState) => ({
         ...prevState,
@@ -79,15 +74,11 @@ const AddPortfolioPage = () => {
             name: newServiceName,
             description: newServiceDescription,
             pricing: newServicePricing,
-            daysOfTheWeek: newServiceDaysOfTheWeek,
-            time: newServiceTime,
           },
         ],
         newServiceName: "",
         newServiceDescription: "",
         newServicePricing: "",
-        newServiceDaysOfTheWeek: [],
-        newServiceTime: "",
       }));
     }
   };
@@ -120,6 +111,8 @@ const AddPortfolioPage = () => {
           },
           body: JSON.stringify({
             workExperience: portfolioData.workExperience,
+            daysAvailable: portfolioData.daysAvailable,
+            time: portfolioData.availableTime,
             servicesOffered: portfolioData.servicesOffered,
           }),
         }
@@ -156,71 +149,78 @@ const AddPortfolioPage = () => {
               required
               margin="normal"
             />
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <TextField
-                label="New Service Name"
-                name="newServiceName"
-                value={portfolioData.newServiceName}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="New Service Description"
-                name="newServiceDescription"
-                value={portfolioData.newServiceDescription}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="New Service Pricing"
-                name="newServicePricing"
-                value={portfolioData.newServicePricing}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <FormGroup row sx={{ flexWrap: "wrap", gap: 1 }}>
-                {daysOfWeek.map((day) => (
-                  <FormControlLabel
-                    key={day}
-                    control={
-                      <Checkbox
-                        checked={portfolioData.newServiceDaysOfTheWeek.includes(day)}
-                        onChange={() => handleDayCheckboxChange(day)}
-                      />
-                    }
-                    label={day}
-                  />
-                ))}
-              </FormGroup>
-              <TextField
-                label="Time"
-                name="newServiceTime"
-                value={portfolioData.newServiceTime}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <Button
-                type="button"
-                variant="outlined"
-                onClick={handleServiceAdd}
-                sx={{ alignSelf: "flex-start", mb: 2 }}
-              >
-                Add Service
-              </Button>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {portfolioData.servicesOffered.map((service, index) => (
-                  <Chip
-                    key={index}
-                    label={`${service.name} - ${service.pricing} | ${service.daysOfTheWeek.join(", ")} ${service.time}`}
-                    onDelete={() => handleServiceRemove(service)}
-                  />
-                ))}
-              </Box>
+
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Availability
+            </Typography>
+            <FormGroup row sx={{ flexWrap: "wrap", gap: 1 }}>
+              {daysOfWeek.map((day) => (
+                <FormControlLabel
+                  key={day}
+                  control={
+                    <Checkbox
+                      checked={portfolioData.daysAvailable.includes(day)}
+                      onChange={() => handleDayCheckboxChange(day)}
+                    />
+                  }
+                  label={day}
+                />
+              ))}
+            </FormGroup>
+            <TextField
+              label="Available Time"
+              name="availableTime"
+              value={portfolioData.availableTime}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Services
+            </Typography>
+            <TextField
+              label="New Service Name"
+              name="newServiceName"
+              value={portfolioData.newServiceName}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="New Service Description"
+              name="newServiceDescription"
+              value={portfolioData.newServiceDescription}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="New Service Pricing"
+              name="newServicePricing"
+              value={portfolioData.newServicePricing}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={handleServiceAdd}
+              sx={{ alignSelf: "flex-start", mb: 2 }}
+            >
+              Add Service
+            </Button>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {portfolioData.servicesOffered.map((service, index) => (
+                <Chip
+                  key={index}
+                  label={`${service.name} - ${service.pricing}`}
+                  onDelete={() => handleServiceRemove(service)}
+                />
+              ))}
             </Box>
+
             <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
               Submit
             </Button>

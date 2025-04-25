@@ -86,7 +86,7 @@ const ProviderDashboard = () => {
   return (
     <Box sx={{ display: "flex" }}>
       <AppBar />
-      <Box sx={{ flexGrow: 1, p: 3, ml: `${drawerWidth}px` }}>
+      <Box sx={{ flexGrow: 1, p: 3 }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           Professionals Near You
         </Typography>

@@ -29,8 +29,8 @@ const EditPortfolioPage = () => {
     newServiceName: "",
     newServiceDescription: "",
     newServicePricing: "",
-    newServiceDaysOfTheWeek: [], // Array of selected days
-    newServiceTime: "",
+    daysAvailable: [],
+    time: "",
   });
 
   useEffect(() => {
@@ -55,11 +55,11 @@ const EditPortfolioPage = () => {
         setPortfolioData({
           workExperience: portfolio.workExperience,
           servicesOffered: portfolio.servicesOffered || [],
+          daysAvailable: portfolio.daysAvailable || [],
+          time: portfolio.time || "",
           newServiceName: "",
           newServiceDescription: "",
           newServicePricing: "",
-          newServiceDaysOfTheWeek: [],
-          newServiceTime: "",
         });
       } catch (error) {
         console.error("Error fetching portfolio:", error);
@@ -79,34 +79,30 @@ const EditPortfolioPage = () => {
   };
 
   const handleDayCheckboxChange = (day) => {
+    console.log("Toggling day: ", day);  // Debugging
+
     setPortfolioData((prevState) => {
-      const currentDays = prevState.newServiceDaysOfTheWeek;
+      const currentDays = prevState.daysAvailable;
       const updatedDays = currentDays.includes(day)
         ? currentDays.filter((d) => d !== day)
         : [...currentDays, day];
 
+      console.log("Updated daysAvailable: ", updatedDays);  // Debugging
+
       return {
         ...prevState,
-        newServiceDaysOfTheWeek: updatedDays,
+        daysAvailable: updatedDays,
       };
     });
   };
 
   const handleServiceAdd = () => {
-    const {
-      newServiceName,
-      newServiceDescription,
-      newServicePricing,
-      newServiceDaysOfTheWeek,
-      newServiceTime
-    } = portfolioData;
+    const { newServiceName, newServiceDescription, newServicePricing } = portfolioData;
 
     if (
       newServiceName.trim() !== "" &&
       newServiceDescription.trim() !== "" &&
-      newServicePricing.trim() !== "" &&
-      newServiceDaysOfTheWeek.length > 0 &&
-      newServiceTime.trim() !== ""
+      newServicePricing.trim() !== ""
     ) {
       setPortfolioData((prevState) => ({
         ...prevState,
@@ -116,15 +112,11 @@ const EditPortfolioPage = () => {
             name: newServiceName,
             description: newServiceDescription,
             pricing: newServicePricing,
-            daysOfTheWeek: newServiceDaysOfTheWeek,
-            time: newServiceTime,
           },
         ],
         newServiceName: "",
         newServiceDescription: "",
         newServicePricing: "",
-        newServiceDaysOfTheWeek: [],
-        newServiceTime: "",
       }));
     }
   };
@@ -140,32 +132,36 @@ const EditPortfolioPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     if (!token) {
       alert("No authentication token found. Please log in again.");
       return;
     }
-  
+
+    console.log("Submitting data: ", portfolioData); // Debugging
+
     try {
       const response = await fetch(
-        `http://localhost:8080/api/portfolios/${userID}`,  // Make sure the URL uses userId
+        `http://localhost:8080/api/portfolios/${userID}`,
         {
-          method: "PUT",  // PUT method to update
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({
             workExperience: portfolioData.workExperience,
+            daysAvailable: portfolioData.daysAvailable,
+            time: portfolioData.time,
             servicesOffered: portfolioData.servicesOffered,
           }),
         }
       );
-  
+
       if (!response.ok) {
         throw new Error("Failed to update portfolio.");
       }
-  
+
       alert("Portfolio updated successfully!");
       navigate(`/portfolio/${userID}`);
     } catch (error) {
@@ -173,7 +169,6 @@ const EditPortfolioPage = () => {
       alert("Error updating portfolio.");
     }
   };
-  
 
   return (
     <Box sx={{ backgroundColor: "#ffffff", minHeight: "100vh" }}>
@@ -225,7 +220,7 @@ const EditPortfolioPage = () => {
                     key={day}
                     control={
                       <Checkbox
-                        checked={portfolioData.newServiceDaysOfTheWeek.includes(day)}
+                        checked={portfolioData.daysAvailable.includes(day)}
                         onChange={() => handleDayCheckboxChange(day)}
                       />
                     }
@@ -234,9 +229,9 @@ const EditPortfolioPage = () => {
                 ))}
               </FormGroup>
               <TextField
-                label="Time"
-                name="newServiceTime"
-                value={portfolioData.newServiceTime}
+                label="Available Time"
+                name="time"
+                value={portfolioData.time}
                 onChange={handleChange}
                 fullWidth
                 margin="normal"
@@ -253,7 +248,7 @@ const EditPortfolioPage = () => {
                 {portfolioData.servicesOffered.map((service, index) => (
                   <Chip
                     key={index}
-                    label={`${service.name} - ${service.pricing} | ${service.daysOfTheWeek.join(", ")} ${service.time}`}
+                    label={`${service.name} - ${service.pricing}`}
                     onDelete={() => handleServiceRemove(service)}
                   />
                 ))}

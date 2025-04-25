@@ -129,8 +129,8 @@ const AppointmentDetailsCustomerPage = () => {
                       <CalendarToday />
                     </Avatar>
                     <Typography variant="h6" component="div">
-                      Appointment #{appointment.id}
-                    </Typography>
+  Appointment #{appointments.indexOf(appointment) + 1}
+</Typography>
                   </Stack>
 
                   <Divider sx={{ my: 2 }} />

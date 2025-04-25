@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { 
   Box, 
   Typography, 
@@ -12,13 +12,13 @@ import {
   Paper,
   Avatar,
   Stack,
-  Button
+  Button,
+  Link
 } from "@mui/material";
 import AppBar from "../../component/AppBarCustomer";
 import {
   CalendarToday,
   Person,
-  Work,
   AccessTime,
   CheckCircle,
   Notes,
@@ -27,9 +27,20 @@ import {
 
 const AppointmentDetailsCustomerPage = () => {
   const { userID } = useParams();
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem("token");
+
+  const handleProviderClick = (providerId) => {
+    if (!providerId) {
+      console.error("No provider ID available");
+      return;
+    }
+    // Navigate to the provider's profile page using the providerId
+    navigate(`/provider-profile/${providerId}`);
+  };
+  
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -129,8 +140,8 @@ const AppointmentDetailsCustomerPage = () => {
                       <CalendarToday />
                     </Avatar>
                     <Typography variant="h6" component="div">
-  Appointment #{appointments.indexOf(appointment) + 1}
-</Typography>
+                      Appointment #{appointments.indexOf(appointment) + 1}
+                    </Typography>
                   </Stack>
 
                   <Divider sx={{ my: 2 }} />
@@ -139,17 +150,26 @@ const AppointmentDetailsCustomerPage = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Person color="action" sx={{ mr: 1 }} />
                       <Typography variant="body1">
-                        <strong>Client:</strong> {appointment.userFirstName} {appointment.userLastName}
+                        <strong>Provider:</strong>
+                        <Link
+                          component="button"
+                          variant="body1"
+                          onClick={() => handleProviderClick(appointment.providerId)}
+                          sx={{
+                            ml: 0.5,
+                            cursor: 'pointer',
+                            '&:hover': {
+                              textDecoration: 'underline',
+                              color: 'primary.main'
+                            }
+                          }}
+                        >
+                          {appointment.providerFirstName} {appointment.providerLastName}
+                        </Link>
                       </Typography>
                     </Box>
 
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Work color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body1">
-                        <strong>Role:</strong> {appointment.role}
-                      </Typography>
-                    </Box>
-
+                    {/* Rest of your card content remains the same */}
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <AccessTime color="action" sx={{ mr: 1 }} />
                       <Typography variant="body1">
@@ -183,7 +203,6 @@ const AppointmentDetailsCustomerPage = () => {
                 </CardContent>
 
                 <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
-
                   {appointment.status.toLowerCase() === 'pending' && (
                     <Button size="small" color="error" sx={{ ml: 1 }}>
                       Cancel

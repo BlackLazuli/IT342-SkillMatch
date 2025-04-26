@@ -1,5 +1,6 @@
 package com.example.skillmatch.professional
 
+
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -14,7 +15,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.models.Portfolio
-import com.example.skillmatch.models.Service
 import com.example.skillmatch.utils.SessionManager
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +33,7 @@ class PortfolioActivity : AppCompatActivity() {
     private lateinit var pricingContainer: LinearLayout
     private lateinit var availableDaysText: TextView
     private lateinit var availableTimeText: TextView
-    
+
     // Bottom navigation
     private lateinit var homeButton: ImageButton
     private lateinit var messagesButton: ImageButton
@@ -43,10 +43,10 @@ class PortfolioActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_portfolio)
-        
+
         // Initialize session manager
         sessionManager = SessionManager(this)
-        
+
         // Initialize views
         backButton = findViewById(R.id.backButton)
         editPortfolioButton = findViewById(R.id.editPortfolioButton)
@@ -56,52 +56,52 @@ class PortfolioActivity : AppCompatActivity() {
         pricingContainer = findViewById(R.id.pricingContainer)
         availableDaysText = findViewById(R.id.availableDaysText)
         availableTimeText = findViewById(R.id.availableTimeText)
-        
+
         // Initialize bottom navigation
         homeButton = findViewById(R.id.homeButton)
         messagesButton = findViewById(R.id.messagesButton)
         settingsNavButton = findViewById(R.id.settingsNavButton)
         profileButton = findViewById(R.id.profileButton)
-        
+
         setupListeners()
         fetchPortfolioData()
     }
-    
+
     private fun setupListeners() {
         // Back button
         // In setupListeners() method
         backButton.setOnClickListener {
-        // Replace onBackPressed() with finish()
-        finish()
+            // Replace onBackPressed() with finish()
+            finish()
         }
-        
+
         // Edit portfolio button
         editPortfolioButton.setOnClickListener {
             val intent = Intent(this, EditPortfolioActivity::class.java)
             startActivity(intent)
         }
-        
+
         // Bottom navigation
         homeButton.setOnClickListener {
             // Navigate to home screen
             // Intent to home activity
         }
-        
+
         messagesButton.setOnClickListener {
             // Navigate to messages screen
             // Intent to messages activity
         }
-        
+
         settingsNavButton.setOnClickListener {
             // Navigate to settings screen
             // Intent to settings activity
         }
-        
+
         profileButton.setOnClickListener {
             // Already on profile screen
         }
     }
-    
+
     private fun fetchPortfolioData() {
         val userId = sessionManager.getUserId()
         if (userId != null) {
@@ -110,15 +110,15 @@ class PortfolioActivity : AppCompatActivity() {
                     // Add authentication token
                     val token = "Bearer ${sessionManager.getToken()}"
                     val response = ApiClient.apiService.getPortfolio(token, userId)
-                    
+
                     // Also fetch user data to get profile picture
                     val userResponse = ApiClient.apiService.getUserProfile(userId)
-                    
+
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful && response.body() != null) {
                             val portfolio = response.body()!!
                             displayPortfolioData(portfolio)
-                            
+
                             // Display profile picture if user data is available
                             if (userResponse.isSuccessful && userResponse.body() != null) {
                                 val user = userResponse.body()!!
@@ -147,7 +147,7 @@ class PortfolioActivity : AppCompatActivity() {
             }
         }
     }
-    
+
     private fun displayProfilePicture(profilePictureBase64: String?) {
         profilePictureBase64?.let {
             try {
@@ -159,59 +159,121 @@ class PortfolioActivity : AppCompatActivity() {
             }
         }
     }
-    
+
     private fun displayPortfolioData(portfolio: Portfolio) {
         // Display work experience
-        workExperienceText.text = portfolio.workExperience ?: "No work experience added yet."
-        
-        // Clear and display services
+        workExperienceText.text = portfolio.workExperience ?: "No work experience added"
+
+        // Clear existing services and pricing
         servicesContainer.removeAllViews()
-        pricingContainer.removeAllViews()
-        
-        // Get first service for availability info
-        val firstService = portfolio.servicesOffered?.firstOrNull()
-        
-        // Display availability
-        val availableDays = firstService?.daysOfTheWeek ?: emptyList()
-        if (availableDays.isNotEmpty()) {
-            availableDaysText.text = availableDays.joinToString(", ")
-        } else {
-            availableDaysText.text = "No availability set"
-        }
-        
-        availableTimeText.text = firstService?.time ?: "No time set"
-        
+
         // Display services
-        portfolio.servicesOffered?.forEach { service ->
-            addServiceToView(service)
-        }
-    }
-    
-    private fun addServiceToView(service: Service) {
-        // Add service name and description
-        val serviceTextView = TextView(this).apply {
-            text = "• ${service.name}"
-            if (!service.description.isNullOrEmpty()) {
-                text = "$text\nDescription: ${service.description}"
-            }
-            textSize = 14f
-            setTextColor(resources.getColor(android.R.color.black, theme))
-            setPadding(0, 4, 0, 4)
-        }
-        servicesContainer.addView(serviceTextView)
-        
-        // Add pricing
-        if (!service.pricing.isNullOrEmpty()) {
-            val pricingTextView = TextView(this).apply {
-                text = "• ${service.name}: ${service.pricing}"
+        if (portfolio.servicesOffered.isNullOrEmpty()) {
+            val noServicesText = TextView(this).apply {
+                text = "No services added yet"
                 textSize = 14f
-                setTextColor(resources.getColor(android.R.color.black, theme))
-                setPadding(0, 4, 0, 4)
+                setTextColor(resources.getColor(android.R.color.darker_gray, theme))
+                setPadding(16, 16, 16, 16)
             }
-            pricingContainer.addView(pricingTextView)
+            servicesContainer.addView(noServicesText)
+        } else {
+            // Display each service in its own container
+            portfolio.servicesOffered.forEach { service ->
+                // Create a card for each service
+                val serviceCard = androidx.cardview.widget.CardView(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    ).apply {
+                        setMargins(0, 0, 0, 16) // Add bottom margin
+                    }
+                    radius = resources.getDimension(R.dimen.card_corner_radius) ?: 8f
+                    cardElevation = 2f
+                }
+                
+                // Create container for service content
+                val serviceContent = LinearLayout(this).apply {
+                    layoutParams = LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                    )
+                    orientation = LinearLayout.VERTICAL
+                    setPadding(16, 16, 16, 16)
+                    setBackgroundColor(resources.getColor(R.color.colorPrimary, theme))
+                }
+                
+                // Add service name
+                val serviceNameText = TextView(this).apply {
+                    text = service.name
+                    textSize = 16f
+                    setTextColor(resources.getColor(android.R.color.white, theme))
+                    setPadding(0, 0, 0, 8)
+                }
+                serviceContent.addView(serviceNameText)
+                
+                // Add service description if available
+                if (!service.description.isNullOrEmpty()) {
+                    val descriptionText = TextView(this).apply {
+                        text = service.description
+                        textSize = 14f
+                        setTextColor(resources.getColor(android.R.color.darker_gray, theme))
+                        setPadding(0, 0, 0, 8)
+                    }
+                    serviceContent.addView(descriptionText)
+                }
+                
+                // Add service pricing if available
+                if (!service.pricing.isNullOrEmpty()) {
+                    val pricingText = TextView(this).apply {
+                        text = "Price: ₱${service.pricing}"
+                        textSize = 14f
+                        setTextColor(resources.getColor(android.R.color.black, theme))
+                        setPadding(0, 8, 0, 0)
+                    }
+                    serviceContent.addView(pricingText)
+                }
+                
+                // Add the content to the card
+                serviceCard.addView(serviceContent)
+                
+                // Add the card to the services container
+                servicesContainer.addView(serviceCard)
+            }
         }
-    }
     
+        // Display availability information from portfolio
+        val daysText = if (portfolio.daysAvailable.isNotEmpty()) {
+            formatDaysOfWeek(portfolio.daysAvailable)
+        } else {
+            "Not specified"
+        }
+        availableDaysText.text = daysText
+        
+        availableTimeText.text = portfolio.time ?: "Not specified"
+    }
+
+    private fun formatDaysOfWeek(days: List<String>): String {
+        if (days.isEmpty()) return "Not specified"
+    
+        // Sort days in correct order
+        val orderedDays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+        val sortedDays = days.sortedBy { orderedDays.indexOf(it) }
+    
+        // If all weekdays are present, show "Weekdays"
+        val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
+        if (sortedDays.containsAll(weekdays) && sortedDays.size == 5) {
+            return "Weekdays"
+        }
+    
+        // If all days are present, show "All days"
+        if (sortedDays.size == 7) {
+            return "All days"
+        }
+    
+        // Otherwise, show comma-separated list
+        return sortedDays.joinToString(", ")
+    }
+
     override fun onResume() {
         super.onResume()
         // Refresh data when returning to this activity

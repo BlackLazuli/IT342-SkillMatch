@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SkillMatch"
+rootProject.name = "frontend_mobile"
 include(":app")
  

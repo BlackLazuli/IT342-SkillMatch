@@ -38,7 +38,7 @@ class ServiceAdapter(
         fun bind(service: Service) {
             serviceName.text = service.name
             serviceDescription.text = service.description ?: "No description"
-            servicePrice.text = "USD ${service.pricing ?: "0.00"}"  // Changed from price to pricing
+            servicePrice.text = "₱${service.pricing ?: "0.00"}"  // Changed to Philippine Peso
 
             editButton.setOnClickListener { onEditClick(service) }
             deleteButton.setOnClickListener { onDeleteClick(service) }

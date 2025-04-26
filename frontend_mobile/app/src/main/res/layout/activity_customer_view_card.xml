@@ -18,8 +18,8 @@
 
         <ImageButton
             android:id="@+id/backButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="44dp"
+            android:layout_height="42dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Back"
             android:src="@drawable/back_button" />
@@ -129,7 +129,7 @@
             android:background="@drawable/rectangle_container"
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
-            android:text="Contact"
+            android:text="Set Appointment"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             app:layout_constraintEnd_toEndOf="parent"
@@ -215,21 +215,13 @@
                         <!-- Service items will be added here programmatically -->
                     </LinearLayout>
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
-                        android:text="Pricing:"
-                        android:textColor="#4CAF50"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
                     <LinearLayout
                         android:id="@+id/pricingContainer"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:visibility="gone">
                         <!-- Pricing items will be added here programmatically -->
                     </LinearLayout>
                 </LinearLayout>
@@ -273,7 +265,7 @@
 
                         <TextView
                             android:id="@+id/availableDaysText"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text=""
                             android:textColor="#333333"
@@ -296,7 +288,7 @@
 
                         <TextView
                             android:id="@+id/availableTimeText"
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:text=""
                             android:textColor="#333333"

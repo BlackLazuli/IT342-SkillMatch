@@ -14,15 +14,15 @@ import com.example.skillmatch.utils.SessionManager
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    
+
     private lateinit var repository: SkillMatchRepository
     private lateinit var sessionManager: SessionManager
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        
+
         // Initialize repository and session manager
         repository = SkillMatchRepository(this)
         sessionManager = SessionManager(this)
@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-    
+
     // Add the missing navigateBasedOnUserType method
     // Updated navigateBasedOnUserType method without CustomerDashboard reference
     private fun navigateBasedOnUserType() {
@@ -59,6 +59,6 @@ class MainActivity : AppCompatActivity() {
             sessionManager.clearSession()
         }
     }
-   
-    
+
+
 }

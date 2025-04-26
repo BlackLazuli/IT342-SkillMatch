@@ -131,13 +131,12 @@ class EditPortfolioActivity : AppCompatActivity() {
                                 servicesRecyclerView.adapter?.notifyDataSetChanged()
                             }
                             
-                            // Set availability days and time
-                            val firstService = portfolio.servicesOffered?.firstOrNull()
-                            firstService?.daysOfTheWeek?.let { days ->
+                            // Set availability days and time from portfolio
+                            portfolio.daysAvailable.let { days ->
                                 setAvailableDays(days)
                             }
                             
-                            firstService?.time?.let { time ->
+                            portfolio.time?.let { time ->
                                 availabilityTimeInput.setText(time)
                             }
                         } else {
@@ -224,77 +223,64 @@ class EditPortfolioActivity : AppCompatActivity() {
     }
 
     private fun savePortfolio() {
-        // Get selected days
-        val selectedDays = getSelectedDays()
-        
-        // Make a copy of the services list to avoid concurrent modification
-        val servicesCopy = ArrayList(services)
-        
-        // Update services with selected days and time
-        val availabilityTime = availabilityTimeInput.text.toString()
-        val updatedServices = servicesCopy.map { service ->
-            Service(
-                id = service.id, // Only set to null if it's a new service
-                name = service.name,
-                description = service.description,
-                pricing = service.pricing,
-                time = availabilityTime,
-                daysOfTheWeek = selectedDays
-            )
-        }
-        val portfolioToSave = Portfolio(
-            id = portfolioId,
-            workExperience = workExperienceInput.text.toString(),
-            servicesOffered = updatedServices,
-            clientTestimonials = null
-        )
-        
-        // Add more detailed logging
-        Log.d("EditPortfolio", "Portfolio to save: ${portfolioToSave}")
-        
-        val userId = sessionManager.getUserId()?.toString()
+        val userId = sessionManager.getUserId()
         if (userId != null) {
+            // Get work experience
+            val workExperience = workExperienceInput.text.toString()
+            
+            // Get selected days
+            val selectedDays = getSelectedDays()
+            
+            // Get availability time
+            val availabilityTime = availabilityTimeInput.text.toString()
+            
+            // Create portfolio object
+            val portfolio = Portfolio(
+                id = portfolioId,
+                workExperience = workExperience,
+                servicesOffered = services,
+                daysAvailable = selectedDays,
+                time = availabilityTime
+            )
+            
             CoroutineScope(Dispatchers.IO).launch {
                 try {
-                    // Add detailed logging
-                    Log.d("EditPortfolio", "Saving portfolio for user ID: $userId")
-                    Log.d("EditPortfolio", "Portfolio data: ${portfolioToSave}")
-                    
                     // Add authentication token
                     val token = "Bearer ${sessionManager.getToken()}"
-                    Log.d("EditPortfolio", "portfolioId to update: $portfolioId") // This should print 1, not 2
-                    val response = if (portfolioId != null) {
-                        Log.d("EditPortfolio", "Updating existing portfolio with PUT")
-                        ApiClient.apiService.updatePortfolio(token, userId, portfolioToSave)
+                    val response = if (portfolioId == null) {
+                        // Create new portfolio
+                        ApiClient.apiService.createOrUpdatePortfolio(token, userId, portfolio)
                     } else {
-                        Log.d("EditPortfolio", "Creating new portfolio with POST")
-                        ApiClient.apiService.createOrUpdatePortfolio(token, userId, portfolioToSave)
+                        // Update existing portfolio
+                        ApiClient.apiService.updatePortfolio(token, userId, portfolio)
                     }
-                    
-                    // Log the raw request body for debugging
-                    Log.d("EditPortfolio", "Request body: ${portfolioToSave}")
                     
                     withContext(Dispatchers.Main) {
                         if (response.isSuccessful) {
-                            Toast.makeText(this@EditPortfolioActivity, "Portfolio saved successfully", Toast.LENGTH_SHORT).show()
-                            val intent = Intent(this@EditPortfolioActivity, PortfolioActivity::class.java)
-                            startActivity(intent)
+                            Toast.makeText(
+                                this@EditPortfolioActivity,
+                                "Portfolio saved successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
                             finish()
                         } else {
-                            val errorBody = response.errorBody()?.string() ?: "Unknown error"
-                            Log.e("EditPortfolio", "Error code: ${response.code()}, Error body: $errorBody")
-                            Toast.makeText(this@EditPortfolioActivity, "Error saving portfolio: ${response.code()} - $errorBody", Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                this@EditPortfolioActivity,
+                                "Error saving portfolio",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
-                        Log.e("EditPortfolio", "Exception: ${e.message}", e)
-                        Toast.makeText(this@EditPortfolioActivity, "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                        Toast.makeText(
+                            this@EditPortfolioActivity,
+                            "Error: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
-        } else {
-            Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_SHORT).show()
         }
     }
 }

@@ -20,10 +20,6 @@ public class ServiceEntity {
     private String pricing; // Service pricing
     private String time; // Time of the service
 
-    @ElementCollection
-    @CollectionTable(name = "service_days", joinColumns = @JoinColumn(name = "service_id"))
-    @Column(name = "day")
-    private List<String> daysOfTheWeek = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "portfolio_id")
@@ -63,21 +59,6 @@ public class ServiceEntity {
         this.pricing = pricing;
     }
 
-    public List<String> getDaysOfTheWeek() {
-        return daysOfTheWeek;
-    }
-    
-    public void setDaysOfTheWeek(List<String> daysOfTheWeek) {
-        this.daysOfTheWeek = daysOfTheWeek;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
 
     public PortfolioEntity getPortfolio() {
         return portfolio;

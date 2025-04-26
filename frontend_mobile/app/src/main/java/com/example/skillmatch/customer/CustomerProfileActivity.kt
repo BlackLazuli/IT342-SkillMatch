@@ -109,8 +109,8 @@ class CustomerProfileActivity : AppCompatActivity(), OnMapReadyCallback {
         // Appointments card click listener
         appointmentsCard.setOnClickListener {
             Toast.makeText(this, "CustomerAppointments feature coming soon", Toast.LENGTH_SHORT).show()
-          /*  val intent = Intent(this, CustomerAppointments::class.java)
-            startActivity(intent)*/
+            val intent = Intent(this, AppointmentActivity::class.java)
+            startActivity(intent)
         }
 
         // Favorites card click listener

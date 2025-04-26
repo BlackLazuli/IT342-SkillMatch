@@ -2,6 +2,7 @@ package edu.cit.skillmatch.controller;
 
 import edu.cit.skillmatch.dto.AppointmentDTO;
 import edu.cit.skillmatch.entity.AppointmentEntity;
+import edu.cit.skillmatch.entity.UserEntity;
 import edu.cit.skillmatch.service.AppointmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -164,25 +165,32 @@ public class AppointmentController {
     }
 
     @GetMapping("/all/{userId}")
-public ResponseEntity<List<AppointmentDTO>> getAllAppointmentsForUser(@PathVariable Long userId) {
-    List<AppointmentEntity> appointments = appointmentService.getAllAppointmentsForUser(userId);
-
-    List<AppointmentDTO> dtos = appointments.stream().map(appointment -> {
-        AppointmentDTO dto = new AppointmentDTO();
-        dto.setId(appointment.getId());
-        dto.setUserId(appointment.getUser().getId());
-        dto.setUserFirstName(appointment.getUser().getFirstName());
-        dto.setUserLastName(appointment.getUser().getLastName());
-        dto.setRole(appointment.getRole());
-        dto.setAppointmentTime(appointment.getAppointmentTime());
-        dto.setStatus(appointment.getStatus());
-        dto.setNotes(appointment.getNotes());
-        dto.setCreatedAt(appointment.getCreatedAt());
-        dto.setPortfolioId(appointment.getPortfolio().getId());
-        return dto;
-    }).toList();
-
-    return ResponseEntity.ok(dtos);
-}
+    public ResponseEntity<List<AppointmentDTO>> getAllAppointmentsForUser(@PathVariable Long userId) {
+        List<AppointmentEntity> appointments = appointmentService.getAllAppointmentsForUser(userId);
+    
+        List<AppointmentDTO> dtos = appointments.stream().map(appointment -> {
+            AppointmentDTO dto = new AppointmentDTO();
+            dto.setId(appointment.getId());
+            dto.setUserId(appointment.getUser().getId());
+            dto.setUserFirstName(appointment.getUser().getFirstName());
+            dto.setUserLastName(appointment.getUser().getLastName());
+            dto.setRole(appointment.getRole());
+            dto.setAppointmentTime(appointment.getAppointmentTime());
+            dto.setStatus(appointment.getStatus());
+            dto.setNotes(appointment.getNotes());
+            dto.setCreatedAt(appointment.getCreatedAt());
+            dto.setPortfolioId(appointment.getPortfolio().getId());
+    
+            // Get provider details from portfolio
+            UserEntity provider = appointment.getPortfolio().getUser();
+            dto.setProviderFirstName(provider.getFirstName());
+            dto.setProviderLastName(provider.getLastName());
+            dto.setProviderId(provider.getId());  // Add this line to set providerId
+    
+            return dto;
+        }).toList();
+    
+        return ResponseEntity.ok(dtos);
+    }
 
 }

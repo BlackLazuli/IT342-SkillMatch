@@ -23,6 +23,12 @@ public class AppointmentDTO {
     private LocalDateTime createdAt;
     private Long portfolioId;
 
+    private Long portfolioId; // Add portfolioId field
+    private String providerFirstName;
+    private String providerLastName;
+    private Long providerId;  
+
+
     // Getters and Setters
     public Long getId() {
         return id;
@@ -103,4 +109,31 @@ public class AppointmentDTO {
     public void setPortfolioId(Long portfolioId) {
         this.portfolioId = portfolioId;
     }
+
+    public String getProviderFirstName() {
+        return providerFirstName;
+    }
+    
+    public void setProviderFirstName(String providerFirstName) {
+        this.providerFirstName = providerFirstName;
+    }
+    
+    public String getProviderLastName() {
+        return providerLastName;
+    }
+    
+    public void setProviderLastName(String providerLastName) {
+        this.providerLastName = providerLastName;
+    }
+
+    public Long getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(Long providerId) {
+        this.providerId = providerId;
+    }
+
+    
+    
 }

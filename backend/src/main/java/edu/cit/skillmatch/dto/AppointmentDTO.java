@@ -23,7 +23,7 @@ public class AppointmentDTO {
     private LocalDateTime createdAt;
     private Long portfolioId;
 
-    private Long portfolioId; // Add portfolioId field
+
     private String providerFirstName;
     private String providerLastName;
     private Long providerId;  

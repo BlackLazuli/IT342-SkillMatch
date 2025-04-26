@@ -35,6 +35,11 @@ public class AppointmentController {
             dto.setNotes(appointment.getNotes());
             dto.setCreatedAt(appointment.getCreatedAt());
             dto.setPortfolioId(appointment.getPortfolio().getId());  // Set portfolioId
+            // Get provider details from portfolio
+            UserEntity provider = appointment.getPortfolio().getUser();
+            dto.setProviderFirstName(provider.getFirstName());
+            dto.setProviderLastName(provider.getLastName());
+            dto.setProviderId(provider.getId());  // Add this line to set providerId
             return dto;
         }).toList();
     
@@ -61,7 +66,12 @@ public class AppointmentController {
         dto.setNotes(appointment.getNotes());
         dto.setCreatedAt(appointment.getCreatedAt());
         dto.setPortfolioId(appointment.getPortfolio().getId());  // Set portfolioId
-    
+        // Get provider details from portfolio
+        UserEntity provider = appointment.getPortfolio().getUser();
+        dto.setProviderFirstName(provider.getFirstName());
+        dto.setProviderLastName(provider.getLastName());
+        dto.setProviderId(provider.getId());
+
         return ResponseEntity.ok(dto);
     }
     
@@ -93,6 +103,12 @@ public class AppointmentController {
             dto.setNotes(booked.getNotes());
             dto.setCreatedAt(booked.getCreatedAt());
             dto.setPortfolioId(booked.getPortfolio().getId());
+            
+            // Get provider details from portfolio
+            UserEntity provider = booked.getPortfolio().getUser();
+            dto.setProviderFirstName(provider.getFirstName());
+            dto.setProviderLastName(provider.getLastName());
+            dto.setProviderId(provider.getId());
     
             return ResponseEntity.ok(dto);
         } catch (RuntimeException e) {
@@ -130,6 +146,11 @@ public class AppointmentController {
         dto.setNotes(appointment.getNotes());
         dto.setCreatedAt(appointment.getCreatedAt());
         dto.setPortfolioId(appointment.getPortfolio().getId());  // Add portfolioId to DTO
+        // Get provider details from portfolio
+        UserEntity provider = appointment.getPortfolio().getUser();
+        dto.setProviderFirstName(provider.getFirstName());
+        dto.setProviderLastName(provider.getLastName());
+        dto.setProviderId(provider.getId());  // Add this line to set providerId
     
         return ResponseEntity.ok(dto);
     }
@@ -154,6 +175,11 @@ public class AppointmentController {
         dto.setNotes(appointment.getNotes());
         dto.setCreatedAt(appointment.getCreatedAt());
         dto.setPortfolioId(appointment.getPortfolio().getId());  // Add portfolioId to DTO
+        // Get provider details from portfolio
+        UserEntity provider = appointment.getPortfolio().getUser();
+        dto.setProviderFirstName(provider.getFirstName());
+        dto.setProviderLastName(provider.getLastName());
+        dto.setProviderId(provider.getId());  // Add this line to set providerId
     
         return ResponseEntity.ok(dto);
     }

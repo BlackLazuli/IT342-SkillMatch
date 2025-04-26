@@ -11,4 +11,5 @@ data class AppointmentRequest(
     val status: String? = null,
     val notes: String?,
     val createdAt: String? = null
+
 )

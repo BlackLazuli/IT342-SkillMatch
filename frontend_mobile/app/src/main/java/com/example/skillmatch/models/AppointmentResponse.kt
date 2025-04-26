@@ -10,5 +10,10 @@ data class AppointmentResponse(
     val status: String,
     val notes: String?,
     val createdAt: String,
-    val portfolioId: Long
+    val portfolioId: Long,
+    val professionalFirstName: String? = null,
+    val professionalLastName: String? = null,
+    val providerFirstName: String? = null,
+    val providerLastName: String? = null,
+    val providerId: Long? = null
 )

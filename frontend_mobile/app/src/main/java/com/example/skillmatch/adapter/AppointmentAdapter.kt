@@ -59,7 +59,11 @@ class AppointmentAdapter(
         holder.dateTimeText.text = formatDateTime(appointment.appointmentTime)
         
         // Set provider name
-        holder.providerNameText.text = "With: ${appointment.userFirstName} ${appointment.userLastName}"
+        // Set provider name with fallback
+        val firstName = appointment.professionalFirstName
+        val lastName = appointment.professionalLastName
+        // In the onBindViewHolder method
+        holder.providerNameText.text = "With: ${appointment.providerFirstName ?: ""} ${appointment.providerLastName ?: ""}"
         
         // Set notes (if any)
         if (appointment.notes.isNullOrEmpty()) {

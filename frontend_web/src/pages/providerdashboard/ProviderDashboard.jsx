@@ -8,8 +8,19 @@ import {
   Grid,
   Card,
   CardContent,
+  Paper,
+  Avatar,
+  Divider,
+  useTheme,
+  useMediaQuery
 } from "@mui/material";
 import { usePersonalInfo } from "../../context/PersonalInfoContext";
+import {
+  CalendarToday,
+  WorkOutline,
+  MonetizationOn,
+  Description
+} from "@mui/icons-material";
 
 const ProviderDashboard = () => {
   const [appointmentCount, setAppointmentCount] = useState(0);
@@ -18,6 +29,8 @@ const ProviderDashboard = () => {
   const [error, setError] = useState(null);
   const { personalInfo } = usePersonalInfo();
   const token = localStorage.getItem("token");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     if (!personalInfo?.userId) {
@@ -77,55 +90,132 @@ const ProviderDashboard = () => {
   }, [personalInfo?.userId]);
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <AppBar />
-      <Box sx={{ flexGrow: 1, p: 3 }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Welcome, {personalInfo?.firstName || "Service Provider"}!
-        </Typography>
+      <Box sx={{ flexGrow: 1, p: isMobile ? 2 : 3, backgroundColor: "#f5f7fa" }}>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" fontWeight="bold" gutterBottom>
+            Welcome back, {personalInfo?.firstName || "Provider"}!
+          </Typography>
+          <Typography variant="subtitle1" color="text.secondary">
+            Here's what's happening with your business today
+          </Typography>
+        </Box>
 
         {loading ? (
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <CircularProgress size={24} />
-            <Typography sx={{ ml: 2 }}>Loading...</Typography>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", height: "60vh" }}>
+            <CircularProgress size={60} />
           </Box>
         ) : error ? (
-          <Alert severity="error">{error}</Alert>
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
         ) : (
           <>
-            <Typography variant="h5" sx={{ mt: 2 }}>
-              You have <strong>{appointmentCount}</strong> appointment
-              {appointmentCount !== 1 ? "s" : ""}
-            </Typography>
+            <Grid container spacing={3} sx={{ mb: 4 }}>
+              <Grid item xs={12} md={6} lg={4}>
+                <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Avatar sx={{ 
+                      backgroundColor: theme.palette.primary.light, 
+                      mr: 2,
+                      width: 56,
+                      height: 56
+                    }}>
+                      <CalendarToday />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h6" color="text.secondary">
+                        Appointments
+                      </Typography>
+                      <Typography variant="h4" fontWeight="bold">
+                        {appointmentCount}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Paper>
+              </Grid>
+              <Grid item xs={12} md={6} lg={4}>
+                <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+                  <Box sx={{ display: "flex", alignItems: "center" }}>
+                    <Avatar sx={{ 
+                      backgroundColor: theme.palette.secondary.light, 
+                      mr: 2,
+                      width: 56,
+                      height: 56
+                    }}>
+                      <WorkOutline />
+                    </Avatar>
+                    <Box>
+                      <Typography variant="h6" color="text.secondary">
+                        Services Offered
+                      </Typography>
+                      <Typography variant="h4" fontWeight="bold">
+                        {services.length}
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Paper>
+              </Grid>
+            </Grid>
 
             {services.length > 0 && (
-              <Box sx={{ mt: 4 }}>
-                <Typography variant="h5" fontWeight="bold" gutterBottom>
-                  Services Offered
-                </Typography>
-                <Grid container spacing={2}>
+              <Paper elevation={3} sx={{ p: 3, borderRadius: 2, mb: 4 }}>
+                <Box sx={{ display: "flex", alignItems: "center", mb: 3 }}>
+                  <Description color="primary" sx={{ mr: 1, fontSize: 32 }} />
+                  <Typography variant="h5" fontWeight="bold">
+                    Your Services
+                  </Typography>
+                </Box>
+                <Divider sx={{ mb: 3 }} />
+                <Grid container spacing={3}>
                   {services.map((service, index) => (
                     <Grid item xs={12} sm={6} md={4} key={index}>
-                      <Card>
-                        <CardContent>
-                          <Typography variant="h6" fontWeight="bold">
+                      <Card sx={{ 
+                        height: "100%", 
+                        display: "flex", 
+                        flexDirection: "column",
+                        transition: "transform 0.3s, box-shadow 0.3s",
+                        "&:hover": {
+                          transform: "translateY(-5px)",
+                          boxShadow: theme.shadows[6]
+                        }
+                      }}>
+                        <CardContent sx={{ flexGrow: 1 }}>
+                          <Typography 
+                            variant="h6" 
+                            fontWeight="bold" 
+                            gutterBottom
+                            sx={{ color: theme.palette.primary.main }}
+                          >
                             {service.name}
                           </Typography>
-                          <Typography variant="body2" gutterBottom>
+                          <Typography 
+                            variant="body2" 
+                            color="text.secondary" 
+                            gutterBottom
+                            sx={{ mb: 2 }}
+                          >
                             {service.description}
                           </Typography>
-                          <Typography variant="body2" fontWeight="bold">
-                            Pricing:
-                          </Typography>
-                          <Typography variant="body2">
-                            {service.pricing}
-                          </Typography>
+                          <Box sx={{ 
+                            backgroundColor: theme.palette.grey[100], 
+                            p: 2, 
+                            borderRadius: 1 
+                          }}>
+                            <Typography variant="subtitle2" fontWeight="bold">
+                              Pricing:
+                            </Typography>
+                            <Typography variant="body1">
+                              {service.pricing}
+                            </Typography>
+                          </Box>
                         </CardContent>
                       </Card>
                     </Grid>
                   ))}
                 </Grid>
-              </Box>
+              </Paper>
             )}
           </>
         )}

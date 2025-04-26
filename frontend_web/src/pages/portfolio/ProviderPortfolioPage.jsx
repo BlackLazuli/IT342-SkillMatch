@@ -17,9 +17,22 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Paper,
+  useTheme,
+  useMediaQuery,
+  Stack,
+  Container
 } from "@mui/material";
 import AppBar from "../../component/AppBarCustomer";
 import { usePersonalInfo } from "../../context/PersonalInfoContext";
+import {
+  Edit,
+  Add,
+  Schedule,
+  WorkOutline,
+  Comment,
+  Event
+} from "@mui/icons-material";
 
 const ProviderPortfolioPage = () => {
   const { userID } = useParams();
@@ -32,61 +45,49 @@ const ProviderPortfolioPage = () => {
   const [commentModalOpen, setCommentModalOpen] = useState(false);
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState(0);
-  const { personalInfo } = usePersonalInfo();
-  const token = localStorage.getItem("token");
   const [appointmentModalOpen, setAppointmentModalOpen] = useState(false);
   const [appointmentDateTime, setAppointmentDateTime] = useState("");
   const [appointmentNotes, setAppointmentNotes] = useState("");
+  const { personalInfo } = usePersonalInfo();
+  const token = localStorage.getItem("token");
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  
   // Handle appointment submission
-const handleSubmitAppointment = async () => {
-  if (!appointmentDateTime) return alert("Please select a date and time.");
+  const handleSubmitAppointment = async () => {
+    if (!appointmentDateTime) return alert("Please select a date and time.");
 
-  try {
-    const res = await fetch("http://localhost:8080/api/appointments/", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        user: { id: personalInfo.userId },  // The user booking the appointment
-        role: "CUSTOMER", // The role of the user (can be "CUSTOMER" or "SERVICE_PROVIDER")
-        portfolio: { id: portfolio.id }, // Pass the portfolio ID
-        appointmentTime: appointmentDateTime,
-        notes: appointmentNotes,
-      }),
-    });
+    try {
+      const res = await fetch("http://localhost:8080/api/appointments/", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          user: { id: personalInfo.userId },
+          role: "CUSTOMER",
+          portfolio: { id: portfolio.id },
+          appointmentTime: appointmentDateTime,
+          notes: appointmentNotes,
+        }),
+      });
 
-    if (!res.ok) throw new Error("Failed to book appointment");
+      if (!res.ok) throw new Error("Failed to book appointment");
 
-    const data = await res.json();  // The returned AppointmentDTO
+      const data = await res.json();
+      setAppointmentModalOpen(false);
+      setAppointmentDateTime("");
+      setAppointmentNotes("");
+      alert("Appointment booked successfully!");
+    } catch (error) {
+      console.error("Appointment booking failed", error);
+      alert("Failed to book appointment");
+    }
+  };
 
-    setAppointmentModalOpen(false);
-    setAppointmentDateTime("");
-    setAppointmentNotes("");
-    
-    alert("Appointment booked successfully!");
-    console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
-
-  } catch (error) {
-    console.error("Appointment booking failed", error);
-    alert("Failed to book appointment");
-  }
-};
-
-  
-  
   // Fetch portfolio data
   const fetchPortfolio = async () => {
-    const token = localStorage.getItem("token");
-
-    if (!token) {
-      alert("Please log in first.");
-      return;
-    }
-
     try {
       const res = await fetch(`http://localhost:8080/api/portfolios/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -102,7 +103,7 @@ const handleSubmitAppointment = async () => {
 
       const data = await res.json();
       setPortfolio(data);
-      fetchComments(data.id);  // Fetch comments when portfolio is loaded
+      fetchComments(data.id);
     } catch (error) {
       console.error(error);
     } finally {
@@ -119,21 +120,18 @@ const handleSubmitAppointment = async () => {
       const data = await res.json();
       setComments(data);
 
-      // Calculate the average rating from comments
       const avgRating = data.length
         ? data.reduce((acc, curr) => acc + curr.rating, 0) / data.length
         : 0;
-
-      setRating(avgRating); // Set the average rating
+      setRating(avgRating);
     } catch {
       setComments([]);
-      setRating(0); // Default to 0 if there's an error
+      setRating(0);
     }
   };
 
   // Fetch user details
   const fetchUserDetails = async () => {
-    const token = localStorage.getItem("token");
     try {
       const res = await fetch(`http://localhost:8080/api/users/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -163,8 +161,6 @@ const handleSubmitAppointment = async () => {
 
   // Handle feedback submission (comment + rating)
   const handleSubmitFeedback = async () => {
-    const token = localStorage.getItem("token");
-  
     try {
       // Submit comment with rating
       await fetch(
@@ -181,7 +177,7 @@ const handleSubmitAppointment = async () => {
           }),
         }
       );
-  
+
       // Submit rating (for the separate ratings table)
       await fetch(`http://localhost:8080/api/ratings/`, {
         method: "POST",
@@ -195,13 +191,13 @@ const handleSubmitAppointment = async () => {
           review: newComment,
         }),
       });
-  
+
       // Reset form
       setCommentModalOpen(false);
       setNewComment("");
       setNewRating(0);
-  
-      // Refresh both
+
+      // Refresh comments
       fetchComments(portfolio.id);
     } catch (error) {
       console.error("Failed to submit feedback", error);
@@ -212,232 +208,352 @@ const handleSubmitAppointment = async () => {
     return (
       <Box sx={{ display: "flex" }}>
         <AppBar />
-        <Box sx={{ p: 4 }}>
-          <CircularProgress />
+        <Box sx={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          height: "80vh",
+          width: "100%"
+        }}>
+          <CircularProgress size={60} />
         </Box>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <AppBar />
-      <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         {!portfolio ? (
-          <>
+          <Paper elevation={3} sx={{ p: 4, textAlign: "center" }}>
             <Typography variant="h4" gutterBottom>Portfolio</Typography>
-            <Typography>No portfolio found for this user.</Typography>
-          </>
+            <Typography variant="body1" sx={{ mb: 3 }}>
+              No portfolio found for this user.
+            </Typography>
+          </Paper>
         ) : (
           <>
-            {/* Header */}
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            {/* Header Section */}
+            <Box sx={{ 
+              display: "flex", 
+              flexDirection: isMobile ? "column" : "row", 
+              alignItems: isMobile ? "flex-start" : "center",
+              gap: 3,
+              mb: 4
+            }}>
               <Avatar
                 alt={userDetails?.firstName || "User"}
                 src={getProfilePictureUrl()}
-                sx={{ width: 80, height: 80, mr: 2 }}
+                sx={{ 
+                  width: 100, 
+                  height: 100, 
+                  boxShadow: theme.shadows[4]
+                }}
               />
-              <Box>
-                <Typography variant="h4" fontWeight="bold">
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h3" fontWeight="bold">
                   {userDetails?.firstName || "User"}'s Portfolio
                 </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
-                  <Rating value={rating} precision={0.1} readOnly size="small" sx={{ color: "#ffb400" }} />
-                  <Typography variant="body2" color="text.secondary">
-                    {rating.toFixed(1)} Stars
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
+                  <Rating 
+                    value={rating} 
+                    precision={0.1} 
+                    readOnly 
+                    sx={{ 
+                      color: theme.palette.warning.main,
+                      fontSize: isMobile ? "1.5rem" : "1.75rem"
+                    }} 
+                  />
+                  <Typography variant="h6" color="text.secondary">
+                    {rating.toFixed(1)} ({comments.length} reviews)
                   </Typography>
                 </Box>
               </Box>
+              
+              <Stack direction={isMobile ? "column" : "row"} spacing={2}>
+                <Button 
+                  variant="contained" 
+                  startIcon={<Comment />}
+                  onClick={() => setCommentModalOpen(true)}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Add Review
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<Event />}
+                  onClick={() => setAppointmentModalOpen(true)}
+                  sx={{ borderRadius: 2 }}
+                >
+                  Book Appointment
+                </Button>
+              </Stack>
             </Box>
 
-            {/* Portfolio Content */}
-            <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
-  <CardContent>
-    <Typography variant="h5" fontWeight="bold" gutterBottom>
-      About
-    </Typography>
-    <Typography variant="body2" gutterBottom>
-      {userDetails?.bio  || "Not provided."}
-    </Typography>
+            {/* About & Availability Section */}
+            <Paper elevation={3} sx={{ p: 4, mb: 4, borderRadius: 2 }}>
+              <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
+                About
+              </Typography>
+              <Typography variant="body1" paragraph sx={{ mb: 3 }}>
+                {userDetails?.bio || "This user hasn't added a bio yet."}
+              </Typography>
 
-    {/* New Availability Section */}
-    <Typography variant="body2" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
-      Days Available:
-    </Typography>
-    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
-      {portfolio?.daysAvailable?.length > 0 ? (
-        portfolio.daysAvailable.map((day, index) => (
-          <Chip key={index} label={day} size="small" />
-        ))
-      ) : (
-        <Typography variant="body2">No days specified.</Typography>
-      )}
-    </Box>
-    <Typography variant="body2" fontWeight="bold">
-      Time:
-    </Typography>
-    <Typography variant="body2" gutterBottom>
-      {portfolio?.time || "Not specified."}
-    </Typography>
+              <Divider sx={{ my: 3 }} />
 
-                <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
-                  Services Offered
-                </Typography>
-                <Grid container spacing={2}>
-                  {portfolio?.servicesOffered?.map((service, index) => (
+              <Box sx={{ display: "flex", gap: 4, flexDirection: isMobile ? "column" : "row" }}>
+                <Box sx={{ flex: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                    <Schedule color="primary" />
+                    <Typography variant="h6" fontWeight="bold">
+                      Availability
+                    </Typography>
+                  </Box>
+                  
+                  <Typography variant="body1" fontWeight="medium" gutterBottom>
+                    Days Available:
+                  </Typography>
+                  <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mb: 2 }}>
+                    {portfolio?.daysAvailable?.length > 0 ? (
+                      portfolio.daysAvailable.map((day, index) => (
+                        <Chip 
+                          key={index} 
+                          label={day} 
+                          color="primary"
+                          variant="outlined"
+                        />
+                      ))
+                    ) : (
+                      <Typography variant="body2">Not specified</Typography>
+                    )}
+                  </Stack>
+
+                  <Typography variant="body1" fontWeight="medium" gutterBottom>
+                    Hours:
+                  </Typography>
+                  <Typography variant="body1">
+                    {portfolio?.time || "Not specified"}
+                  </Typography>
+                </Box>
+              </Box>
+            </Paper>
+
+            {/* Services Section */}
+            <Paper elevation={3} sx={{ p: 4, mb: 4, borderRadius: 2 }}>
+              <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
+                Services Offered
+              </Typography>
+              
+              {portfolio?.servicesOffered?.length > 0 ? (
+                <Grid container spacing={3}>
+                  {portfolio.servicesOffered.map((service, index) => (
                     <Grid item xs={12} sm={6} md={4} key={index}>
-                      <Card elevation={2}>
+                      <Card sx={{ 
+                        height: "100%",
+                        transition: "transform 0.3s, box-shadow 0.3s",
+                        "&:hover": {
+                          transform: "translateY(-5px)",
+                          boxShadow: theme.shadows[6]
+                        }
+                      }}>
                         <CardContent>
-                          <Typography variant="h6" fontWeight="bold">
+                          <Typography variant="h6" fontWeight="bold" gutterBottom>
                             {service.name}
                           </Typography>
-                          <Typography variant="body2" gutterBottom>
-                            {service.description}
+                          <Typography variant="body2" color="text.secondary" paragraph>
+                            {service.description || "No description provided."}
                           </Typography>
-
-                          <Typography variant="body2" fontWeight="bold">Pricing:</Typography>
-                          <Typography variant="body2">{service.pricing}</Typography>
+                          
+                          <Box sx={{ 
+                            backgroundColor: theme.palette.grey[100], 
+                            p: 2, 
+                            borderRadius: 1,
+                            mt: 2
+                          }}>
+                            <Typography variant="subtitle2" fontWeight="bold">
+                              Pricing:
+                            </Typography>
+                            <Typography variant="body1">
+                              {service.pricing || "Not specified"}
+                            </Typography>
+                          </Box>
                         </CardContent>
                       </Card>
                     </Grid>
                   ))}
                 </Grid>
-              </CardContent>
-            </Card>
-
-            {/* Add Comment Button */}
-            <Button
-              variant="contained"
-              sx={{ mb: 2 }}
-              onClick={() => setCommentModalOpen(true)}
-            >
-              Add a Comment
-            </Button>
-
-            <Button
-  variant="outlined"
-  sx={{ mb: 2, ml: 2 }}
-  onClick={() => setAppointmentModalOpen(true)}
->
-  Book Appointment
-</Button>
-
-
-            {/* Comments */}
-            <Box>
-              <Divider sx={{ mb: 2 }} />
-              <Typography variant="h5" fontWeight="bold" gutterBottom>
-                Comments
-              </Typography>
-              {comments.length === 0 ? (
-                <Typography>No Comments</Typography>
               ) : (
-                comments.map((comment, index) => (
-                  <Card key={index} sx={{ mb: 2, backgroundColor: "#f9f9f9" }}>
-                    <CardContent sx={{ display: "flex", alignItems: "flex-start" }}>
-                      <Avatar
-                        alt={comment.authorName || "Anonymous"}
-                        src={
-                          comment.profilePicture
-                            ? comment.profilePicture.startsWith("http")
-                              ? comment.profilePicture
-                              : `http://localhost:8080${comment.profilePicture}`
-                            : "/default-avatar.png"
-                        }
-                        sx={{ width: 40, height: 40, mr: 2 }}
-                      />
-                      <Box sx={{ flex: 1 }}>
-                        <Typography variant="body1" fontWeight="bold" gutterBottom>
-                          {comment.authorName || "Anonymous"}
-                        </Typography>
-                        <Typography variant="caption" color="text.secondary" gutterBottom>
-                          {new Date(comment.timestamp).toLocaleString()}
-                        </Typography>
+                <Typography variant="body1">
+                  No services listed yet.
+                </Typography>
+              )}
+            </Paper>
 
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-                          <Rating
-                            value={comment.rating}
-                            precision={0.1}
-                            readOnly
-                            size="small"
-                            sx={{ color: "#ffb400" }}
+            {/* Comments Section */}
+            <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
+                <Comment color="primary" />
+                <Typography variant="h5" fontWeight="bold">
+                  Customer Reviews
+                </Typography>
+              </Box>
+              
+              {comments.length === 0 ? (
+                <Typography variant="body1" sx={{ textAlign: "center", py: 4 }}>
+                  No reviews yet. Be the first to leave a review!
+                </Typography>
+              ) : (
+                <Stack spacing={3}>
+                  {comments.map((comment, index) => (
+                    <Card key={index} elevation={0} sx={{ 
+                      backgroundColor: theme.palette.grey[50],
+                      borderRadius: 2
+                    }}>
+                      <CardContent>
+                        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                          <Avatar
+                            alt={comment.authorName || "Anonymous"}
+                            src={
+                              comment.profilePicture
+                                ? comment.profilePicture.startsWith("http")
+                                  ? comment.profilePicture
+                                  : `http://localhost:8080${comment.profilePicture}`
+                                : "/default-avatar.png"
+                            }
+                            sx={{ width: 48, height: 48 }}
                           />
-                          <Typography variant="body2" color="text.secondary">
-                            {comment.rating.toFixed(1)}
-                          </Typography>
+                          <Box>
+                            <Typography variant="subtitle1" fontWeight="bold">
+                              {comment.authorName || "Anonymous"}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {new Date(comment.timestamp).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </Typography>
+                          </Box>
                         </Box>
-
-                        <Typography variant="body2">
+                        
+                        <Rating
+                          value={comment.rating}
+                          precision={0.1}
+                          readOnly
+                          sx={{ 
+                            color: theme.palette.warning.main,
+                            mb: 1
+                          }}
+                        />
+                        
+                        <Typography variant="body1">
                           {comment.message}
                         </Typography>
-                      </Box>
-                    </CardContent>
-                  </Card>
-                ))
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Stack>
               )}
-            </Box>
+            </Paper>
           </>
         )}
 
         {/* Comment Modal */}
-        <Dialog open={commentModalOpen} onClose={() => setCommentModalOpen(false)}>
-          <DialogTitle>Add Comment</DialogTitle>
+        <Dialog 
+          open={commentModalOpen} 
+          onClose={() => setCommentModalOpen(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>Add Review</DialogTitle>
           <DialogContent>
-            <TextField
-              label="Comment"
-              variant="outlined"
-              multiline
-              fullWidth
-              rows={4}
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <Rating
-              value={newRating}
-              onChange={(event, newValue) => setNewRating(newValue)}
-              sx={{ mt: 2 }}
-            />
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="subtitle1" gutterBottom>
+                Your Rating:
+              </Typography>
+              <Rating
+                value={newRating}
+                onChange={(event, newValue) => setNewRating(newValue)}
+                size="large"
+                sx={{ color: theme.palette.warning.main, mb: 3 }}
+              />
+              <TextField
+                label="Your Review"
+                variant="outlined"
+                multiline
+                fullWidth
+                rows={4}
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+            </Box>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setCommentModalOpen(false)} color="primary">
+            <Button 
+              onClick={() => setCommentModalOpen(false)} 
+              color="primary"
+              sx={{ borderRadius: 2 }}
+            >
               Cancel
             </Button>
-            <Button onClick={handleSubmitFeedback} color="primary">
-              Submit
+            <Button 
+              onClick={handleSubmitFeedback} 
+              color="primary"
+              variant="contained"
+              sx={{ borderRadius: 2 }}
+            >
+              Submit Review
             </Button>
           </DialogActions>
         </Dialog>
 
-        <Dialog open={appointmentModalOpen} onClose={() => setAppointmentModalOpen(false)}>
-  <DialogTitle sx={{ pb: 1 }}>Book Appointment</DialogTitle>
-  <DialogContent sx={{ pt: 1 }}>
-    <Box sx={{ minWidth: 300 }}>
-      <TextField
-        label="Appointment Time"
-        type="datetime-local"
-        fullWidth
-        InputLabelProps={{ shrink: true }}
-        value={appointmentDateTime}
-        onChange={(e) => setAppointmentDateTime(e.target.value)}
-        sx={{ mb: 2, mt: 1 }}
-      />
-      <TextField
-        label="Notes (optional)"
-        fullWidth
-        multiline
-        rows={3}
-        value={appointmentNotes}
-        onChange={(e) => setAppointmentNotes(e.target.value)}
-      />
-    </Box>
-  </DialogContent>
-  <DialogActions>
-    <Button onClick={() => setAppointmentModalOpen(false)}>Cancel</Button>
-    <Button onClick={handleSubmitAppointment}>Book</Button>
-  </DialogActions>
-</Dialog>
-
-      </Box>
+        {/* Appointment Modal */}
+        <Dialog 
+          open={appointmentModalOpen} 
+          onClose={() => setAppointmentModalOpen(false)}
+          fullWidth
+          maxWidth="sm"
+        >
+          <DialogTitle>Book Appointment</DialogTitle>
+          <DialogContent>
+            <Box sx={{ mt: 2 }}>
+              <TextField
+                label="Appointment Date & Time"
+                type="datetime-local"
+                fullWidth
+                InputLabelProps={{ shrink: true }}
+                value={appointmentDateTime}
+                onChange={(e) => setAppointmentDateTime(e.target.value)}
+                sx={{ mb: 3 }}
+              />
+              <TextField
+                label="Notes (optional)"
+                fullWidth
+                multiline
+                rows={3}
+                value={appointmentNotes}
+                onChange={(e) => setAppointmentNotes(e.target.value)}
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button 
+              onClick={() => setAppointmentModalOpen(false)} 
+              sx={{ borderRadius: 2 }}
+            >
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleSubmitAppointment} 
+              variant="contained"
+              sx={{ borderRadius: 2 }}
+            >
+              Confirm Booking
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Container>
     </Box>
   );
 };

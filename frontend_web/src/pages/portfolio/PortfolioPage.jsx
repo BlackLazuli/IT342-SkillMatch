@@ -12,9 +12,21 @@ import {
   Chip,
   Divider,
   Rating,
+  Paper,
+  useTheme,
+  useMediaQuery,
+  Stack,
+  Container
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
 import { usePersonalInfo } from "../../context/PersonalInfoContext";
+import {
+  Edit,
+  Add,
+  Schedule,
+  WorkOutline,
+  Comment
+} from "@mui/icons-material";
 
 const PortfolioPage = () => {
   const { userID } = useParams();
@@ -25,13 +37,8 @@ const PortfolioPage = () => {
   const [loading, setLoading] = useState(true);
   const [userDetails, setUserDetails] = useState(null);
   const { personalInfo } = usePersonalInfo();
-  
-
-  useEffect(() => {
-    console.log("Debug - personalInfo ID:", personalInfo?.userId);
-    console.log("Debug - URL userID:", userID);
-    console.log("Should show button?", personalInfo?.userId === userID);
-  }, [personalInfo, userID]);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -73,33 +80,12 @@ const PortfolioPage = () => {
         const data = await res.json();
         setComments(data);
     
-        // Calculate the average rating from comments
         const avgRating = data.length
           ? data.reduce((acc, curr) => acc + curr.rating, 0) / data.length
           : 0;
-    
-        setRating(avgRating); // Set the average rating from comments
+        setRating(avgRating);
       } catch {
         setComments([]);
-        setRating(0); // Set default rating if there's an error
-      }
-    };
-    
-
-    const fetchRatings = async (userId) => {
-      try {
-        const res = await fetch(`http://localhost:8080/api/ratings/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (res.ok) {
-          const ratingsData = await res.json();
-          const avg = ratingsData.length
-            ? ratingsData.reduce((acc, curr) => acc + curr.rating, 0) / ratingsData.length
-            : 0;
-          setRating(avg);
-        }
-      } catch (err) {
-        console.error("Failed to fetch ratings:", err);
         setRating(0);
       }
     };
@@ -137,170 +123,268 @@ const PortfolioPage = () => {
     return (
       <Box sx={{ display: "flex" }}>
         <AppBar />
-        <Box sx={{ p: 4 }}>
-          <CircularProgress />
+        <Box sx={{ 
+          display: "flex", 
+          justifyContent: "center", 
+          alignItems: "center", 
+          height: "80vh",
+          width: "100%"
+        }}>
+          <CircularProgress size={60} />
         </Box>
       </Box>
     );
   }
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <AppBar />
-      <Box component="main" sx={{ flexGrow: 1, p: 4 }}>
+      <Container maxWidth="lg" sx={{ py: 4 }}>
         {!portfolio ? (
-          <>
+          <Paper elevation={3} sx={{ p: 4, textAlign: "center" }}>
             <Typography variant="h4" gutterBottom>Portfolio</Typography>
-            <Typography>No portfolio found for this user.</Typography>
-            <Button variant="contained" sx={{ mt: 2 }} onClick={handleAddPortfolio}>
-              Add Portfolio
-            </Button>
-          </>
+            <Typography variant="body1" sx={{ mb: 3 }}>
+              No portfolio found for this user.
+            </Typography>
+            {personalInfo?.userId === Number(userID) && (
+              <Button 
+                variant="contained" 
+                startIcon={<Add />}
+                onClick={handleAddPortfolio}
+                sx={{ 
+                  px: 4,
+                  py: 1.5,
+                  borderRadius: 2
+                }}
+              >
+                Create Your Portfolio
+              </Button>
+            )}
+          </Paper>
         ) : (
           <>
-            {/* Header */}
-            <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            {/* Header Section */}
+            <Box sx={{ 
+              display: "flex", 
+              flexDirection: isMobile ? "column" : "row", 
+              alignItems: isMobile ? "flex-start" : "center",
+              gap: 3,
+              mb: 4
+            }}>
               <Avatar
                 alt={userDetails?.firstName || "User"}
                 src={getProfilePictureUrl()}
-                sx={{ width: 80, height: 80, mr: 2 }}
+                sx={{ 
+                  width: 100, 
+                  height: 100, 
+                  boxShadow: theme.shadows[4]
+                }}
               />
-<Box>
-  <Typography variant="h4" fontWeight="bold">
-    {userDetails?.firstName || "User"}'s Portfolio
-  </Typography>
-  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 0.5 }}>
-    <Rating value={rating} precision={0.1} readOnly size="small" sx={{ color: "#ffb400" }} />
-    <Typography variant="body2" color="text.secondary">
-      {rating.toFixed(1)} Stars
-    </Typography>
-  </Box>
-</Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="h3" fontWeight="bold">
+                  {userDetails?.firstName || "User"}'s Portfolio
+                </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
+                  <Rating 
+                    value={rating} 
+                    precision={0.1} 
+                    readOnly 
+                    sx={{ 
+                      color: theme.palette.warning.main,
+                      fontSize: isMobile ? "1.5rem" : "1.75rem"
+                    }} 
+                  />
+                  <Typography variant="h6" color="text.secondary">
+                    {rating.toFixed(1)} ({comments.length} reviews)
+                  </Typography>
+                </Box>
+              </Box>
+              
+              {personalInfo?.userId === Number(userID) && (
+                <Button 
+                  variant="contained" 
+                  startIcon={<Edit />}
+                  onClick={handleUpdatePortfolio}
+                  sx={{ 
+                    alignSelf: isMobile ? "flex-start" : "center",
+                    px: 4,
+                    py: 1.5,
+                    borderRadius: 2
+                  }}
+                >
+                  Edit Portfolio
+                </Button>
+              )}
             </Box>
 
-{personalInfo?.userId === Number(userID) && (
-  <Button variant="contained" sx={{ mb: 4 }} onClick={handleUpdatePortfolio}>
-    Update Portfolio
-  </Button>
-)}
+            {/* About & Availability Section */}
+            <Paper elevation={3} sx={{ p: 4, mb: 4, borderRadius: 2 }}>
+              <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
+                About
+              </Typography>
+              <Typography variant="body1" paragraph sx={{ mb: 3 }}>
+                {userDetails?.bio || "This user hasn't added a bio yet."}
+              </Typography>
 
-            {/* Portfolio Content */}
-            <Card sx={{ backgroundColor: "#fff4e6", mb: 4 }}>
-  <CardContent>
-    <Typography variant="h5" fontWeight="bold" gutterBottom>
-      About
-    </Typography>
-    <Typography variant="body2" gutterBottom>
-      {userDetails?.bio  || "Not provided."}
-    </Typography>
+              <Divider sx={{ my: 3 }} />
 
-    {/* New Availability Section */}
-    <Typography variant="body2" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
-      Days Avaiable
-    </Typography>
-    <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 1 }}>
-      {portfolio?.daysAvailable?.length > 0 ? (
-        portfolio.daysAvailable.map((day, index) => (
-          <Chip key={index} label={day} size="small" />
-        ))
-      ) : (
-        <Typography variant="body2">No days specified.</Typography>
-      )}
-    </Box>
-    <Typography variant="body2" fontWeight="bold">
-      Time:
-    </Typography>
-    <Typography variant="body2" gutterBottom>
-      {portfolio?.time || "Not specified."}
-    </Typography>
+              <Box sx={{ display: "flex", gap: 4, flexDirection: isMobile ? "column" : "row" }}>
+                <Box sx={{ flex: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+                    <Schedule color="primary" />
+                    <Typography variant="h6" fontWeight="bold">
+                      Availability
+                    </Typography>
+                  </Box>
+                  
+                  <Typography variant="body1" fontWeight="medium" gutterBottom>
+                    Days Available:
+                  </Typography>
+                  <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mb: 2 }}>
+                    {portfolio?.daysAvailable?.length > 0 ? (
+                      portfolio.daysAvailable.map((day, index) => (
+                        <Chip 
+                          key={index} 
+                          label={day} 
+                          color="primary"
+                          variant="outlined"
+                        />
+                      ))
+                    ) : (
+                      <Typography variant="body2">Not specified</Typography>
+                    )}
+                  </Stack>
 
-                <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mt: 3 }}>
-                  Services Offered
-                </Typography>
-                <Grid container spacing={2}>
-                  {portfolio?.servicesOffered?.map((service, index) => (
+                  <Typography variant="body1" fontWeight="medium" gutterBottom>
+                    Hours:
+                  </Typography>
+                  <Typography variant="body1">
+                    {portfolio?.time || "Not specified"}
+                  </Typography>
+                </Box>
+              </Box>
+            </Paper>
+
+            {/* Services Section */}
+            <Paper elevation={3} sx={{ p: 4, mb: 4, borderRadius: 2 }}>
+              <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
+                Services Offered
+              </Typography>
+              
+              {portfolio?.servicesOffered?.length > 0 ? (
+                <Grid container spacing={3}>
+                  {portfolio.servicesOffered.map((service, index) => (
                     <Grid item xs={12} sm={6} md={4} key={index}>
-                      <Card elevation={2}>
+                      <Card sx={{ 
+                        height: "100%",
+                        transition: "transform 0.3s, box-shadow 0.3s",
+                        "&:hover": {
+                          transform: "translateY(-5px)",
+                          boxShadow: theme.shadows[6]
+                        }
+                      }}>
                         <CardContent>
-                          <Typography variant="h6" fontWeight="bold">
+                          <Typography variant="h6" fontWeight="bold" gutterBottom>
                             {service.name}
                           </Typography>
-                          <Typography variant="body2" gutterBottom>
-                            {service.description}
+                          <Typography variant="body2" color="text.secondary" paragraph>
+                            {service.description || "No description provided."}
                           </Typography>
-
-                          <Typography variant="body2" fontWeight="bold">Pricing:</Typography>
-                          <Typography variant="body2">{service.pricing}</Typography>
+                          
+                          <Box sx={{ 
+                            backgroundColor: theme.palette.grey[100], 
+                            p: 2, 
+                            borderRadius: 1,
+                            mt: 2
+                          }}>
+                            <Typography variant="subtitle2" fontWeight="bold">
+                              Pricing:
+                            </Typography>
+                            <Typography variant="body1">
+                              {service.pricing || "Not specified"}
+                            </Typography>
+                          </Box>
                         </CardContent>
                       </Card>
                     </Grid>
                   ))}
                 </Grid>
-              </CardContent>
-            </Card>
+              ) : (
+                <Typography variant="body1">
+                  No services listed yet.
+                </Typography>
+              )}
+            </Paper>
 
-            {/* Comments */}
-            <Box>
-  <Divider sx={{ mb: 2 }} />
-  <Typography variant="h5" fontWeight="bold" gutterBottom>
-    Comments
-  </Typography>
-  {comments.length === 0 ? (
-    <Typography>No Comments</Typography>
-  ) : (
-    comments.map((comment, index) => (
-      <Card key={index} sx={{ mb: 2, backgroundColor: "#f9f9f9" }}>
-      <CardContent sx={{ display: "flex", alignItems: "flex-start" }}>
-        <Avatar
-          alt={comment.authorName || "Anonymous"}
-          src={
-            comment.profilePicture
-              ? comment.profilePicture.startsWith("http")
-                ? comment.profilePicture
-                : `http://localhost:8080${comment.profilePicture}`
-              : "/default-avatar.png"
-          }
-          sx={{ width: 40, height: 40, mr: 2 }}
-        />
-    
-        <Box sx={{ flex: 1 }}>
-          <Typography variant="body1" fontWeight="bold" gutterBottom>
-            {comment.authorName || "Anonymous"}
-          </Typography>
-    
-          <Typography variant="caption" color="text.secondary" gutterBottom>
-            {new Date(comment.timestamp).toLocaleString()}
-          </Typography>
-    
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
-            <Rating
-              value={comment.rating}
-              precision={0.1}
-              readOnly
-              size="small"
-              sx={{ color: "#ffb400" }}
-            />
-            <Typography variant="body2" color="text.secondary">
-              {comment.rating.toFixed(1)}
-            </Typography>
-          </Box>
-    
-          <Typography variant="body2">
-            {comment.message}
-          </Typography>
-        </Box>
-      </CardContent>
-    </Card>
-    
-    ))
-  )}
-</Box>
-
-
-
+            {/* Comments Section */}
+            <Paper elevation={3} sx={{ p: 4, borderRadius: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
+                <Comment color="primary" />
+                <Typography variant="h5" fontWeight="bold">
+                  Customer Reviews
+                </Typography>
+              </Box>
+              
+              {comments.length === 0 ? (
+                <Typography variant="body1" sx={{ textAlign: "center", py: 4 }}>
+                  No reviews yet. Be the first to leave a review!
+                </Typography>
+              ) : (
+                <Stack spacing={3}>
+                  {comments.map((comment, index) => (
+                    <Card key={index} elevation={0} sx={{ 
+                      backgroundColor: theme.palette.grey[50],
+                      borderRadius: 2
+                    }}>
+                      <CardContent>
+                        <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+                          <Avatar
+                            alt={comment.authorName || "Anonymous"}
+                            src={
+                              comment.profilePicture
+                                ? comment.profilePicture.startsWith("http")
+                                  ? comment.profilePicture
+                                  : `http://localhost:8080${comment.profilePicture}`
+                                : "/default-avatar.png"
+                            }
+                            sx={{ width: 48, height: 48 }}
+                          />
+                          <Box>
+                            <Typography variant="subtitle1" fontWeight="bold">
+                              {comment.authorName || "Anonymous"}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {new Date(comment.timestamp).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'long',
+                                day: 'numeric'
+                              })}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        
+                        <Rating
+                          value={comment.rating}
+                          precision={0.1}
+                          readOnly
+                          sx={{ 
+                            color: theme.palette.warning.main,
+                            mb: 1
+                          }}
+                        />
+                        
+                        <Typography variant="body1">
+                          {comment.message}
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </Stack>
+              )}
+            </Paper>
           </>
         )}
-      </Box>
+      </Container>
     </Box>
   );
 };

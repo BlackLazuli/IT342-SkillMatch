@@ -15,6 +15,7 @@ import ProviderPortfolioPage from "./pages/portfolio/ProviderPortfolioPage"; // 
 import AppointmentDetailsPage from "./pages/appointment/AppointmentDetailsPage";
 import AppointmentDetailsCustomerPage from "./pages/appointment/AppointmentDetailsCustomerPage";
 import ClientProfilePage from './pages/profile/ClientProfilePage'; 
+import ProviderProfilePage from './pages/profile/ProviderProfilePage'; 
 
 
 function App() {
@@ -125,6 +126,15 @@ function App() {
   element={
     <PrivateRoute>
       <ClientProfilePage />
+    </PrivateRoute>
+  }
+/>
+
+<Route
+  path="/provider-profile/:providerId"
+  element={
+    <PrivateRoute>
+      <ProviderProfilePage />
     </PrivateRoute>
   }
 />

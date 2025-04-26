@@ -136,7 +136,7 @@ const AppointmentDetailsCustomerPage = () => {
                       <CalendarToday />
                     </Avatar>
                     <Typography variant="h6" component="div">
-                      Appointment #{appointment.id}
+                      Appointment #{appointments.indexOf(appointment) + 1}
                     </Typography>
                   </Stack>
 
@@ -167,12 +167,6 @@ const AppointmentDetailsCustomerPage = () => {
                     </Box>
 
                     {/* Rest of your card content remains the same */}
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Work color="action" sx={{ mr: 1 }} />
-                      <Typography variant="body1">
-                        <strong>Role:</strong> {appointment.role}
-                      </Typography>
-                    </Box>
 
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <AccessTime color="action" sx={{ mr: 1 }} />

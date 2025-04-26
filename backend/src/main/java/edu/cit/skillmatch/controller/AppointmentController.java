@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(origins = {"http://localhost:5173", "http://10.0.2.2:8080"})
 @RequestMapping("/api/appointments")
 public class AppointmentController {
     private final AppointmentService appointmentService;
@@ -64,16 +65,22 @@ public class AppointmentController {
     }
     
     @PostMapping("/")
-    public ResponseEntity<AppointmentDTO> bookAppointment(@RequestBody AppointmentEntity appointmentEntity) {
+    public ResponseEntity<AppointmentDTO> bookAppointment(@RequestBody AppointmentDTO appointmentDTO) {
         try {
+            // Log the incoming request for debugging
+            System.out.println("Received appointment request: " + appointmentDTO.getAppointmentTime() + 
+                               ", userId: " + appointmentDTO.getUserId() + 
+                               ", portfolioId: " + appointmentDTO.getPortfolioId());
+            
             AppointmentEntity booked = appointmentService.bookAppointment(
-                    appointmentEntity.getUser().getId(),
-                    appointmentEntity.getRole(),
-                    appointmentEntity.getPortfolio().getId(), // Pass portfolioId
-                    appointmentEntity.getAppointmentTime(),
-                    appointmentEntity.getNotes()
+                    appointmentDTO.getUserId(),
+                    appointmentDTO.getRole(),
+                    appointmentDTO.getPortfolioId(), 
+                    appointmentDTO.getAppointmentTime(),
+                    appointmentDTO.getNotes()
             );
     
+            // Create response DTO
             AppointmentDTO dto = new AppointmentDTO();
             dto.setId(booked.getId());
             dto.setUserId(booked.getUser().getId());
@@ -84,11 +91,20 @@ public class AppointmentController {
             dto.setStatus(booked.getStatus());
             dto.setNotes(booked.getNotes());
             dto.setCreatedAt(booked.getCreatedAt());
-            dto.setPortfolioId(booked.getPortfolio().getId());  // Add portfolioId to DTO
+            dto.setPortfolioId(booked.getPortfolio().getId());
     
             return ResponseEntity.ok(dto);
         } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().build();
+            // Log the exception for debugging
+            System.err.println("Error booking appointment: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Return a more specific error response
+            if (e.getMessage().contains("Portfolio not found")) {
+                return ResponseEntity.status(404).body(null); // 404 Not Found
+            }
+            
+            return ResponseEntity.badRequest().body(null);
         }
     }
     

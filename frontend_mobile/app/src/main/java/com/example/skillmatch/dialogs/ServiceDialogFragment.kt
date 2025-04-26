@@ -107,8 +107,7 @@ class ServiceDialogFragment : DialogFragment() {
                 name = name,
                 description = description.ifBlank { null },
                 pricing = pricing.ifBlank { null },
-                time = service?.time,
-                daysOfTheWeek = service?.daysOfTheWeek ?: emptyList()
+
             )
 
             listener?.onServiceSaved(updatedService)

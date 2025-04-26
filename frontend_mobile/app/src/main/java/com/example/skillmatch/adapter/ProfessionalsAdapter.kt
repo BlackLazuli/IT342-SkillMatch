@@ -48,25 +48,25 @@ class ProfessionalsAdapter(
     // In the ProfessionalsAdapter class, update the onBindViewHolder method
     override fun onBindViewHolder(holder: ProfessionalViewHolder, position: Int) {
         val professional = professionals[position]
-        
+
         // Set professional name
         holder.professionalName.text = "${professional.firstName} ${professional.lastName}"
-        
+
         // Set occupation
         holder.professionalOccupation.text = professional.occupation
-        
+
         // Set initial circle
         val initial = professional.firstName.firstOrNull()?.toString() ?: "?"
         holder.initialCircle.text = initial
-        
+
         // Set rating
         val rating = professional.rating?.toFloat() ?: 0f
         holder.ratingBar.rating = rating
         holder.ratingText.text = String.format("%.1f", rating)
-        
+
         // Fetch portfolio data to get services with availability info
         fetchPortfolioData(professional.id, holder)
-        
+
         // Set click listener
         holder.itemView.setOnClickListener {
             onProfessionalClicked(professional)
@@ -78,7 +78,7 @@ class ProfessionalsAdapter(
             try {
                 val sessionManager = SessionManager(holder.itemView.context)
                 val token = sessionManager.getToken()
-                
+    
                 if (token.isNullOrEmpty()) {
                     Log.e(TAG, "Token is missing or empty")
                     withContext(Dispatchers.Main) {
@@ -86,40 +86,23 @@ class ProfessionalsAdapter(
                     }
                     return@launch
                 }
-                
+    
                 val response = ApiClient.apiService.getPortfolio("Bearer $token", professionalId.toString())
-                
+    
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful && response.body() != null) {
                         val portfolio = response.body()!!
                         Log.d(TAG, "Portfolio data for professional $professionalId: ${portfolio.servicesOffered?.size ?: 0} services")
-                        
-                        // Get services with availability info
-                        val servicesWithAvailability = portfolio.servicesOffered?.filter {
-                            !it.daysOfTheWeek.isNullOrEmpty() || !it.time.isNullOrEmpty()
-                        } ?: emptyList()
-                        
-                        Log.d(TAG, "Services with availability: ${servicesWithAvailability.size}")
-                        
-                        if (servicesWithAvailability.isNotEmpty()) {
-                            // Collect all days from all services
-                            val allDays = servicesWithAvailability
-                                .flatMap { it.daysOfTheWeek ?: emptyList() }
-                                .distinct()
-                                .sorted()
-                            
-                            Log.d(TAG, "Combined days: $allDays")
-                            
+    
+                        // Get availability info directly from portfolio
+                        val daysAvailable = portfolio.daysAvailable
+                        val time = portfolio.time
+    
+                        if (daysAvailable.isNotEmpty() || !time.isNullOrEmpty()) {
                             // Display days in a compact format
-                            val daysText = formatDaysOfWeek(allDays)
+                            val daysText = formatDaysOfWeek(daysAvailable)
                             holder.scheduleText.text = daysText
-                            
-                            // Get time from first service with time info
-                            val timeText = servicesWithAvailability
-                                .firstOrNull { !it.time.isNullOrEmpty() }?.time ?: ""
-                            
-                            Log.d(TAG, "Combined hours: $timeText")
-                            holder.hoursText.text = timeText
+                            holder.hoursText.text = time ?: "Not specified"
                         } else {
                             setDefaultAvailability(holder, professionals[holder.adapterPosition])
                         }
@@ -139,22 +122,22 @@ class ProfessionalsAdapter(
 
     private fun formatDaysOfWeek(days: List<String>): String {
         if (days.isEmpty()) return "Not specified"
-        
+
         // Sort days in correct order
         val orderedDays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
         val sortedDays = days.sortedBy { orderedDays.indexOf(it) }
-        
+
         // If all weekdays are present, show "Weekdays"
         val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
         if (sortedDays.containsAll(weekdays) && sortedDays.size == 5) {
             return "Weekdays"
         }
-        
+
         // If all days are present, show "All days"
         if (sortedDays.size == 7) {
             return "All days"
         }
-        
+
         // Otherwise, show comma-separated list
         return sortedDays.joinToString(", ")
     }
@@ -166,7 +149,7 @@ class ProfessionalsAdapter(
         } else {
             holder.scheduleText.text = "Not specified"
         }
-        
+
         holder.hoursText.text = if (professional.availableHours.isNotEmpty()) {
             professional.availableHours
         } else {

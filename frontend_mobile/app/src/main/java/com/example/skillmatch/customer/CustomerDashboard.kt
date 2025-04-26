@@ -19,10 +19,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.skillmatch.R
 import com.example.skillmatch.adapter.ProfessionalsAdapter
 import com.example.skillmatch.api.ApiClient
-import com.example.skillmatch.models.Portfolio
 import com.example.skillmatch.models.Professional
-import com.example.skillmatch.models.Service
-import com.example.skillmatch.models.User
 import com.example.skillmatch.utils.SessionManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -105,9 +102,9 @@ class CustomerDashboard : AppCompatActivity() {
                         return@launch
                     }
                     
-                    val response = ApiClient.apiService.getPortfolio("Bearer $token", professional.id.toString())
-                    if (response.isSuccessful && response.body() != null) {
-                        val services = response.body()!!.servicesOffered ?: emptyList()
+                    val portfolioResponse = ApiClient.apiService.getPortfolio("Bearer $token", professional.id.toString())
+                    if (portfolioResponse.isSuccessful && portfolioResponse.body() != null) {
+                        val services = portfolioResponse.body()!!.servicesOffered ?: emptyList()
                         withContext(Dispatchers.Main) {
                             val intent = Intent(this@CustomerDashboard, CustomerViewCardActivity::class.java)
                             intent.putExtra(CustomerViewCardActivity.EXTRA_PROFESSIONAL_ID, professional.id)
@@ -118,7 +115,7 @@ class CustomerDashboard : AppCompatActivity() {
                             startActivity(intent)
                         }
                     } else {
-                        Log.e(TAG, "Portfolio fetch failed: ${response.code()} - ${response.errorBody()?.string()}")
+                        Log.e(TAG, "Portfolio fetch failed: ${portfolioResponse.code()} - ${portfolioResponse.errorBody()?.string()}")
                         withContext(Dispatchers.Main) {
                             val intent = Intent(this@CustomerDashboard, CustomerViewCardActivity::class.java)
                             intent.putExtra(CustomerViewCardActivity.EXTRA_PROFESSIONAL_ID, professional.id)
@@ -161,7 +158,8 @@ class CustomerDashboard : AppCompatActivity() {
 
         calendarButton.setOnClickListener {
             // Navigate to appointments screen
-            Toast.makeText(this, "Appointments feature coming soon", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, AppointmentActivity::class.java)
+            startActivity(intent)
         }
 
         settingsNavButton.setOnClickListener {
@@ -302,26 +300,37 @@ class CustomerDashboard : AppCompatActivity() {
                        // Debug logging for services
                        Log.d(TAG, "Services for user ${user.id}: ${services.size}")
                        services.forEach { service ->
-                           Log.d(TAG, "Service: ${service.name}, days: ${service.daysOfTheWeek}, time: ${service.time}")
+                           Log.d(TAG, "Service: ${service.name}")
                        }
 
-                       // Collect all available days from all services - handle null safely
-                       val allServiceDays = services.flatMap { service -> 
-                           service.daysOfTheWeek ?: emptyList() 
-                       }.distinct()
+                       // Get portfolio data to access availability information
+                       val portfolio = try {
+                           // Reuse the token from above
+                           val sharedPreferences = applicationContext.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
+                           val token = sharedPreferences.getString("token", "") ?: ""
+                           
+                           val portfolioResponse = ApiClient.apiService.getPortfolio("Bearer $token", user.id.toString())
+                           if (portfolioResponse.isSuccessful && portfolioResponse.body() != null) {
+                               portfolioResponse.body()
+                           } else {
+                               null
+                           }
+                       } catch (e: Exception) {
+                           Log.e(TAG, "Error fetching portfolio for availability", e)
+                           null
+                       }
 
-                       // Collect all available hours from services
-                       val allServiceHours = services.mapNotNull { it.time }
-                           .filter { it.isNotEmpty() }
-                           .joinToString(", ")
+                       // Get days and time from portfolio if available
+                       val portfolioDaysAvailable = portfolio?.daysAvailable ?: emptyList()
+                       val portfolioTime = portfolio?.time
 
-                       Log.d(TAG, "User ${user.id} has ${allServiceDays.size} service days and hours: $allServiceHours")
+                       Log.d(TAG, "User ${user.id} portfolio days: ${portfolioDaysAvailable.size}, time: $portfolioTime")
 
-                       // Use service data for days and hours if available, otherwise use user data
+                       // Use portfolio data for days and hours if available, otherwise use user data
                        val finalAvailableDays = when {
-                           allServiceDays.isNotEmpty() -> {
-                               Log.d(TAG, "Using combined service days for user ${user.id}: $allServiceDays")
-                               allServiceDays
+                           portfolioDaysAvailable.isNotEmpty() -> {
+                               Log.d(TAG, "Using portfolio days for user ${user.id}: $portfolioDaysAvailable")
+                               portfolioDaysAvailable
                            }
                            availableDays.isNotEmpty() -> {
                                Log.d(TAG, "Using user days for user ${user.id}: $availableDays")
@@ -334,9 +343,9 @@ class CustomerDashboard : AppCompatActivity() {
                        }
 
                        val finalAvailableHours = when {
-                           allServiceHours.isNotEmpty() -> {
-                               Log.d(TAG, "Using combined service hours for user ${user.id}: $allServiceHours")
-                               allServiceHours
+                           !portfolioTime.isNullOrEmpty() -> {
+                               Log.d(TAG, "Using portfolio time for user ${user.id}: $portfolioTime")
+                               portfolioTime
                            }
                            availableHours.isNotEmpty() -> {
                                Log.d(TAG, "Using user hours for user ${user.id}: $availableHours")

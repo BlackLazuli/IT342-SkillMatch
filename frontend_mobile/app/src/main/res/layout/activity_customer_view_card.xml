@@ -129,7 +129,7 @@
             android:background="@drawable/rectangle_container"
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
-            android:text="Contact"
+            android:text="Set Appointment"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             app:layout_constraintEnd_toEndOf="parent"

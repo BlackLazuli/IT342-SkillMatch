@@ -1,0 +1,5 @@
+<resources>
+    <!-- ... existing code ... -->
+    <dimen name="card_corner_radius">8dp</dimen>
+    <!-- ... existing code ... -->
+</resources>

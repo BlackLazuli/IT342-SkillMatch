@@ -1,5 +1,7 @@
 package com.example.skillmatch.api
 
+import com.example.skillmatch.models.AppointmentRequest
+import com.example.skillmatch.models.AppointmentResponse
 import com.example.skillmatch.models.LoginRequest
 import com.example.skillmatch.models.LoginResponse
 import com.example.skillmatch.models.SignupRequest
@@ -9,36 +11,37 @@ import com.example.skillmatch.models.Location
 import com.example.skillmatch.models.Portfolio
 
 import retrofit2.Response
+import retrofit2.Call
 import retrofit2.http.*
 
 interface ApiService {
     @POST("auth/login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
-    
+
     @POST("auth/signup")
     suspend fun signup(@Body request: SignupRequest): Response<SignupResponse>
-    
+
     @GET("users/{userId}")
     suspend fun getUserProfile(@Path("userId") userId: String): Response<User>
-    
+
     // Add this endpoint to get all users (for finding professionals)
     @GET("users/getAllUsers")
     suspend fun getAllUsers(): Response<List<User>>
-    
+
     // Updated to match the backend controller endpoint
     @PUT("users/updateUser/{userId}")
     suspend fun updateUserProfile(
         @Path("userId") userId: String,
         @Body user: User
     ): Response<User>
-    
+
     // Update the location endpoint to use PUT instead of POST
     @PUT("locations/update/{userId}")
     suspend fun updateLocation(
         @Path("userId") userId: String,
         @Body location: Location
     ): Response<Location>
-    
+
     // Portfolio endpoints - updated to match backend controller paths
     @GET("portfolios/{userId}")
     suspend fun getPortfolio(
@@ -61,15 +64,48 @@ interface ApiService {
         @Path("userId") userId: String,
         @Body portfolio: Portfolio
     ): Response<Portfolio>
-    
+
     // Add these methods for profile picture operations
     @PUT("users/{userId}/uploadProfilePictureBase64")
     suspend fun uploadProfilePictureBase64(
         @Path("userId") userId: String,
         @Body base64Image: String
     ): Response<User>
-    
+
     // Simple method to get user with profile picture
     @GET("users/{userId}")
     suspend fun getUserWithProfilePicture(@Path("userId") userId: String): Response<User>
+
+    @POST("appointments/")
+    @Headers("Content-Type: application/json")
+    suspend fun bookAppointment(
+        @Header("Authorization") token: String,
+        @Body appointmentRequest: AppointmentRequest
+    ): Response<AppointmentResponse>
+
+    // New appointment management endpoints
+    @GET("appointments/user/{userId}")
+    fun getAllAppointmentsForUser(
+        @Header("Authorization") token: String,
+        @Path("userId") userId: Long,
+        @Query("role") role: String
+    ): Call<List<AppointmentResponse>>
+
+    @GET("appointments/professional/{userId}")
+    fun getAllAppointmentsForProfessional(
+        @Header("Authorization") token: String,
+        @Path("userId") userId: Long,
+        @Query("role") role: String
+    ): Call<List<AppointmentResponse>>
+
+
+    @PUT("appointments/{id}/reschedule")
+    fun rescheduleAppointment(
+        @Path("id") appointmentId: Long,
+        @Query("newTime") newTime: String
+    ): Call<AppointmentResponse>
+
+    @PUT("appointments/{id}/cancel")
+    fun cancelAppointment(@Path("id") appointmentId: Long): Call<AppointmentResponse>
+
 }

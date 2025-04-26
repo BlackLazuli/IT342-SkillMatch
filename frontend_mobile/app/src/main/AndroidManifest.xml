@@ -57,6 +57,12 @@
         <activity android:name=".professional.EditProfessionalProfile" android:exported="false" />
         <activity android:name=".professional.PortfolioActivity" android:exported="false" />
         <activity android:name=".professional.ProfessionalProfileActivity" android:exported="false" />
-
-    </application>
+        <!-- Add this inside the <application> tag -->
+        <activity
+            android:name=".customer.SetAppointmentActivity"
+            android:exported="false" />
+        <activity
+            android:name=".customer.AppointmentActivity"
+            android:exported="false" />
+</application>
 </manifest>

@@ -1,7 +1,7 @@
 package com.example.skillmatch.customer
 
-import android.view.View
-import android.view.ViewGroup
+
+import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
@@ -98,16 +98,21 @@ class CustomerViewCardActivity : AppCompatActivity() {
     
     private fun setupListeners() {
         // Back button
-        // In setupListeners() method
         backButton.setOnClickListener {
-        // Replace onBackPressed() with finish()
-        finish()
+            // Replace onBackPressed() with finish()
+            finish()
         }
         
         // Contact button
         contactButton.setOnClickListener {
-            // TODO: Implement contact functionality
-            Toast.makeText(this, "Contact feature coming soon", Toast.LENGTH_SHORT).show()
+            // Launch SetAppointmentActivity
+            val intent = Intent(this, SetAppointmentActivity::class.java).apply {
+                putExtra(SetAppointmentActivity.EXTRA_PROFESSIONAL_ID, professionalId)
+                putExtra(SetAppointmentActivity.EXTRA_PROFESSIONAL_NAME, professionalNameText.text.toString())
+                putExtra(SetAppointmentActivity.EXTRA_PROFESSIONAL_ROLE, occupationText.text.toString())
+                putExtra(SetAppointmentActivity.EXTRA_PROFESSIONAL_RATING, ratingBar.rating)
+            }
+            startActivity(intent)
         }
     }
     
@@ -173,30 +178,67 @@ class CustomerViewCardActivity : AppCompatActivity() {
             return
         }
     
-        // Display each service
+        // Display each service in its own container
         services.forEach { service ->
-            // Create service item for Services Offered section
-            val serviceItemView = layoutInflater.inflate(R.layout.item_service_customer, servicesContainer, false)
-            val serviceNameText = serviceItemView.findViewById<TextView>(R.id.serviceNameText)
+            // Create a card for each service
+            val serviceCard = androidx.cardview.widget.CardView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    setMargins(0, 0, 0, 16) // Add bottom margin
+                }
+                radius = resources.getDimension(R.dimen.card_corner_radius) ?: 8f
+                cardElevation = 2f
+            }
             
-            // Set service name with bullet point
-            serviceNameText.text = "• ${service.name}"
+            // Create container for service content
+            val serviceContent = LinearLayout(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                orientation = LinearLayout.VERTICAL
+                setPadding(16, 16, 16, 16)
+                setBackgroundColor(resources.getColor(R.color.colorPrimary, theme))
+            }
             
-            // Add to services container
-            servicesContainer.addView(serviceItemView)
-        }
-        
-        // Display pricing separately
-        services.forEach { service ->
-            if (!service.pricing.isNullOrEmpty()) {
-                val pricingText = TextView(this).apply {
-                    text = "• ${service.name}: ₱${service.pricing}"
+            // Add service name
+            val serviceNameText = TextView(this).apply {
+                text = service.name
+                textSize = 16f
+                setTextColor(resources.getColor(android.R.color.white, theme))
+                setPadding(0, 0, 0, 8)
+            }
+            serviceContent.addView(serviceNameText)
+            
+            // Add service description if available
+            if (!service.description.isNullOrEmpty()) {
+                val descriptionText = TextView(this).apply {
+                    text = service.description
                     textSize = 14f
                     setTextColor(resources.getColor(android.R.color.darker_gray, theme))
-                    setPadding(16, 4, 16, 4)
+                    setPadding(0, 0, 0, 8)
                 }
-                servicesContainer.addView(pricingText)
+                serviceContent.addView(descriptionText)
             }
+            
+            // Add service pricing if available
+            if (!service.pricing.isNullOrEmpty()) {
+                val pricingText = TextView(this).apply {
+                    text = "Price: ₱${service.pricing}"
+                    textSize = 14f
+                    setTextColor(resources.getColor(android.R.color.black, theme))
+                    setPadding(0, 8, 0, 0)
+                }
+                serviceContent.addView(pricingText)
+            }
+            
+            // Add the content to the card
+            serviceCard.addView(serviceContent)
+            
+            // Add the card to the services container
+            servicesContainer.addView(serviceCard)
         }
     }
 
@@ -232,23 +274,25 @@ class CustomerViewCardActivity : AppCompatActivity() {
             Log.d(TAG, "Displaying ${portfolio.servicesOffered.size} services from portfolio")
             displayPortfolioServices(portfolio.servicesOffered)
             
-            // Get availability info from services
-            val allServiceDays = portfolio.servicesOffered.flatMap { it.daysOfTheWeek ?: emptyList() }.distinct()
-            val allServiceHours = portfolio.servicesOffered.mapNotNull { it.time }.firstOrNull { it.isNotEmpty() }
+            // Get availability info directly from portfolio
+            val daysAvailable = portfolio.daysAvailable
+            val time = portfolio.time
             
             // Display availability
-            val availabilityText = if (allServiceDays.isNotEmpty() && !allServiceHours.isNullOrEmpty()) {
-                "${allServiceDays.joinToString(", ")} - $allServiceHours"
-            } else if (allServiceDays.isNotEmpty()) {
-                allServiceDays.joinToString(", ")
-            } else if (!allServiceHours.isNullOrEmpty()) {
-                allServiceHours
+            val daysText = if (daysAvailable.isNotEmpty()) {
+                daysAvailable.joinToString(", ")
             } else {
                 professional.availableDays.joinToString(", ").ifEmpty { "Not specified" }
             }
             
-            availableDaysText.text = availabilityText
-            availableTimeText.visibility = View.GONE // Hide the time text view
+            val hoursText = if (!time.isNullOrEmpty()) {
+                time
+            } else {
+                professional.availableHours ?: "Not specified"
+            }
+            availableDaysText.text = daysText
+            availableTimeText.text = hoursText
+            // Remove or comment out this line: availableTimeText.visibility = View.GONE
         } else {
             // No portfolio services, display professional's availability
             Log.d(TAG, "No portfolio services available, using professional data")

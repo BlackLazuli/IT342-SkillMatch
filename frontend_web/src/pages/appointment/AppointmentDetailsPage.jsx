@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Add useNavigate
+import { useParams, useNavigate } from "react-router-dom";
 import { 
   Box, 
   Typography, 
@@ -13,7 +13,7 @@ import {
   Avatar,
   Stack,
   Button,
-  Link // Add Link component
+  Link
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
 import {
@@ -28,14 +28,67 @@ import {
 
 const AppointmentDetailsCustomerPage = () => {
   const { userID } = useParams();
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
   const token = localStorage.getItem("token");
 
-  // Function to handle client name click
   const handleClientClick = (userId) => {
     navigate(`/client-profile/${userId}`);
+  };
+
+  const updateAppointmentStatus = async (appointmentId, newStatus) => {
+    setUpdating(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+  
+      let endpoint;
+      let method = 'PUT';
+      
+      // Determine endpoint based on action
+      if (newStatus === 'COMPLETED') {
+        endpoint = `http://localhost:8080/api/appointments/${appointmentId}/complete`;
+      } else if (newStatus === 'CANCELED') {
+        endpoint = `http://localhost:8080/api/appointments/${appointmentId}/cancel`;
+      } else {
+        endpoint = `http://localhost:8080/api/appointments/${appointmentId}`;
+        method = 'PATCH'; // More appropriate for partial updates
+      }
+  
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+  
+      const body = newStatus !== 'COMPLETED' && newStatus !== 'CANCELED' 
+        ? JSON.stringify({ status: newStatus }) 
+        : undefined;
+  
+      const res = await fetch(endpoint, {
+        method,
+        headers,
+        body
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to update status to ${newStatus}`);
+      }
+  
+      // Update local state
+      setAppointments(appointments.map(appt => 
+        appt.id === appointmentId ? { ...appt, status: newStatus } : appt
+      ));
+    } catch (error) {
+      console.error("Update error:", error);
+      // Show error to user (e.g., using a snackbar or alert)
+    } finally {
+      setUpdating(false);
+    }
   };
 
   useEffect(() => {
@@ -63,13 +116,19 @@ const AppointmentDetailsCustomerPage = () => {
     let color;
     switch(status.toLowerCase()) {
       case 'confirmed':
+      case 'completed':
         color = 'success';
         break;
       case 'pending':
+      case 'scheduled':
         color = 'warning';
         break;
       case 'cancelled':
+      case 'canceled':
         color = 'error';
+        break;
+      case 'rescheduled':
+        color = 'info';
         break;
       default:
         color = 'default';
@@ -146,27 +205,24 @@ const AppointmentDetailsCustomerPage = () => {
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Person color="action" sx={{ mr: 1 }} />
                       <Typography variant="body1">
-  <strong>Client:</strong>
-  <Link
-    component="button"
-    variant="body1"
-    onClick={() => handleClientClick(appointment.userId)}
-    sx={{
-      ml: 0.5,
-      cursor: 'pointer',
-      '&:hover': {
-        textDecoration: 'underline',
-        color: 'primary.main'
-      }
-    }}
-  >
-    {appointment.userFirstName} {appointment.userLastName}
-  </Link>
-</Typography>
-
+                        <strong>Client:</strong>
+                        <Link
+                          component="button"
+                          variant="body1"
+                          onClick={() => handleClientClick(appointment.userId)}
+                          sx={{
+                            ml: 0.5,
+                            cursor: 'pointer',
+                            '&:hover': {
+                              textDecoration: 'underline',
+                              color: 'primary.main'
+                            }
+                          }}
+                        >
+                          {appointment.userFirstName} {appointment.userLastName}
+                        </Link>
+                      </Typography>
                     </Box>
-
-                    {/* Rest of your card content remains the same */}
 
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <AccessTime color="action" sx={{ mr: 1 }} />
@@ -202,8 +258,27 @@ const AppointmentDetailsCustomerPage = () => {
 
                 <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
                   {appointment.status.toLowerCase() === 'pending' && (
-                    <Button size="small" color="error" sx={{ ml: 1 }}>
+                    <Button 
+                      size="small" 
+                      color="error" 
+                      sx={{ ml: 1 }}
+                      onClick={() => updateAppointmentStatus(appointment.id, 'CANCELED')}
+                      disabled={updating}
+                    >
                       Cancel
+                    </Button>
+                  )}
+                  {(appointment.status.toLowerCase() === 'scheduled' || 
+                    appointment.status.toLowerCase() === 'confirmed') && (
+                    <Button 
+                      size="small" 
+                      color="success" 
+                      sx={{ ml: 1 }}
+                      onClick={() => updateAppointmentStatus(appointment.id, 'COMPLETED')}
+                      disabled={updating}
+                      startIcon={updating ? <CircularProgress size={20} /> : null}
+                    >
+                      Mark as Completed
                     </Button>
                   )}
                 </Box>

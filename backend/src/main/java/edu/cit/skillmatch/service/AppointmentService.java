@@ -95,6 +95,15 @@ public class AppointmentService {
         // Combine both lists
         asCustomer.addAll(asProvider);
         return asCustomer;
+
+        
+    }
+
+    public Optional<AppointmentEntity> completeAppointment(Long id) {
+        return appointmentRepository.findById(id).map(appointment -> {
+            appointment.setStatus(AppointmentStatus.COMPLETED);
+            return appointmentRepository.save(appointment);
+        });
     }
     
 }

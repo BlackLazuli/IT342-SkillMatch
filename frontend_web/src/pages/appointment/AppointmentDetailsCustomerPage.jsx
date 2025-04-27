@@ -13,7 +13,9 @@ import {
   Avatar,
   Stack,
   Button,
-  Link
+  Link,
+  Alert,
+  Snackbar
 } from "@mui/material";
 import AppBar from "../../component/AppBarCustomer";
 import {
@@ -30,6 +32,9 @@ const AppointmentDetailsCustomerPage = () => {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const token = localStorage.getItem("token");
 
   const handleProviderClick = (providerId) => {
@@ -37,10 +42,49 @@ const AppointmentDetailsCustomerPage = () => {
       console.error("No provider ID available");
       return;
     }
-    // Navigate to the provider's profile page using the providerId
     navigate(`/provider-profile/${providerId}`);
   };
-  
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+    setError(null);
+  };
+
+  const updateAppointmentStatus = async (appointmentId, newStatus) => {
+    setUpdating(true);
+    try {
+      const endpoint = `http://localhost:8080/api/appointments/${appointmentId}/${
+        newStatus === 'COMPLETED' ? 'complete' : 
+        newStatus === 'CANCELED' ? 'cancel' : 
+        'status'
+      }`;
+
+      const res = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to update appointment status");
+      }
+
+      // Update the local state
+      setAppointments(appointments.map(appt => 
+        appt.id === appointmentId ? { ...appt, status: newStatus } : appt
+      ));
+      setOpenSnackbar(true);
+    } catch (error) {
+      console.error("Error updating appointment status:", error);
+      setError(error.message);
+      setOpenSnackbar(true);
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -55,6 +99,8 @@ const AppointmentDetailsCustomerPage = () => {
         setAppointments(data);
       } catch (error) {
         console.error("Error fetching appointments:", error);
+        setError(error.message);
+        setOpenSnackbar(true);
       } finally {
         setLoading(false);
       }
@@ -67,13 +113,19 @@ const AppointmentDetailsCustomerPage = () => {
     let color;
     switch(status.toLowerCase()) {
       case 'confirmed':
+      case 'completed':
         color = 'success';
         break;
       case 'pending':
+      case 'scheduled':
         color = 'warning';
         break;
       case 'cancelled':
+      case 'canceled':
         color = 'error';
+        break;
+      case 'rescheduled':
+        color = 'info';
         break;
       default:
         color = 'default';
@@ -120,6 +172,21 @@ const AppointmentDetailsCustomerPage = () => {
         <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
           My Appointments
         </Typography>
+
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={error ? "error" : "success"}
+            sx={{ width: '100%' }}
+          >
+            {error || "Appointment status updated successfully!"}
+          </Alert>
+        </Snackbar>
 
         <Grid container spacing={3}>
           {appointments.map((appointment) => (
@@ -169,7 +236,6 @@ const AppointmentDetailsCustomerPage = () => {
                       </Typography>
                     </Box>
 
-                    {/* Rest of your card content remains the same */}
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <AccessTime color="action" sx={{ mr: 1 }} />
                       <Typography variant="body1">
@@ -204,7 +270,26 @@ const AppointmentDetailsCustomerPage = () => {
 
                 <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
                   {appointment.status.toLowerCase() === 'pending' && (
-                    <Button size="small" color="error" sx={{ ml: 1 }}>
+                    <Button 
+                      size="small" 
+                      color="error" 
+                      sx={{ ml: 1 }}
+                      onClick={() => updateAppointmentStatus(appointment.id, 'CANCELED')}
+                      disabled={updating}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                  {(appointment.status.toLowerCase() === 'scheduled' || 
+                    appointment.status.toLowerCase() === 'confirmed') && (
+                    <Button 
+                      size="small" 
+                      color="success" 
+                      sx={{ ml: 1 }}
+                      onClick={() => updateAppointmentStatus(appointment.id, 'CANCELED')}
+                      disabled={updating}
+                      startIcon={updating ? <CircularProgress size={20} /> : null}
+                    >
                       Cancel
                     </Button>
                   )}

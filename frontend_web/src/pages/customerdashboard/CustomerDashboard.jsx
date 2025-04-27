@@ -13,6 +13,8 @@ import {
   Slider,
 } from "@mui/material";
 import { CalendarMonth, AccessTime } from "@mui/icons-material";
+import { useContext } from "react";
+import { usePersonalInfo } from "../../context/PersonalInfoContext";
 
 const drawerWidth = 240;
 
@@ -21,10 +23,12 @@ const ProviderDashboard = () => {
   const [ratings, setRatings] = useState({});
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [userLocation, setUserLocation] = useState(null); // ⭐ New
   const [userLocations, setUserLocations] = useState({}); // ⭐ New
   const [distanceFilter, setDistanceFilter] = useState(5); // ⭐ New (5 km default)
   const [currentUserLocation, setCurrentUserLocation] = useState(null); // for logged-in user's lat/lng
+  const { personalInfo } = usePersonalInfo();
+  const userId = personalInfo?.userId;
+
   
   useEffect(() => {
     const fetchPortfolios = async () => {
@@ -93,12 +97,14 @@ const ProviderDashboard = () => {
     
       return distance; // in km
     };
-
     const fetchCurrentUserLocation = async () => {
+      if (!userId) {
+        console.error("User ID not available in context");
+        return;
+      }
+    
       try {
         const token = localStorage.getItem("token");
-        const userId = localStorage.getItem("userId"); // Assuming you store it
-    
         const response = await axios.get(`http://localhost:8080/api/locations/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -113,6 +119,7 @@ const ProviderDashboard = () => {
         console.error("Error fetching current user location:", err);
       }
     };
+    
     
 
     const fetchAverageRating = async (portfolioId) => {
@@ -159,24 +166,8 @@ const ProviderDashboard = () => {
       }
     };
 
-    const getCurrentLocation = () => { // ⭐ New
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setUserLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-          },
-          (error) => {
-            console.error("Error getting location:", error);
-          }
-        );
-      }
-    };
-
     fetchPortfolios();
-    getCurrentLocation(); // ⭐ New
+    fetchCurrentUserLocation(); // ✅ Only this
   }, []);
 
   // ⭐ New function
@@ -204,21 +195,22 @@ const ProviderDashboard = () => {
     const matchesWorkExperience = portfolio.workExperience
       ?.toLowerCase()
       .includes(searchQuery.toLowerCase());
-
-    if (!userLocation) return matchesWorkExperience;
-
+  
+    if (!currentUserLocation) return matchesWorkExperience;
+  
     const providerLocation = userLocations[portfolio.user.id];
     if (!providerLocation) return matchesWorkExperience;
-
+  
     const distance = calculateDistance(
-      userLocation.lat,
-      userLocation.lng,
+      currentUserLocation.lat,
+      currentUserLocation.lng,
       providerLocation.latitude,
       providerLocation.longitude
     );
-
+  
     return matchesWorkExperience && distance <= distanceFilter;
   });
+  
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -283,16 +275,17 @@ const ProviderDashboard = () => {
   </Typography>
 
   {/* ⭐ Distance shown here */}
-  {userLocation && userLocations[user.id] && (
-    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-      {`${calculateDistance(
-        userLocation.lat,
-        userLocation.lng,
-        userLocations[user.id].latitude,
-        userLocations[user.id].longitude
-      ).toFixed(2)} km away`}
-    </Typography>
-  )}
+  {currentUserLocation && userLocations[user.id] && (
+  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+    {`${calculateDistance(
+      currentUserLocation.lat,
+      currentUserLocation.lng,
+      userLocations[user.id].latitude,
+      userLocations[user.id].longitude
+    ).toFixed(2)} km away`}
+  </Typography>
+)}
+
 
   <Box sx={{ mt: 1, mb: 1 }}>
     <Rating

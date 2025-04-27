@@ -219,4 +219,33 @@ public class AppointmentController {
         return ResponseEntity.ok(dtos);
     }
 
+    @PutMapping("/{id}/complete")
+public ResponseEntity<AppointmentDTO> completeAppointment(@PathVariable Long id) {
+    Optional<AppointmentEntity> optional = appointmentService.completeAppointment(id);
+
+    if (optional.isEmpty()) {
+        return ResponseEntity.notFound().build();
+    }
+
+    AppointmentEntity appointment = optional.get();
+    AppointmentDTO dto = new AppointmentDTO();
+    dto.setId(appointment.getId());
+    dto.setUserId(appointment.getUser().getId());
+    dto.setUserFirstName(appointment.getUser().getFirstName());
+    dto.setUserLastName(appointment.getUser().getLastName());
+    dto.setRole(appointment.getRole());
+    dto.setAppointmentTime(appointment.getAppointmentTime());
+    dto.setStatus(appointment.getStatus());
+    dto.setNotes(appointment.getNotes());
+    dto.setCreatedAt(appointment.getCreatedAt());
+    dto.setPortfolioId(appointment.getPortfolio().getId());
+    // Get provider details from portfolio
+    UserEntity provider = appointment.getPortfolio().getUser();
+    dto.setProviderFirstName(provider.getFirstName());
+    dto.setProviderLastName(provider.getLastName());
+    dto.setProviderId(provider.getId());
+
+    return ResponseEntity.ok(dto);
+}
+
 }

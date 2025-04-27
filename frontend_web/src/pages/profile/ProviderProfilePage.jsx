@@ -22,6 +22,7 @@ const ProfilePage = () => {
   const { providerId  } = useParams();
   console.log("providerId from URL:", providerId); // Should log the correct providerId
   const token = localStorage.getItem("token");
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
   const [user, setUser] = useState(null);
   const [bio, setBio] = useState('');
@@ -39,7 +40,7 @@ const ProfilePage = () => {
 
 const fetchUserDetails = async () => {
     try {
-      const res = await axios.get(`http://localhost:8080/api/users/${providerId}`, {
+      const res = await axios.get(`${baseUrl}/api/users/${providerId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,12 +50,12 @@ const fetchUserDetails = async () => {
       console.error("Error fetching user details:", error);
       // If failed, try fetching as portfolio ID
       try {
-        const portfolioRes = await axios.get(`http://localhost:8080/api/portfolios/${providerId}`, {
+        const portfolioRes = await axios.get(`${baseUrl}/api/portfolios/${providerId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        const userRes = await axios.get(`http://localhost:8080/api/users/${portfolioRes.data.providerId}`, {
+        const userRes = await axios.get(`${baseUrl}/api/users/${portfolioRes.data.providerId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -71,7 +72,7 @@ const fetchUserDetails = async () => {
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/locations/${providerId}`,
+          `${baseUrl}/api/locations/${providerId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -116,7 +117,7 @@ const fetchUserDetails = async () => {
       }
 
       const response = await axios.post(
-        `http://localhost:8080/api/locations/${providerId}`,
+        `${baseUrl}/api/locations/${providerId}`,
         { address, latitude: lat, longitude: lng },
         {
           headers: {
@@ -166,7 +167,7 @@ const fetchUserDetails = async () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/users/${providerId}/uploadProfilePicture`,
+        `${baseUrl}/api/users/${providerId}/uploadProfilePicture`,
         formData,
         {
           headers: {
@@ -178,7 +179,7 @@ const fetchUserDetails = async () => {
 
       const newPath = response.data.profilePicture;
       updateProfilePicture(newPath);
-      setProfilePictureUrl(`http://localhost:8080${newPath}`);
+      setProfilePictureUrl(`${baseUrl}${newPath}`);
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

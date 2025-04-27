@@ -18,6 +18,8 @@ const daysOfWeek = [
   "Thursday", "Friday", "Saturday", "Sunday"
 ];
 
+const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
+
 const EditPortfolioPage = () => {
   const { userID } = useParams();
   const navigate = useNavigate();
@@ -41,7 +43,7 @@ const EditPortfolioPage = () => {
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/portfolios/${userID}`, {
+        const response = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -142,7 +144,7 @@ const EditPortfolioPage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/portfolios/${userID}`,
+        `${baseUrl}/api/portfolios/${userID}`,
         {
           method: "PUT",
           headers: {

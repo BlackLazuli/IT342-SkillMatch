@@ -28,6 +28,8 @@ import {
   Comment
 } from "@mui/icons-material";
 
+const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
+
 const PortfolioPage = () => {
   const { userID } = useParams();
   const navigate = useNavigate();
@@ -50,7 +52,7 @@ const PortfolioPage = () => {
 
     const fetchPortfolio = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/portfolios/${userID}`, {
+        const res = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -74,7 +76,7 @@ const PortfolioPage = () => {
 
     const fetchComments = async (portfolioId) => {
       try {
-        const res = await fetch(`http://localhost:8080/api/comments/portfolio/${portfolioId}`, {
+        const res = await fetch(`${baseUrl}/api/comments/portfolio/${portfolioId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -92,7 +94,7 @@ const PortfolioPage = () => {
 
     const fetchUserDetails = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/users/${userID}`, {
+        const res = await fetch(`${baseUrl}/api/users/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -114,7 +116,7 @@ const PortfolioPage = () => {
   const getProfilePictureUrl = () => {
     const pic = userDetails?.profilePicture || personalInfo?.profilePicture;
     if (pic) {
-      return pic.startsWith("http") ? pic : `http://localhost:8080${pic}`;
+      return pic.startsWith("http") ? pic : `${baseUrl}${pic}`;
     }
     return "/default-avatar.png";
   };
@@ -344,7 +346,7 @@ const PortfolioPage = () => {
                               comment.profilePicture
                                 ? comment.profilePicture.startsWith("http")
                                   ? comment.profilePicture
-                                  : `http://localhost:8080${comment.profilePicture}`
+                                  : `${baseUrl}${comment.profilePicture}`
                                 : "/default-avatar.png"
                             }
                             sx={{ width: 48, height: 48 }}

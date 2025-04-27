@@ -1,9 +1,6 @@
 package edu.cit.skillmatch.dto;
 
 import edu.cit.skillmatch.entity.AppointmentStatus;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 
 import java.time.LocalDateTime;
 
@@ -13,21 +10,11 @@ public class AppointmentDTO {
     private String userFirstName;
     private String userLastName;
     private String role;
-    
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     private LocalDateTime appointmentTime;
-    
     private AppointmentStatus status;
     private String notes;
     private LocalDateTime createdAt;
-    private Long portfolioId;
-
-
-    private String providerFirstName;
-    private String providerLastName;
-    private Long providerId;  
-
+    private Long portfolioId; // Add portfolioId field
 
     // Getters and Setters
     public Long getId() {
@@ -109,31 +96,4 @@ public class AppointmentDTO {
     public void setPortfolioId(Long portfolioId) {
         this.portfolioId = portfolioId;
     }
-
-    public String getProviderFirstName() {
-        return providerFirstName;
-    }
-    
-    public void setProviderFirstName(String providerFirstName) {
-        this.providerFirstName = providerFirstName;
-    }
-    
-    public String getProviderLastName() {
-        return providerLastName;
-    }
-    
-    public void setProviderLastName(String providerLastName) {
-        this.providerLastName = providerLastName;
-    }
-
-    public Long getProviderId() {
-        return providerId;
-    }
-
-    public void setProviderId(Long providerId) {
-        this.providerId = providerId;
-    }
-
-    
-    
 }

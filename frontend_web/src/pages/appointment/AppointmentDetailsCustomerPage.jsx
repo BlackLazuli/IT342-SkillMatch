@@ -13,7 +13,9 @@ import {
   Avatar,
   Stack,
   Button,
-  Link
+  Link,
+  Alert,
+  Snackbar
 } from "@mui/material";
 import AppBar from "../../component/AppBarCustomer";
 import {
@@ -30,22 +32,83 @@ const AppointmentDetailsCustomerPage = () => {
   const navigate = useNavigate();
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
+  const [error, setError] = useState(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
   const token = localStorage.getItem("token");
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
+
 
   const handleProviderClick = (providerId) => {
     if (!providerId) {
       console.error("No provider ID available");
       return;
     }
-    // Navigate to the provider's profile page using the providerId
     navigate(`/provider-profile/${providerId}`);
   };
+
+  const handleCloseSnackbar = () => {
+    setOpenSnackbar(false);
+    setError(null);
+  };
+
+  const updateAppointmentStatus = async (appointmentId, newStatus) => {
+    setUpdating(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
   
+      let endpoint;
+      let method = 'PUT';
+      
+      // Determine endpoint based on action
+      if (newStatus === 'COMPLETED') {
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}/complete`;
+      } else if (newStatus === 'CANCELED') {
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}/cancel`;
+      } else {
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}`;
+        method = 'PATCH'; // More appropriate for partial updates
+      }
+  
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+  
+      const body = newStatus !== 'COMPLETED' && newStatus !== 'CANCELED' 
+        ? JSON.stringify({ status: newStatus }) 
+        : undefined;
+  
+      const res = await fetch(endpoint, {
+        method,
+        headers,
+        body
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to update status to ${newStatus}`);
+      }
+  
+      // Update local state
+      setAppointments(appointments.map(appt => 
+        appt.id === appointmentId ? { ...appt, status: newStatus } : appt
+      ));
+    } catch (error) {
+      console.error("Update error:", error);
+      // Show error to user (e.g., using a snackbar or alert)
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/appointments/all/${userID}`, {
+        const res = await fetch(`${baseUrl}/api/appointments/all/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
     
@@ -55,6 +118,8 @@ const AppointmentDetailsCustomerPage = () => {
         setAppointments(data);
       } catch (error) {
         console.error("Error fetching appointments:", error);
+        setError(error.message);
+        setOpenSnackbar(true);
       } finally {
         setLoading(false);
       }
@@ -67,13 +132,19 @@ const AppointmentDetailsCustomerPage = () => {
     let color;
     switch(status.toLowerCase()) {
       case 'confirmed':
+      case 'completed':
         color = 'success';
         break;
       case 'pending':
+      case 'scheduled':
         color = 'warning';
         break;
       case 'cancelled':
+      case 'canceled':
         color = 'error';
+        break;
+      case 'rescheduled':
+        color = 'info';
         break;
       default:
         color = 'default';
@@ -120,6 +191,21 @@ const AppointmentDetailsCustomerPage = () => {
         <Typography variant="h4" gutterBottom sx={{ mb: 4 }}>
           My Appointments
         </Typography>
+
+        <Snackbar
+          open={openSnackbar}
+          autoHideDuration={6000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity={error ? "error" : "success"}
+            sx={{ width: '100%' }}
+          >
+            {error || "Appointment status updated successfully!"}
+          </Alert>
+        </Snackbar>
 
         <Grid container spacing={3}>
           {appointments.map((appointment) => (
@@ -169,7 +255,6 @@ const AppointmentDetailsCustomerPage = () => {
                       </Typography>
                     </Box>
 
-                    {/* Rest of your card content remains the same */}
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <AccessTime color="action" sx={{ mr: 1 }} />
                       <Typography variant="body1">
@@ -204,7 +289,26 @@ const AppointmentDetailsCustomerPage = () => {
 
                 <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
                   {appointment.status.toLowerCase() === 'pending' && (
-                    <Button size="small" color="error" sx={{ ml: 1 }}>
+                    <Button 
+                      size="small" 
+                      color="error" 
+                      sx={{ ml: 1 }}
+                      onClick={() => updateAppointmentStatus(appointment.id, 'CANCELED')}
+                      disabled={updating}
+                    >
+                      Cancel
+                    </Button>
+                  )}
+                  {(appointment.status.toLowerCase() === 'scheduled' || 
+                    appointment.status.toLowerCase() === 'confirmed') && (
+                    <Button 
+                      size="small" 
+                      color="success" 
+                      sx={{ ml: 1 }}
+                      onClick={() => updateAppointmentStatus(appointment.id, 'CANCELED')}
+                      disabled={updating}
+                      startIcon={updating ? <CircularProgress size={20} /> : null}
+                    >
                       Cancel
                     </Button>
                   )}

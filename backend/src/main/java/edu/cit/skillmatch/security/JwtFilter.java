@@ -34,6 +34,14 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        String uri = request.getRequestURI();
+
+        // Skip JWT processing for /api/appointments/ endpoint
+        if (uri.startsWith("/api/appointments/")) {
+            chain.doFilter(request, response);
+            return;
+        }
+
         String header = request.getHeader("Authorization");
 
         if (header == null || !header.startsWith("Bearer ")) {

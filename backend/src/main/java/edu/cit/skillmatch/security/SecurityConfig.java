@@ -1,7 +1,10 @@
 package edu.cit.skillmatch.security;
 
+import java.util.Arrays;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,43 +20,56 @@ public class SecurityConfig {
         this.jwtFilter = jwtFilter;
     }
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .cors().configurationSource(corsConfigurationSource()) // Enable CORS
-                .and()
-                .csrf().disable()
-                .authorizeRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/signup", "/api/users/**", "/uploads/**").permitAll()
-                        .anyRequest().authenticated()
-                )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
-        return http.build();
-    }
+@Bean
+public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    http
+        .cors().configurationSource(corsConfigurationSource()).and()
+        .csrf().disable()
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers(
+                "/api/auth/**",
+                "/api/users/**",
+                "/uploads/**",
+                "/api/appointments/**",
+                "/uploads/profile-pictures/**", 
+                "/v3/api-docs/**",
+                "/swagger-ui/**"
+            ).permitAll()
+             .requestMatchers(HttpMethod.POST, "/api/appointments/").permitAll() 
+            .anyRequest().authenticated()
+        )
+        .sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        )
+        .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
+    
+    return http.build();
+}
 
     // Cors configuration to allow requests from frontend
-    @Bean
+@Bean
 public UrlBasedCorsConfigurationSource corsConfigurationSource() {
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     CorsConfiguration config = new CorsConfiguration();
     
-    // Add allowed origins, including frontend localhost and Android
-    config.addAllowedOrigin("http://localhost:5173"); // Web frontend
-    config.addAllowedOrigin("http://10.0.2.2:8080"); // Android emulator
-    config.addAllowedOrigin("http://10.0.2.2"); // Android emulator without port
+    // Add all necessary origins (including EC2 URLs)
+    config.setAllowedOrigins(Arrays.asList(
+        "http://localhost:5173",
+        "http://10.0.2.2:8080",
+        "http://10.0.2.2",
+        "capacitor://localhost",
+        "ionic://localhost",
+        "http://localhost",
+        "http://localhost:8080",
+        "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com",
+        "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"
+    ));
     
-    // Add more origins for Android
-    config.addAllowedOrigin("capacitor://localhost");
-    config.addAllowedOrigin("ionic://localhost");
-    config.addAllowedOrigin("http://localhost");
-    config.addAllowedOrigin("http://localhost:8080");
+    config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
+    config.setAllowedHeaders(Arrays.asList("*"));
+    config.setAllowCredentials(true);
     
-    config.addAllowedMethod("*");  // Allow all HTTP methods
-    config.addAllowedHeader("*");  // Allow all headers
-    config.setAllowCredentials(false);  // Change to false to simplify testing
-    
+    // Apply to all paths
     source.registerCorsConfiguration("/**", config);
     return source;
 }

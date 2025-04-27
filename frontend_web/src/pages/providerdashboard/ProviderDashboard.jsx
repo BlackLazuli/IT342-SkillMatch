@@ -30,6 +30,7 @@ const ProviderDashboard = () => {
   const { personalInfo } = usePersonalInfo();
   const token = localStorage.getItem("token");
   const theme = useTheme();
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
@@ -45,7 +46,7 @@ const ProviderDashboard = () => {
 
         // Fetch appointments
         const appointmentsRes = await fetch(
-          `http://localhost:8080/api/appointments/all/${personalInfo.userId}`,
+          `${baseUrl}/api/appointments/all/${personalInfo.userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -61,7 +62,7 @@ const ProviderDashboard = () => {
 
         // Fetch portfolio
         const portfolioRes = await fetch(
-          `http://localhost:8080/api/portfolios/${personalInfo.userId}`,
+          `${baseUrl}/api/portfolios/${personalInfo.userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

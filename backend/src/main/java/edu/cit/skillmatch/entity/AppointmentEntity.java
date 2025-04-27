@@ -23,7 +23,7 @@ public class AppointmentEntity {
     @JsonBackReference("portfolio-appointments")  // Back reference to prevent circular reference
     private PortfolioEntity portfolio;
 
-    @Column(nullable = false)
+    @Column()
     private String role; // "CUSTOMER" or "SERVICE_PROVIDER"
 
     @Column(nullable = false)

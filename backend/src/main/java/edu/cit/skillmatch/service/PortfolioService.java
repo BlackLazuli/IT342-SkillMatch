@@ -65,8 +65,6 @@ public PortfolioEntity updatePortfolio(Long userId, PortfolioEntity portfolio) {
                     existingService.setName(newService.getName());
                     existingService.setDescription(newService.getDescription());
                     existingService.setPricing(newService.getPricing());
-                    existingService.setDaysOfTheWeek(newService.getDaysOfTheWeek());
-                    existingService.setTime(newService.getTime());
                     exists = true;
                     break;
                 }

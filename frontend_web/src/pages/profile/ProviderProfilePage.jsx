@@ -16,12 +16,14 @@ import { usePersonalInfo } from '../../context/PersonalInfoContext';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
 const ProfilePage = () => {
   const { personalInfo, updateProfilePicture } = usePersonalInfo();
   const { providerId  } = useParams();
   console.log("providerId from URL:", providerId); // Should log the correct providerId
   const token = localStorage.getItem("token");
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
   const [user, setUser] = useState(null);
   const [bio, setBio] = useState('');
@@ -38,40 +40,63 @@ const ProfilePage = () => {
 // In ProviderProfilePage.jsx
 
 const fetchUserDetails = async () => {
+  try {
+    const res = await axios.get(`${baseUrl}/api/users/${providerId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setUser(res.data);
+    
+    // Handle profile picture URL
+    if (res.data.profilePicture) {
+      const url = `${baseUrl}${res.data.profilePicture}`;
+      console.log("Profile picture URL:", url);
+      
+      // Test if the image loads
+      const img = new Image();
+      img.src = url;
+      img.onload = () => setProfilePictureUrl(url);
+      img.onerror = () => console.error("Failed to load image:", url);
+    }
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    // If failed, try fetching as portfolio ID
     try {
-      const res = await axios.get(`http://localhost:8080/api/users/${providerId}`, {
+      const portfolioRes = await axios.get(`${baseUrl}/api/portfolios/${providerId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setUser(res.data); // Replace setUserDetails with setUser
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-      // If failed, try fetching as portfolio ID
-      try {
-        const portfolioRes = await axios.get(`http://localhost:8080/api/portfolios/${providerId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        const userRes = await axios.get(`http://localhost:8080/api/users/${portfolioRes.data.providerId}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setUser(userRes.data); // Replace setUserDetails with setUser
-      } catch (portfolioError) {
-        console.error("Error fetching portfolio details:", portfolioError);
+      const userRes = await axios.get(`${baseUrl}/api/users/${portfolioRes.data.providerId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setUser(userRes.data);
+      
+      // Handle profile picture URL for portfolio case
+      if (userRes.data.profilePicture) {
+        const url = `${baseUrl}${userRes.data.profilePicture}`;
+        console.log("Profile picture URL:", url);
+        
+        const img = new Image();
+        img.src = url;
+        img.onload = () => setProfilePictureUrl(url);
+        img.onerror = () => console.error("Failed to load image:", url);
       }
+    } catch (portfolioError) {
+      console.error("Error fetching portfolio details:", portfolioError);
     }
-  };
+  }
+};
   
   
 
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/locations/${providerId}`,
+          `${baseUrl}/api/locations/${providerId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -116,7 +141,7 @@ const fetchUserDetails = async () => {
       }
 
       const response = await axios.post(
-        `http://localhost:8080/api/locations/${providerId}`,
+        `${baseUrl}/api/locations/${providerId}`,
         { address, latitude: lat, longitude: lng },
         {
           headers: {
@@ -166,7 +191,7 @@ const fetchUserDetails = async () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/users/${providerId}/uploadProfilePicture`,
+        `${baseUrl}/api/users/${providerId}/uploadProfilePicture`,
         formData,
         {
           headers: {
@@ -178,7 +203,7 @@ const fetchUserDetails = async () => {
 
       const newPath = response.data.profilePicture;
       updateProfilePicture(newPath);
-      setProfilePictureUrl(`http://localhost:8080${newPath}`);
+      setProfilePictureUrl(`${baseUrl}${newPath}`);
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

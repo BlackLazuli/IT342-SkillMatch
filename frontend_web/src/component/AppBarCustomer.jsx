@@ -16,6 +16,7 @@ import { Home, Person, Work, Event, Settings, Logout } from "@mui/icons-material
 import { usePersonalInfo } from "../context/PersonalInfoContext";
 
 const drawerWidth = 240;
+const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
 const AppBar = () => {
   const { personalInfo, setPersonalInfo } = usePersonalInfo();
@@ -28,14 +29,14 @@ const AppBar = () => {
     const fetchUserInfo = async () => {
       try {
         if (personalInfo?.userId) {
-          const res = await axios.get(`http://localhost:8080/api/users/${personalInfo.userId}`);
+          const res = await axios.get(`${baseUrl}/api/users/${personalInfo.userId}`);
           const userData = res.data;
           setUser(userData);
           if (userData.profilePicture) {
             setProfilePictureUrl(
               userData.profilePicture.startsWith("http")
                 ? userData.profilePicture
-                : `http://localhost:8080${userData.profilePicture}`
+                : `${baseUrl}${userData.profilePicture}`
             );
           }
         }

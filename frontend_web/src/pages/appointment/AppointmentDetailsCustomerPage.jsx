@@ -55,34 +55,51 @@ const AppointmentDetailsCustomerPage = () => {
   const updateAppointmentStatus = async (appointmentId, newStatus) => {
     setUpdating(true);
     try {
-      const endpoint = `${baseUrl}/api/appointments/${appointmentId}/${
-        newStatus === 'COMPLETED' ? 'complete' : 
-        newStatus === 'CANCELED' ? 'cancel' : 
-        'status'
-      }`;
-
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+  
+      let endpoint;
+      let method = 'PUT';
+      
+      // Determine endpoint based on action
+      if (newStatus === 'COMPLETED') {
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}/complete`;
+      } else if (newStatus === 'CANCELED') {
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}/cancel`;
+      } else {
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}`;
+        method = 'PATCH'; // More appropriate for partial updates
+      }
+  
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
+  
+      const body = newStatus !== 'COMPLETED' && newStatus !== 'CANCELED' 
+        ? JSON.stringify({ status: newStatus }) 
+        : undefined;
+  
       const res = await fetch(endpoint, {
-        method: 'PUT',
-        headers: { 
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        method,
+        headers,
+        body
       });
-
+  
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.message || "Failed to update appointment status");
+        throw new Error(errorData.message || `Failed to update status to ${newStatus}`);
       }
-
-      // Update the local state
+  
+      // Update local state
       setAppointments(appointments.map(appt => 
         appt.id === appointmentId ? { ...appt, status: newStatus } : appt
       ));
-      setOpenSnackbar(true);
     } catch (error) {
-      console.error("Error updating appointment status:", error);
-      setError(error.message);
-      setOpenSnackbar(true);
+      console.error("Update error:", error);
+      // Show error to user (e.g., using a snackbar or alert)
     } finally {
       setUpdating(false);
     }

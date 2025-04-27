@@ -36,6 +36,8 @@ const AppointmentDetailsCustomerPage = () => {
   const [error, setError] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const token = localStorage.getItem("token");
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
+
 
   const handleProviderClick = (providerId) => {
     if (!providerId) {
@@ -53,7 +55,7 @@ const AppointmentDetailsCustomerPage = () => {
   const updateAppointmentStatus = async (appointmentId, newStatus) => {
     setUpdating(true);
     try {
-      const endpoint = `http://localhost:8080/api/appointments/${appointmentId}/${
+      const endpoint = `${baseUrl}/api/appointments/${appointmentId}/${
         newStatus === 'COMPLETED' ? 'complete' : 
         newStatus === 'CANCELED' ? 'cancel' : 
         'status'
@@ -89,7 +91,7 @@ const AppointmentDetailsCustomerPage = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/appointments/all/${userID}`, {
+        const res = await fetch(`${baseUrl}/api/appointments/all/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
     

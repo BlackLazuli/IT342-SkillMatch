@@ -2,7 +2,6 @@ package edu.cit.skillmatch.controller;
 
 import edu.cit.skillmatch.dto.AppointmentDTO;
 import edu.cit.skillmatch.entity.AppointmentEntity;
-import edu.cit.skillmatch.entity.UserEntity;
 import edu.cit.skillmatch.service.AppointmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:5173", "http://10.0.2.2:8080"})
 @RequestMapping("/api/appointments")
 public class AppointmentController {
     private final AppointmentService appointmentService;
@@ -35,11 +33,6 @@ public class AppointmentController {
             dto.setNotes(appointment.getNotes());
             dto.setCreatedAt(appointment.getCreatedAt());
             dto.setPortfolioId(appointment.getPortfolio().getId());  // Set portfolioId
-            // Get provider details from portfolio
-            UserEntity provider = appointment.getPortfolio().getUser();
-            dto.setProviderFirstName(provider.getFirstName());
-            dto.setProviderLastName(provider.getLastName());
-            dto.setProviderId(provider.getId());  // Add this line to set providerId
             return dto;
         }).toList();
     
@@ -66,32 +59,21 @@ public class AppointmentController {
         dto.setNotes(appointment.getNotes());
         dto.setCreatedAt(appointment.getCreatedAt());
         dto.setPortfolioId(appointment.getPortfolio().getId());  // Set portfolioId
-        // Get provider details from portfolio
-        UserEntity provider = appointment.getPortfolio().getUser();
-        dto.setProviderFirstName(provider.getFirstName());
-        dto.setProviderLastName(provider.getLastName());
-        dto.setProviderId(provider.getId());
-
+    
         return ResponseEntity.ok(dto);
     }
     
     @PostMapping("/")
-    public ResponseEntity<AppointmentDTO> bookAppointment(@RequestBody AppointmentDTO appointmentDTO) {
+    public ResponseEntity<AppointmentDTO> bookAppointment(@RequestBody AppointmentEntity appointmentEntity) {
         try {
-            // Log the incoming request for debugging
-            System.out.println("Received appointment request: " + appointmentDTO.getAppointmentTime() + 
-                               ", userId: " + appointmentDTO.getUserId() + 
-                               ", portfolioId: " + appointmentDTO.getPortfolioId());
-            
             AppointmentEntity booked = appointmentService.bookAppointment(
-                    appointmentDTO.getUserId(),
-                    appointmentDTO.getRole(),
-                    appointmentDTO.getPortfolioId(), 
-                    appointmentDTO.getAppointmentTime(),
-                    appointmentDTO.getNotes()
+                    appointmentEntity.getUser().getId(),
+                    appointmentEntity.getRole(),
+                    appointmentEntity.getPortfolio().getId(), // Pass portfolioId
+                    appointmentEntity.getAppointmentTime(),
+                    appointmentEntity.getNotes()
             );
     
-            // Create response DTO
             AppointmentDTO dto = new AppointmentDTO();
             dto.setId(booked.getId());
             dto.setUserId(booked.getUser().getId());
@@ -102,26 +84,11 @@ public class AppointmentController {
             dto.setStatus(booked.getStatus());
             dto.setNotes(booked.getNotes());
             dto.setCreatedAt(booked.getCreatedAt());
-            dto.setPortfolioId(booked.getPortfolio().getId());
-            
-            // Get provider details from portfolio
-            UserEntity provider = booked.getPortfolio().getUser();
-            dto.setProviderFirstName(provider.getFirstName());
-            dto.setProviderLastName(provider.getLastName());
-            dto.setProviderId(provider.getId());
+            dto.setPortfolioId(booked.getPortfolio().getId());  // Add portfolioId to DTO
     
             return ResponseEntity.ok(dto);
         } catch (RuntimeException e) {
-            // Log the exception for debugging
-            System.err.println("Error booking appointment: " + e.getMessage());
-            e.printStackTrace();
-            
-            // Return a more specific error response
-            if (e.getMessage().contains("Portfolio not found")) {
-                return ResponseEntity.status(404).body(null); // 404 Not Found
-            }
-            
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().build();
         }
     }
     
@@ -146,11 +113,6 @@ public class AppointmentController {
         dto.setNotes(appointment.getNotes());
         dto.setCreatedAt(appointment.getCreatedAt());
         dto.setPortfolioId(appointment.getPortfolio().getId());  // Add portfolioId to DTO
-        // Get provider details from portfolio
-        UserEntity provider = appointment.getPortfolio().getUser();
-        dto.setProviderFirstName(provider.getFirstName());
-        dto.setProviderLastName(provider.getLastName());
-        dto.setProviderId(provider.getId());  // Add this line to set providerId
     
         return ResponseEntity.ok(dto);
     }
@@ -175,11 +137,6 @@ public class AppointmentController {
         dto.setNotes(appointment.getNotes());
         dto.setCreatedAt(appointment.getCreatedAt());
         dto.setPortfolioId(appointment.getPortfolio().getId());  // Add portfolioId to DTO
-        // Get provider details from portfolio
-        UserEntity provider = appointment.getPortfolio().getUser();
-        dto.setProviderFirstName(provider.getFirstName());
-        dto.setProviderLastName(provider.getLastName());
-        dto.setProviderId(provider.getId());  // Add this line to set providerId
     
         return ResponseEntity.ok(dto);
     }
@@ -191,61 +148,25 @@ public class AppointmentController {
     }
 
     @GetMapping("/all/{userId}")
-    public ResponseEntity<List<AppointmentDTO>> getAllAppointmentsForUser(@PathVariable Long userId) {
-        List<AppointmentEntity> appointments = appointmentService.getAllAppointmentsForUser(userId);
-    
-        List<AppointmentDTO> dtos = appointments.stream().map(appointment -> {
-            AppointmentDTO dto = new AppointmentDTO();
-            dto.setId(appointment.getId());
-            dto.setUserId(appointment.getUser().getId());
-            dto.setUserFirstName(appointment.getUser().getFirstName());
-            dto.setUserLastName(appointment.getUser().getLastName());
-            dto.setRole(appointment.getRole());
-            dto.setAppointmentTime(appointment.getAppointmentTime());
-            dto.setStatus(appointment.getStatus());
-            dto.setNotes(appointment.getNotes());
-            dto.setCreatedAt(appointment.getCreatedAt());
-            dto.setPortfolioId(appointment.getPortfolio().getId());
-    
-            // Get provider details from portfolio
-            UserEntity provider = appointment.getPortfolio().getUser();
-            dto.setProviderFirstName(provider.getFirstName());
-            dto.setProviderLastName(provider.getLastName());
-            dto.setProviderId(provider.getId());  // Add this line to set providerId
-    
-            return dto;
-        }).toList();
-    
-        return ResponseEntity.ok(dtos);
-    }
+public ResponseEntity<List<AppointmentDTO>> getAllAppointmentsForUser(@PathVariable Long userId) {
+    List<AppointmentEntity> appointments = appointmentService.getAllAppointmentsForUser(userId);
 
-    @PutMapping("/{id}/complete")
-public ResponseEntity<AppointmentDTO> completeAppointment(@PathVariable Long id) {
-    Optional<AppointmentEntity> optional = appointmentService.completeAppointment(id);
+    List<AppointmentDTO> dtos = appointments.stream().map(appointment -> {
+        AppointmentDTO dto = new AppointmentDTO();
+        dto.setId(appointment.getId());
+        dto.setUserId(appointment.getUser().getId());
+        dto.setUserFirstName(appointment.getUser().getFirstName());
+        dto.setUserLastName(appointment.getUser().getLastName());
+        dto.setRole(appointment.getRole());
+        dto.setAppointmentTime(appointment.getAppointmentTime());
+        dto.setStatus(appointment.getStatus());
+        dto.setNotes(appointment.getNotes());
+        dto.setCreatedAt(appointment.getCreatedAt());
+        dto.setPortfolioId(appointment.getPortfolio().getId());
+        return dto;
+    }).toList();
 
-    if (optional.isEmpty()) {
-        return ResponseEntity.notFound().build();
-    }
-
-    AppointmentEntity appointment = optional.get();
-    AppointmentDTO dto = new AppointmentDTO();
-    dto.setId(appointment.getId());
-    dto.setUserId(appointment.getUser().getId());
-    dto.setUserFirstName(appointment.getUser().getFirstName());
-    dto.setUserLastName(appointment.getUser().getLastName());
-    dto.setRole(appointment.getRole());
-    dto.setAppointmentTime(appointment.getAppointmentTime());
-    dto.setStatus(appointment.getStatus());
-    dto.setNotes(appointment.getNotes());
-    dto.setCreatedAt(appointment.getCreatedAt());
-    dto.setPortfolioId(appointment.getPortfolio().getId());
-    // Get provider details from portfolio
-    UserEntity provider = appointment.getPortfolio().getUser();
-    dto.setProviderFirstName(provider.getFirstName());
-    dto.setProviderLastName(provider.getLastName());
-    dto.setProviderId(provider.getId());
-
-    return ResponseEntity.ok(dto);
+    return ResponseEntity.ok(dtos);
 }
 
 }

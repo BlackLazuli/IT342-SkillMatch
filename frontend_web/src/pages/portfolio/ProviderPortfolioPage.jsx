@@ -33,6 +33,7 @@ import {
   Comment,
   Event
 } from "@mui/icons-material";
+const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
 const ProviderPortfolioPage = () => {
   const { userID } = useParams();
@@ -53,43 +54,47 @@ const ProviderPortfolioPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Handle appointment submission
-  const handleSubmitAppointment = async () => {
-    if (!appointmentDateTime) return alert("Please select a date and time.");
+ // Handle appointment submission
+ const handleSubmitAppointment = async () => {
+  if (!appointmentDateTime) return alert("Please select a date and time.");
 
-    try {
-      const res = await fetch("http://localhost:8080/api/appointments/", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user: { id: personalInfo.userId },
-          role: "CUSTOMER",
-          portfolio: { id: portfolio.id },
-          appointmentTime: appointmentDateTime,
-          notes: appointmentNotes,
-        }),
-      });
+  try {
+    const res = await fetch("http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/appointments/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        user: { id: personalInfo.userId },  // The user booking the appointment
+        role: "CUSTOMER", // The role of the user (can be "CUSTOMER" or "SERVICE_PROVIDER")
+        portfolio: { id: portfolio.id }, // Pass the portfolio ID
+        appointmentTime: appointmentDateTime,
+        notes: appointmentNotes,
+      }),
+    });
 
-      if (!res.ok) throw new Error("Failed to book appointment");
+    if (!res.ok) throw new Error("Failed to book appointment");
 
-      const data = await res.json();
-      setAppointmentModalOpen(false);
-      setAppointmentDateTime("");
-      setAppointmentNotes("");
-      alert("Appointment booked successfully!");
-    } catch (error) {
-      console.error("Appointment booking failed", error);
-      alert("Failed to book appointment");
-    }
-  };
+    const data = await res.json();  // The returned AppointmentDTO
+
+    setAppointmentModalOpen(false);
+    setAppointmentDateTime("");
+    setAppointmentNotes("");
+    
+    alert("Appointment booked successfully!");
+    console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
+
+  } catch (error) {
+    console.error("Appointment booking failed", error);
+    alert("Failed to book appointment");
+  }
+};
 
   // Fetch portfolio data
   const fetchPortfolio = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/api/portfolios/${userID}`, {
+      const res = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -114,7 +119,7 @@ const ProviderPortfolioPage = () => {
   // Fetch comments for a portfolio
   const fetchComments = async (portfolioId) => {
     try {
-      const res = await fetch(`http://localhost:8080/api/comments/portfolio/${portfolioId}`, {
+      const res = await fetch(`${baseUrl}/api/comments/portfolio/${portfolioId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -133,7 +138,7 @@ const ProviderPortfolioPage = () => {
   // Fetch user details
   const fetchUserDetails = async () => {
     try {
-      const res = await fetch(`http://localhost:8080/api/users/${userID}`, {
+      const res = await fetch(`${baseUrl}/api/users/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -154,7 +159,7 @@ const ProviderPortfolioPage = () => {
   const getProfilePictureUrl = () => {
     const pic = userDetails?.profilePicture || personalInfo?.profilePicture;
     if (pic) {
-      return pic.startsWith("http") ? pic : `http://localhost:8080${pic}`;
+      return pic.startsWith("http") ? pic : `${baseUrl}${pic}`;
     }
     return "/default-avatar.png";
   };
@@ -164,7 +169,7 @@ const ProviderPortfolioPage = () => {
     try {
       // Submit comment with rating
       await fetch(
-        `http://localhost:8080/api/comments/${personalInfo.userId}/${portfolio.id}`,
+        `${baseUrl}/api/comments/${personalInfo.userId}/${portfolio.id}`,
         {
           method: "POST",
           headers: {
@@ -179,7 +184,7 @@ const ProviderPortfolioPage = () => {
       );
 
       // Submit rating (for the separate ratings table)
-      await fetch(`http://localhost:8080/api/ratings/`, {
+      await fetch(`${baseUrl}/api/ratings/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -418,7 +423,7 @@ const ProviderPortfolioPage = () => {
                               comment.profilePicture
                                 ? comment.profilePicture.startsWith("http")
                                   ? comment.profilePicture
-                                  : `http://localhost:8080${comment.profilePicture}`
+                                  : `${baseUrl}${comment.profilePicture}`
                                 : "/default-avatar.png"
                             }
                             sx={{ width: 48, height: 48 }}

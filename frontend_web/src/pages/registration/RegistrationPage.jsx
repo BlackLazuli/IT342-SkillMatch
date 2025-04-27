@@ -15,6 +15,7 @@ import {
 
 const RegistrationPage = () => {
   const navigate = useNavigate();
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -55,7 +56,7 @@ const RegistrationPage = () => {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/users/register", {
+      const response = await fetch("http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/users/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

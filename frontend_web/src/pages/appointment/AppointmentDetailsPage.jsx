@@ -33,6 +33,7 @@ const AppointmentDetailsCustomerPage = () => {
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
   const token = localStorage.getItem("token");
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
   const handleClientClick = (userId) => {
     navigate(`/client-profile/${userId}`);
@@ -51,11 +52,11 @@ const AppointmentDetailsCustomerPage = () => {
       
       // Determine endpoint based on action
       if (newStatus === 'COMPLETED') {
-        endpoint = `http://localhost:8080/api/appointments/${appointmentId}/complete`;
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}/complete`;
       } else if (newStatus === 'CANCELED') {
-        endpoint = `http://localhost:8080/api/appointments/${appointmentId}/cancel`;
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}/cancel`;
       } else {
-        endpoint = `http://localhost:8080/api/appointments/${appointmentId}`;
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}`;
         method = 'PATCH'; // More appropriate for partial updates
       }
   
@@ -94,7 +95,7 @@ const AppointmentDetailsCustomerPage = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/api/appointments/all/${userID}`, {
+        const res = await fetch(`${baseUrl}/api/appointments/all/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
     

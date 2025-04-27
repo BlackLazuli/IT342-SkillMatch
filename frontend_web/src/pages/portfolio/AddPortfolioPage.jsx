@@ -22,6 +22,7 @@ const AddPortfolioPage = () => {
   const { userID } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
   const [portfolioData, setPortfolioData] = useState({
     workExperience: "",
@@ -102,7 +103,7 @@ const AddPortfolioPage = () => {
 
     try {
       const response = await fetch(
-        `http://localhost:8080/api/portfolios/${userID}`,
+        `${baseUrl}/api/portfolios/${userID}`,
         {
           method: "POST",
           headers: {

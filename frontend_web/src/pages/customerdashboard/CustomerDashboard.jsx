@@ -28,6 +28,7 @@ const ProviderDashboard = () => {
   const [currentUserLocation, setCurrentUserLocation] = useState(null); // for logged-in user's lat/lng
   const { personalInfo } = usePersonalInfo();
   const userId = personalInfo?.userId;
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
   
   useEffect(() => {
@@ -35,7 +36,7 @@ const ProviderDashboard = () => {
       try {
         const token = localStorage.getItem("token");
     
-        const response = await axios.get("http://localhost:8080/api/portfolios/getAllPortfolios", {
+        const response = await axios.get("http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/portfolios/getAllPortfolios", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -52,7 +53,7 @@ const ProviderDashboard = () => {
           if (portfolio.user?.id) {
             try {
               const locationRes = await axios.get(
-                `http://localhost:8080/api/locations/${portfolio.user.id}`,
+                `${baseUrl}/api/locations/${portfolio.user.id}`,
                 {
                   headers: { Authorization: `Bearer ${token}` },
                 }
@@ -105,7 +106,7 @@ const ProviderDashboard = () => {
     
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`http://localhost:8080/api/locations/${userId}`, {
+        const response = await axios.get(`${baseUrl}/api/locations/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
     
@@ -126,7 +127,7 @@ const ProviderDashboard = () => {
       const token = localStorage.getItem("token");
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/comments/portfolio/${portfolioId}`,
+          `${baseUrl}/api/comments/portfolio/${portfolioId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -148,7 +149,7 @@ const ProviderDashboard = () => {
     const fetchUserLocation = async (userId) => { // ⭐ New
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get(`http://localhost:8080/api/locations/${userId}`, {
+        const response = await axios.get(`${baseUrl}/api/locations/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -188,7 +189,7 @@ const ProviderDashboard = () => {
     if (!user?.profilePicture) return "/default-avatar.png";
     return user.profilePicture.startsWith("http")
       ? user.profilePicture
-      : `http://localhost:8080${user.profilePicture}`;
+      : `${baseUrl}${user.profilePicture}`;
   };
 
   const filteredPortfolios = portfolios.filter((portfolio) => {

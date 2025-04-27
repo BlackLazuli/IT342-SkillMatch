@@ -15,6 +15,7 @@ import AppBar from "../../component/AppBarCustomer";
 import { usePersonalInfo } from '../../context/PersonalInfoContext';
 import axios from 'axios';
 import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
 const ProfilePage = () => {
   const { personalInfo } = usePersonalInfo();
@@ -43,7 +44,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const userRes = await axios.get(`http://localhost:8080/api/users/${userId}`, {
+        const userRes = await axios.get(`${baseUrl}/api/users/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -51,7 +52,7 @@ const ProfilePage = () => {
   
         const user = userRes.data;
         if (user.profilePicture) {
-          setProfilePictureUrl(`http://localhost:8080${user.profilePicture}`);
+          setProfilePictureUrl(`${baseUrl}${user.profilePicture}`);
         }
         if (user.bio) {  // Assuming bio is part of the user response
           setBio(user.bio);
@@ -64,7 +65,7 @@ const ProfilePage = () => {
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:8080/api/locations/${userId}`,
+          `${baseUrl}/api/locations/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -109,7 +110,7 @@ const ProfilePage = () => {
       }
 
       const response = await axios.post(
-        `http://localhost:8080/api/locations/${userId}`,
+        `${baseUrl}/api/locations/${userId}`,
         { address, latitude: lat, longitude: lng },
         {
           headers: {
@@ -161,7 +162,7 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.put(
-        `http://localhost:8080/api/users/${userId}/uploadProfilePicture`,
+        `${baseUrl}/api/users/${userId}/uploadProfilePicture`,
         formData,
         {
           headers: {
@@ -173,7 +174,7 @@ const ProfilePage = () => {
 
       const newPath = response.data.profilePicture;
       updateProfilePicture(newPath); // This updates context and localStorage
-      setProfilePictureUrl(`http://localhost:8080${newPath}`);
+      setProfilePictureUrl(`${baseUrl}${newPath}`);
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

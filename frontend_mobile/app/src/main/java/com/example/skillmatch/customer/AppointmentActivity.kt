@@ -111,11 +111,11 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         
         // Call the appropriate API based on user role
         val call = if (userRole == "PROFESSIONAL" || userRole == "SERVICE_PROVIDER") {
-            ApiClient.apiService.getAllAppointmentsForProfessional("Bearer $token", userId, userRole)
+            // Use the all endpoint for professionals which includes both customer and provider appointments
+            ApiClient.apiService.getAllAppointmentsForProfessional("Bearer $token", userId)
         } else {
-            ApiClient.apiService.getAllAppointmentsForUser("Bearer $token", userId,
-                userRole.toString()
-            )
+            // Use the user endpoint for customers
+            ApiClient.apiService.getAllAppointmentsForUser("Bearer $token", userId, userRole.toString())
         }
         
         call.enqueue(object : Callback<List<AppointmentResponse>> {
@@ -260,7 +260,13 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
     }
 
     private fun rescheduleAppointment(appointmentId: Long, newTime: String) {
-        ApiClient.apiService.rescheduleAppointment(appointmentId, newTime).enqueue(object : Callback<AppointmentResponse> {
+        val token = sessionManager.getToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        ApiClient.apiService.rescheduleAppointment("Bearer $token", appointmentId, newTime).enqueue(object : Callback<AppointmentResponse> {
             override fun onResponse(call: Call<AppointmentResponse>, response: Response<AppointmentResponse>) {
                 if (response.isSuccessful) {
                     Toast.makeText(this@AppointmentActivity, "Appointment rescheduled successfully", Toast.LENGTH_SHORT).show()
@@ -269,7 +275,7 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
                     Toast.makeText(this@AppointmentActivity, "Failed to reschedule appointment", Toast.LENGTH_SHORT).show()
                 }
             }
-
+    
             override fun onFailure(call: Call<AppointmentResponse>, t: Throwable) {
                 Toast.makeText(this@AppointmentActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
             }
@@ -281,6 +287,7 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
             .setTitle("Cancel Appointment")
             .setMessage("Are you sure you want to cancel this appointment?")
             .setPositiveButton("Yes") { _, _ ->
+                // Call the cancelAppointment method
                 cancelAppointment(appointment.id)
             }
             .setNegativeButton("No", null)
@@ -288,16 +295,22 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
     }
 
     private fun cancelAppointment(appointmentId: Long) {
-        ApiClient.apiService.cancelAppointment(appointmentId).enqueue(object : Callback<AppointmentResponse> {
+        val token = sessionManager.getToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        ApiClient.apiService.cancelAppointment("Bearer $token", appointmentId).enqueue(object : Callback<AppointmentResponse> {
             override fun onResponse(call: Call<AppointmentResponse>, response: Response<AppointmentResponse>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@AppointmentActivity, "Appointment cancelled successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentActivity, "Appointment canceled successfully", Toast.LENGTH_SHORT).show()
                     loadAppointments() // Refresh the list
                 } else {
                     Toast.makeText(this@AppointmentActivity, "Failed to cancel appointment", Toast.LENGTH_SHORT).show()
                 }
             }
-
+            
             override fun onFailure(call: Call<AppointmentResponse>, t: Throwable) {
                 Toast.makeText(this@AppointmentActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
             }

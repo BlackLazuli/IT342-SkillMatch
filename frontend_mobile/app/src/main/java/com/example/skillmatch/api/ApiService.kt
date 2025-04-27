@@ -84,6 +84,7 @@ interface ApiService {
     ): Response<AppointmentResponse>
 
     // New appointment management endpoints
+    // Update to match the backend controller endpoints
     @GET("appointments/user/{userId}")
     fun getAllAppointmentsForUser(
         @Header("Authorization") token: String,
@@ -91,21 +92,25 @@ interface ApiService {
         @Query("role") role: String
     ): Call<List<AppointmentResponse>>
 
-    @GET("appointments/professional/{userId}")
+    // For professionals, use the all endpoint which includes provider details
+    @GET("appointments/all/{userId}")
     fun getAllAppointmentsForProfessional(
         @Header("Authorization") token: String,
-        @Path("userId") userId: Long,
-        @Query("role") role: String
+        @Path("userId") userId: Long
     ): Call<List<AppointmentResponse>>
 
 
     @PUT("appointments/{id}/reschedule")
     fun rescheduleAppointment(
+        @Header("Authorization") token: String,
         @Path("id") appointmentId: Long,
         @Query("newTime") newTime: String
     ): Call<AppointmentResponse>
 
     @PUT("appointments/{id}/cancel")
-    fun cancelAppointment(@Path("id") appointmentId: Long): Call<AppointmentResponse>
+    fun cancelAppointment(
+        @Header("Authorization") token: String,
+        @Path("id") appointmentId: Long
+    ): Call<AppointmentResponse>
 
 }

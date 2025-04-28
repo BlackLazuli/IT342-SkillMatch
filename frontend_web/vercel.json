@@ -2,12 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/:path*",
-      "headers": {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization"
-      }
+      "destination": "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/:path*"
     },
     {
       "source": "/uploads/:path*",
@@ -34,13 +29,6 @@
       "src": "/.*",
       "dest": "/index.html",
       "status": 200
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/:path*",
-      "destination": "https://it-342-skill-match.vercel.app/:path*",
-      "permanent": true
     }
   ]
 }

@@ -103,7 +103,7 @@ const AddPortfolioPage = () => {
 
     try {
       const response = await fetch(
-        `/api/portfolios/${userID}`,
+        `${baseUrl}/api/portfolios/${userID}`,
         {
           method: "POST",
           headers: {

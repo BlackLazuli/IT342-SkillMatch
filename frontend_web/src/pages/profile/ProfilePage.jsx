@@ -44,7 +44,7 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const userRes = await axios.get(`/api/users/${userId}`, {
+        const userRes = await axios.get(`${baseUrl}/api/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
     
@@ -52,6 +52,7 @@ const ProfilePage = () => {
         if (user.profilePicture) {
           const url = user.profilePicture; // Assumes backend returns "/uploads/file.jpg"
           setProfilePictureUrl(url);
+
           console.log("Profile picture URL:", url); // Debug the URL
     
           // Test if the image loads
@@ -68,7 +69,7 @@ const ProfilePage = () => {
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
-          `/api/locations/${userId}`,
+          `${baseUrl}/api/locations/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -113,7 +114,7 @@ const ProfilePage = () => {
       }
 
       const response = await axios.post(
-        `/api/locations/${userId}`,
+        `${baseUrl}/api/locations/${userId}`,
         { address, latitude: lat, longitude: lng },
         {
           headers: {
@@ -165,7 +166,7 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.put(
-        `/api/users/${userId}/uploadProfilePicture`,
+        `${baseUrl}/api/users/${userId}/uploadProfilePicture`,
         formData,
         {
           headers: {
@@ -177,7 +178,7 @@ const ProfilePage = () => {
 
       const newPath = response.data.profilePicture;
       updateProfilePicture(newPath); // This updates context and localStorage
-      setProfilePictureUrl(`${newPath}`);
+      setProfilePictureUrl(`${baseUrl}${newPath}`);
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

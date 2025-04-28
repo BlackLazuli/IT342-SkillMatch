@@ -94,7 +94,7 @@ const ProviderPortfolioPage = () => {
   // Fetch portfolio data
   const fetchPortfolio = async () => {
     try {
-      const res = await fetch(`/api/portfolios/${userID}`, {
+      const res = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -119,7 +119,7 @@ const ProviderPortfolioPage = () => {
   // Fetch comments for a portfolio
   const fetchComments = async (portfolioId) => {
     try {
-      const res = await fetch(`/api/comments/portfolio/${portfolioId}`, {
+      const res = await fetch(`${baseUrl}/api/comments/portfolio/${portfolioId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -138,7 +138,7 @@ const ProviderPortfolioPage = () => {
   // Fetch user details
   const fetchUserDetails = async () => {
     try {
-      const res = await fetch(`/api/users/${userID}`, {
+      const res = await fetch(`${baseUrl}/api/users/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
@@ -159,7 +159,7 @@ const ProviderPortfolioPage = () => {
   const getProfilePictureUrl = () => {
     const pic = userDetails?.profilePicture || personalInfo?.profilePicture;
     if (pic) {
-      return pic.startsWith("http") ? pic : `${pic}`;
+      return pic.startsWith("http") ? pic : `${baseUrl}${pic}`;
     }
     return "/default-avatar.png";
   };
@@ -169,7 +169,7 @@ const ProviderPortfolioPage = () => {
     try {
       // Submit comment with rating
       await fetch(
-        `/api/comments/${personalInfo.userId}/${portfolio.id}`,
+        `${baseUrl}/api/comments/${personalInfo.userId}/${portfolio.id}`,
         {
           method: "POST",
           headers: {
@@ -184,7 +184,7 @@ const ProviderPortfolioPage = () => {
       );
 
       // Submit rating (for the separate ratings table)
-      await fetch(`/api/ratings/`, {
+      await fetch(`${baseUrl}/api/ratings/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -423,7 +423,7 @@ const ProviderPortfolioPage = () => {
                               comment.profilePicture
                                 ? comment.profilePicture.startsWith("http")
                                   ? comment.profilePicture
-                                  : `${comment.profilePicture}`
+                                  : `${baseUrl}${comment.profilePicture}`
                                 : "/default-avatar.png"
                             }
                             sx={{ width: 48, height: 48 }}

@@ -11,7 +11,7 @@
         },
         {
           "type": "host",
-          "value": "https://it-342-skill-match.vercel.app/"
+          "value": "it-342-skill-match.vercel.app" 
         }
       ]
     },
@@ -22,7 +22,9 @@
     {
       "source": "/uploads/:path*",
       "destination": "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/uploads/:path*"
-    }
+    },
+    { "source": "/register", "destination": "/index.html" },
+    { "source": "/:path*", "destination": "/index.html" } 
   ],
   "headers": [
     {
@@ -33,9 +35,5 @@
         { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
       ]
     }
-  ],
-  "routes": [
-    { "src": "/register", "dest": "/index.html" },
-    { "src": "/.*", "dest": "/index.html" }
   ]
 }

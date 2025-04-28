@@ -41,6 +41,7 @@ const PortfolioPage = () => {
   const { personalInfo } = usePersonalInfo();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -100,6 +101,10 @@ const PortfolioPage = () => {
         if (res.ok) {
           const data = await res.json();
           setUserDetails(data);
+  
+          // Get the profile picture URL after user details are fetched
+          const profilePicUrl = getProfilePictureUrl(data);
+          setProfilePictureUrl(profilePicUrl); // Update the state with the profile picture URL
         }
       } catch (err) {
         console.error("Failed to fetch user details:", err);
@@ -114,10 +119,18 @@ const PortfolioPage = () => {
   const handleUpdatePortfolio = () => navigate(`/edit-portfolio/${userID}`);
 
   const getProfilePictureUrl = (user) => {
-    const pic = user?.profilePicture || user?.profilePicture;
-    if (!pic) return "/default-avatar.png";
-    return pic.startsWith("http") ? pic : pic; // Remove baseUrl, assume correct path
+    console.log("User object:", user);
+    const pic = user?.profilePicture; // Get profile picture path
+    console.log("Profile Picture URL:", pic);
+
+    if (!pic) return "/default-avatar.png"; // Fallback to default if no picture
+    return pic.startsWith("http") ? pic : `https://your-backend-url.com${pic}`; // Handle relative path if necessary
   };
+
+  // Ensure that user details are fetched before trying to render the profile picture
+  if (!userDetails) {
+    return <div>Loading...</div>; // Optionally, a loading state while data is being fetched
+  }
 
   if (loading) {
     return (
@@ -173,7 +186,7 @@ const PortfolioPage = () => {
             }}>
               <Avatar
                 alt={userDetails?.firstName || "User"}
-                src={getProfilePictureUrl()}
+                src={userDetails?.profilePicture}
                 sx={{ 
                   width: 100, 
                   height: 100, 

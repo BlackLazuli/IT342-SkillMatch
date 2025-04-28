@@ -41,7 +41,7 @@ const ProfilePage = () => {
 
 const fetchUserDetails = async () => {
   try {
-    const res = await axios.get(`/api/users/${providerId}`, {
+    const res = await axios.get(`${baseUrl}/api/users/${providerId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -50,7 +50,7 @@ const fetchUserDetails = async () => {
     
     // Handle profile picture URL
     if (res.data.profilePicture) {
-      const url = `${res.data.profilePicture}`;
+      const url = `${baseUrl}${res.data.profilePicture}`;
       console.log("Profile picture URL:", url);
       
       // Test if the image loads
@@ -63,12 +63,12 @@ const fetchUserDetails = async () => {
     console.error("Error fetching user details:", error);
     // If failed, try fetching as portfolio ID
     try {
-      const portfolioRes = await axios.get(`/api/portfolios/${providerId}`, {
+      const portfolioRes = await axios.get(`${baseUrl}/api/portfolios/${providerId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      const userRes = await axios.get(`/api/users/${portfolioRes.data.providerId}`, {
+      const userRes = await axios.get(`${baseUrl}/api/users/${portfolioRes.data.providerId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -77,7 +77,7 @@ const fetchUserDetails = async () => {
       
       // Handle profile picture URL for portfolio case
       if (userRes.data.profilePicture) {
-        const url = `${userRes.data.profilePicture}`;
+        const url = `${baseUrl}${userRes.data.profilePicture}`;
         console.log("Profile picture URL:", url);
         
         const img = new Image();
@@ -96,7 +96,7 @@ const fetchUserDetails = async () => {
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
-          `/api/locations/${providerId}`,
+          `${baseUrl}/api/locations/${providerId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -141,7 +141,7 @@ const fetchUserDetails = async () => {
       }
 
       const response = await axios.post(
-        `/api/locations/${providerId}`,
+        `${baseUrl}/api/locations/${providerId}`,
         { address, latitude: lat, longitude: lng },
         {
           headers: {
@@ -191,7 +191,7 @@ const fetchUserDetails = async () => {
 
     try {
       const response = await axios.put(
-        `/api/users/${providerId}/uploadProfilePicture`,
+        `${baseUrl}/api/users/${providerId}/uploadProfilePicture`,
         formData,
         {
           headers: {
@@ -203,7 +203,7 @@ const fetchUserDetails = async () => {
 
       const newPath = response.data.profilePicture;
       updateProfilePicture(newPath);
-      setProfilePictureUrl(`${newPath}`);
+      setProfilePictureUrl(`${baseUrl}${newPath}`);
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

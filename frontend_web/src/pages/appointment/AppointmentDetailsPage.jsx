@@ -52,11 +52,11 @@ const AppointmentDetailsCustomerPage = () => {
       
       // Determine endpoint based on action
       if (newStatus === 'COMPLETED') {
-        endpoint = `/api/appointments/${appointmentId}/complete`;
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}/complete`;
       } else if (newStatus === 'CANCELED') {
-        endpoint = `/api/appointments/${appointmentId}/cancel`;
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}/cancel`;
       } else {
-        endpoint = `/api/appointments/${appointmentId}`;
+        endpoint = `${baseUrl}/api/appointments/${appointmentId}`;
         method = 'PATCH'; // More appropriate for partial updates
       }
   
@@ -95,7 +95,7 @@ const AppointmentDetailsCustomerPage = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const res = await fetch(`/api/appointments/all/${userID}`, {
+        const res = await fetch(`${baseUrl}/api/appointments/all/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
     

@@ -50,17 +50,21 @@ const fetchUserDetails = async () => {
     
     // Handle profile picture URL
     if (res.data.profilePicture) {
-      const url = `${baseUrl}${res.data.profilePicture}`;
+      const url = res.data.profilePicture; // Remove baseUrl
       console.log("Profile picture URL:", url);
       
       // Test if the image loads
       const img = new Image();
       img.src = url;
       img.onload = () => setProfilePictureUrl(url);
-      img.onerror = () => console.error("Failed to load image:", url);
+      img.onerror = () => {
+        console.error("Failed to load image:", url);
+        setProfilePictureUrl("/default-avatar.png"); // Add fallback
+      };
     }
   } catch (error) {
     console.error("Error fetching user details:", error);
+    
     // If failed, try fetching as portfolio ID
     try {
       const portfolioRes = await axios.get(`/api/portfolios/${providerId}`, {
@@ -68,6 +72,7 @@ const fetchUserDetails = async () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      
       const userRes = await axios.get(`/api/users/${portfolioRes.data.providerId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -77,16 +82,20 @@ const fetchUserDetails = async () => {
       
       // Handle profile picture URL for portfolio case
       if (userRes.data.profilePicture) {
-        const url = `${baseUrl}${userRes.data.profilePicture}`;
+        const url = userRes.data.profilePicture; // Remove baseUrl
         console.log("Profile picture URL:", url);
         
         const img = new Image();
         img.src = url;
         img.onload = () => setProfilePictureUrl(url);
-        img.onerror = () => console.error("Failed to load image:", url);
+        img.onerror = () => {
+          console.error("Failed to load image:", url);
+          setProfilePictureUrl("/default-avatar.png"); // Add fallback
+        };
       }
     } catch (portfolioError) {
       console.error("Error fetching portfolio details:", portfolioError);
+      setProfilePictureUrl("/default-avatar.png"); // Fallback for complete failure
     }
   }
 };
@@ -202,8 +211,8 @@ const fetchUserDetails = async () => {
       );
 
       const newPath = response.data.profilePicture;
-      updateProfilePicture(newPath);
-      setProfilePictureUrl(`${baseUrl}${newPath}`);
+      updateProfilePicture(newPath); // This updates context and localStorage
+      setProfilePictureUrl(newPath); 
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

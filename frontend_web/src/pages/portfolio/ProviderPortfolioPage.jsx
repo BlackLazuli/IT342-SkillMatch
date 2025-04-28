@@ -59,7 +59,7 @@ const ProviderPortfolioPage = () => {
   if (!appointmentDateTime) return alert("Please select a date and time.");
 
   try {
-    const res = await fetch("http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/appointments/", {
+    const res = await fetch("/api/appointments/", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -156,12 +156,10 @@ const ProviderPortfolioPage = () => {
   }, [userID]);
 
   // Get the profile picture URL
-  const getProfilePictureUrl = () => {
-    const pic = userDetails?.profilePicture || personalInfo?.profilePicture;
-    if (pic) {
-      return pic.startsWith("http") ? pic : `${baseUrl}${pic}`;
-    }
-    return "/default-avatar.png";
+  const getProfilePictureUrl = (user) => {
+    const pic = user?.profilePicture || user?.profilePicture;
+    if (!pic) return "/default-avatar.png";
+    return pic.startsWith("http") ? pic : pic; // Remove baseUrl, assume correct path
   };
 
   // Handle feedback submission (comment + rating)
@@ -421,10 +419,10 @@ const ProviderPortfolioPage = () => {
                             alt={comment.authorName || "Anonymous"}
                             src={
                               comment.profilePicture
-                                ? comment.profilePicture.startsWith("http")
-                                  ? comment.profilePicture
-                                  : `${baseUrl}${comment.profilePicture}`
-                                : "/default-avatar.png"
+                              ? comment.profilePicture.startsWith("http")
+                                ? comment.profilePicture
+                                : comment.profilePicture // Remove baseUrl
+                              : "/default-avatar.png"
                             }
                             sx={{ width: 48, height: 48 }}
                           />

@@ -49,12 +49,15 @@ const ProfilePage = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+    
         const user = userRes.data;
+        
         if (user.profilePicture) {
-          setProfilePictureUrl(`${baseUrl}${user.profilePicture}`);
+          // Remove baseUrl and use the path directly
+          setProfilePictureUrl(user.profilePicture);
         }
-        if (user.bio) {  // Assuming bio is part of the user response
+        
+        if (user.bio) {
           setBio(user.bio);
         }
       } catch (err) {
@@ -174,7 +177,7 @@ const ProfilePage = () => {
 
       const newPath = response.data.profilePicture;
       updateProfilePicture(newPath); // This updates context and localStorage
-      setProfilePictureUrl(`${baseUrl}${newPath}`);
+      setProfilePictureUrl(newPath); 
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

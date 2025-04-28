@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "/api/appointments",
-      "destination": "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/appointments",
+      "source": "/api/appointments/",
+      "destination": "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/appointments/",
       "has": [
         {
           "type": "header",

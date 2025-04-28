@@ -73,7 +73,7 @@ const ProviderPortfolioPage = () => {
     try {
       // Use the useEffect-like pattern for posting the appointment data
       const postAppointment = async () => {
-        const res = await fetch('/api/appointments/', {
+        const res = await fetch("/api/appointments/", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${token}`,

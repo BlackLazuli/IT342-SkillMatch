@@ -53,6 +53,8 @@ const ProviderPortfolioPage = () => {
   const token = localStorage.getItem("token");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
+
 
  // Handle appointment submission
  const handleSubmitAppointment = async () => {
@@ -135,39 +137,44 @@ const ProviderPortfolioPage = () => {
     }
   };
 
-// Fetch user details and set the profile picture URL
-const fetchUserDetails = async () => {
-  try {
-    const res = await fetch(`/api/users/${userID}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    if (res.ok) {
-      const data = await res.json();
-      setUserDetails(data);
+  const fetchUserDetails = async () => {
+    try {
+      const res = await fetch(`/api/users/${userID}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setUserDetails(data);
 
-      // Get the profile picture URL after user details are fetched
-      const profilePicUrl = getProfilePictureUrl(data);
-      setProfilePictureUrl(profilePicUrl); // You can store it in state if you want
+        // Get the profile picture URL after user details are fetched
+        const profilePicUrl = getProfilePictureUrl(data);
+        setProfilePictureUrl(profilePicUrl); // Update the state with the profile picture URL
+      }
+    } catch (err) {
+      console.error("Failed to fetch user details:", err);
     }
-  } catch (err) {
-    console.error("Failed to fetch user details:", err);
+  };
+
+  // useEffect hook to fetch user details and portfolio when userID changes
+  useEffect(() => {
+    fetchPortfolio();  // Make sure this function is defined elsewhere
+    fetchUserDetails(); // Fetch user details
+  }, [userID]); // Re-fetch on userID change
+
+  // Function to get the profile picture URL (with base URL handling)
+  const getProfilePictureUrl = (user) => {
+    console.log("User object:", user);
+    const pic = user?.profilePicture; // Get profile picture path
+    console.log("Profile Picture URL:", pic);
+
+    if (!pic) return "/default-avatar.png"; // Fallback to default if no picture
+    return pic.startsWith("http") ? pic : `https://your-backend-url.com${pic}`; // Handle relative path if necessary
+  };
+
+  // Ensure that user details are fetched before trying to render the profile picture
+  if (!userDetails) {
+    return <div>Loading...</div>; // Optionally, a loading state while data is being fetched
   }
-};
-
-useEffect(() => {
-  fetchPortfolio();
-  fetchUserDetails();
-}, [userID]);
-
-// Profile Picture URL logic
-const getProfilePictureUrl = (user) => {
-  console.log("User object:", user);
-  const pic = user?.profilePicture;
-  console.log("Profile Picture URL:", pic);
-
-  if (!pic) return "/default-avatar.png";
-  return pic.startsWith("http") ? pic : pic; // Add base URL logic here if necessary
-};
 
 
 
@@ -254,15 +261,16 @@ const getProfilePictureUrl = (user) => {
               gap: 3,
               mb: 4
             }}>
-              <Avatar
-                alt={userDetails?.firstName || "User"}
-                src={getProfilePictureUrl()}
-                sx={{ 
-                  width: 100, 
-                  height: 100, 
-                  boxShadow: theme.shadows[4]
-                }}
-              />
+<Avatar
+  alt={userDetails?.firstName || "User"}
+  src={getProfilePictureUrl(userDetails)} // Pass userDetails to the function
+  sx={{
+    width: 100,
+    height: 100,
+    boxShadow: theme.shadows[4],
+  }}
+/>
+
               <Box sx={{ flex: 1 }}>
                 <Typography variant="h3" fontWeight="bold">
                   {userDetails?.firstName || "User"}'s Portfolio

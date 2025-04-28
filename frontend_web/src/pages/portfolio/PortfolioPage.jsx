@@ -52,7 +52,7 @@ const PortfolioPage = () => {
 
     const fetchPortfolio = async () => {
       try {
-        const res = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
+        const res = await fetch(`/api/portfolios/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -76,7 +76,7 @@ const PortfolioPage = () => {
 
     const fetchComments = async (portfolioId) => {
       try {
-        const res = await fetch(`${baseUrl}/api/comments/portfolio/${portfolioId}`, {
+        const res = await fetch(`/api/comments/portfolio/${portfolioId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -94,7 +94,7 @@ const PortfolioPage = () => {
 
     const fetchUserDetails = async () => {
       try {
-        const res = await fetch(`${baseUrl}/api/users/${userID}`, {
+        const res = await fetch(`/api/users/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -116,7 +116,7 @@ const PortfolioPage = () => {
   const getProfilePictureUrl = () => {
     const pic = userDetails?.profilePicture || personalInfo?.profilePicture;
     if (pic) {
-      return pic.startsWith("http") ? pic : `${baseUrl}${pic}`;
+      return pic.startsWith("http") ? pic : `${pic}`;
     }
     return "/default-avatar.png";
   };
@@ -346,7 +346,7 @@ const PortfolioPage = () => {
                               comment.profilePicture
                                 ? comment.profilePicture.startsWith("http")
                                   ? comment.profilePicture
-                                  : `${baseUrl}${comment.profilePicture}`
+                                  : `${comment.profilePicture}`
                                 : "/default-avatar.png"
                             }
                             sx={{ width: 48, height: 48 }}

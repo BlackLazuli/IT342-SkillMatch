@@ -155,8 +155,14 @@ const ProviderPortfolioPage = () => {
     fetchUserDetails();
   }, [userID]);
 
-  // Get the profile picture URL
-  const getProfilePictureUrl = (user) => user?.profilePicture || "/default-avatar.png";
+  const getProfilePictureUrl = (user) => {
+    const pic = user?.profilePicture;
+    console.log("Profile Picture URL:", pic); // <-- add this to see what you're getting
+  
+    if (!pic) return "/default-avatar.png";
+    return pic.startsWith("http") ? pic : pic;
+  };
+  
 
 
   // Handle feedback submission (comment + rating)

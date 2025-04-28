@@ -56,43 +56,47 @@ const ProviderPortfolioPage = () => {
   const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
 
 
- // Handle appointment submission
- const handleSubmitAppointment = async () => {
-  if (!appointmentDateTime) return alert("Please select a date and time.");
-
-  try {
-    const res = await fetch("/api/appointments", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        user: { id: personalInfo.userId },  // The user booking the appointment
-        role: "CUSTOMER", // The role of the user (can be "CUSTOMER" or "SERVICE_PROVIDER")
-        portfolio: { id: portfolio.id }, // Pass the portfolio ID
-        appointmentTime: appointmentDateTime,
-        notes: appointmentNotes,
-      }),
-    });
-
-    if (!res.ok) throw new Error("Failed to book appointment");
-
-    const data = await res.json();  // The returned AppointmentDTO
-
-    setAppointmentModalOpen(false);
-    setAppointmentDateTime("");
-    setAppointmentNotes("");
-    
-    alert("Appointment booked successfully!");
-    console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
-
-  } catch (error) {
-    console.error("Appointment booking failed", error);
-    alert("Failed to book appointment");
-  }
-};
-
+  const handleSubmitAppointment = async () => {
+    if (!appointmentDateTime) return alert("Please select a date and time.");
+  
+    // Log the data being sent in the request
+    const requestData = {
+      user: { id: personalInfo.userId },
+      role: "CUSTOMER",  // Can be "CUSTOMER" or "SERVICE_PROVIDER"
+      portfolio: { id: portfolio.id },
+      appointmentTime: appointmentDateTime,
+      notes: appointmentNotes,
+    };
+  
+    console.log("Posting Appointment Data:", requestData);
+  
+    try {
+      const res = await fetch("/api/appointments", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData), // Posting the request data
+      });
+  
+      if (!res.ok) throw new Error("Failed to book appointment");
+  
+      const data = await res.json();  // The returned AppointmentDTO
+  
+      setAppointmentModalOpen(false);
+      setAppointmentDateTime("");
+      setAppointmentNotes("");
+      
+      alert("Appointment booked successfully!");
+      console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
+  
+    } catch (error) {
+      console.error("Appointment booking failed", error);
+      alert("Failed to book appointment");
+    }
+  };
+  
   // Fetch portfolio data
   const fetchPortfolio = async () => {
     try {

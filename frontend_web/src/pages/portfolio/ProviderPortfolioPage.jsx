@@ -53,48 +53,59 @@ const ProviderPortfolioPage = () => {
   const token = localStorage.getItem("token");
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
 
- // Handle appointment submission
- const handleSubmitAppointment = async () => {
-  if (!appointmentDateTime) return alert("Please select a date and time.");
 
-  try {
-    const res = await fetch("http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/appointments/", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        user: { id: personalInfo.userId },  // The user booking the appointment
-        role: "CUSTOMER", // The role of the user (can be "CUSTOMER" or "SERVICE_PROVIDER")
-        portfolio: { id: portfolio.id }, // Pass the portfolio ID
-        appointmentTime: appointmentDateTime,
-        notes: appointmentNotes,
-      }),
-    });
-
-    if (!res.ok) throw new Error("Failed to book appointment");
-
-    const data = await res.json();  // The returned AppointmentDTO
-
-    setAppointmentModalOpen(false);
-    setAppointmentDateTime("");
-    setAppointmentNotes("");
-    
-    alert("Appointment booked successfully!");
-    console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
-
-  } catch (error) {
-    console.error("Appointment booking failed", error);
-    alert("Failed to book appointment");
-  }
-};
-
+  const handleSubmitAppointment = async () => {
+    if (!appointmentDateTime) return alert("Please select a date and time.");
+  
+    // Log the data being sent in the request
+    const requestData = {
+      user: { id: personalInfo.userId },
+      role: "CUSTOMER",  // Can be "CUSTOMER" or "SERVICE_PROVIDER"
+      portfolio: { id: portfolio.id },
+      appointmentTime: appointmentDateTime,
+      notes: appointmentNotes,
+    };
+  
+    console.log("Posting Appointment Data:", requestData);
+  
+    try {
+      // Use the useEffect-like pattern for posting the appointment data
+      const postAppointment = async () => {
+        const res = await fetch("/api/appointments/", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData), // Posting the request data
+        });
+  
+        if (!res.ok) throw new Error("Failed to book appointment");
+  
+        const data = await res.json();  // The returned AppointmentDTO
+  
+        setAppointmentModalOpen(false);
+        setAppointmentDateTime("");
+        setAppointmentNotes("");
+        
+        alert("Appointment booked successfully!");
+        console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
+      };
+  
+      postAppointment();
+  
+    } catch (error) {
+      console.error("Appointment booking failed", error);
+      alert("Failed to book appointment");
+    }
+  };
+  
   // Fetch portfolio data
   const fetchPortfolio = async () => {
     try {
-      const res = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
+      const res = await fetch(`/api/portfolios/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -119,7 +130,7 @@ const ProviderPortfolioPage = () => {
   // Fetch comments for a portfolio
   const fetchComments = async (portfolioId) => {
     try {
-      const res = await fetch(`${baseUrl}/api/comments/portfolio/${portfolioId}`, {
+      const res = await fetch(`/api/comments/portfolio/${portfolioId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -135,41 +146,53 @@ const ProviderPortfolioPage = () => {
     }
   };
 
-  // Fetch user details
   const fetchUserDetails = async () => {
     try {
-      const res = await fetch(`${baseUrl}/api/users/${userID}`, {
+      const res = await fetch(`/api/users/${userID}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) {
         const data = await res.json();
         setUserDetails(data);
+
+        // Get the profile picture URL after user details are fetched
+        const profilePicUrl = getProfilePictureUrl(data);
+        setProfilePictureUrl(profilePicUrl); // Update the state with the profile picture URL
       }
     } catch (err) {
       console.error("Failed to fetch user details:", err);
     }
   };
 
+  // useEffect hook to fetch user details and portfolio when userID changes
   useEffect(() => {
-    fetchPortfolio();
-    fetchUserDetails();
-  }, [userID]);
+    fetchPortfolio();  // Make sure this function is defined elsewhere
+    fetchUserDetails(); // Fetch user details
+  }, [userID]); // Re-fetch on userID change
 
-  // Get the profile picture URL
-  const getProfilePictureUrl = () => {
-    const pic = userDetails?.profilePicture || personalInfo?.profilePicture;
-    if (pic) {
-      return pic.startsWith("http") ? pic : `${baseUrl}${pic}`;
-    }
-    return "/default-avatar.png";
+  // Function to get the profile picture URL (with base URL handling)
+  const getProfilePictureUrl = (user) => {
+    console.log("User object:", user);
+    const pic = user?.profilePicture; // Get profile picture path
+    console.log("Profile Picture URL:", pic);
+
+    if (!pic) return "/default-avatar.png"; // Fallback to default if no picture
+    return pic.startsWith("http") ? pic : `https://your-backend-url.com${pic}`; // Handle relative path if necessary
   };
+
+  // Ensure that user details are fetched before trying to render the profile picture
+  if (!userDetails) {
+    return <div>Loading...</div>; // Optionally, a loading state while data is being fetched
+  }
+
+
 
   // Handle feedback submission (comment + rating)
   const handleSubmitFeedback = async () => {
     try {
       // Submit comment with rating
       await fetch(
-        `${baseUrl}/api/comments/${personalInfo.userId}/${portfolio.id}`,
+        `/api/comments/${personalInfo.userId}/${portfolio.id}`,
         {
           method: "POST",
           headers: {
@@ -184,7 +207,7 @@ const ProviderPortfolioPage = () => {
       );
 
       // Submit rating (for the separate ratings table)
-      await fetch(`${baseUrl}/api/ratings/`, {
+      await fetch(`/api/ratings/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -247,15 +270,16 @@ const ProviderPortfolioPage = () => {
               gap: 3,
               mb: 4
             }}>
-              <Avatar
-                alt={userDetails?.firstName || "User"}
-                src={getProfilePictureUrl()}
-                sx={{ 
-                  width: 100, 
-                  height: 100, 
-                  boxShadow: theme.shadows[4]
-                }}
-              />
+<Avatar
+  alt={userDetails?.firstName || "User"}
+  src={userDetails?.profilePicture} // Pass userDetails to the function
+  sx={{
+    width: 100,
+    height: 100,
+    boxShadow: theme.shadows[4],
+  }}
+/>
+
               <Box sx={{ flex: 1 }}>
                 <Typography variant="h3" fontWeight="bold">
                   {userDetails?.firstName || "User"}'s Portfolio
@@ -421,10 +445,10 @@ const ProviderPortfolioPage = () => {
                             alt={comment.authorName || "Anonymous"}
                             src={
                               comment.profilePicture
-                                ? comment.profilePicture.startsWith("http")
-                                  ? comment.profilePicture
-                                  : `${baseUrl}${comment.profilePicture}`
-                                : "/default-avatar.png"
+                              ? comment.profilePicture.startsWith("http")
+                                ? comment.profilePicture
+                                : comment.profilePicture // Remove baseUrl
+                              : "/default-avatar.png"
                             }
                             sx={{ width: 48, height: 48 }}
                           />

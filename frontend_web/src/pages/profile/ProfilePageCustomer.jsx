@@ -44,17 +44,20 @@ const ProfilePage = () => {
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const userRes = await axios.get(`${baseUrl}/api/users/${userId}`, {
+        const userRes = await axios.get(`/api/users/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-  
+    
         const user = userRes.data;
+        
         if (user.profilePicture) {
-          setProfilePictureUrl(`${baseUrl}${user.profilePicture}`);
+          // Remove baseUrl and use the path directly
+          setProfilePictureUrl(user.profilePicture);
         }
-        if (user.bio) {  // Assuming bio is part of the user response
+        
+        if (user.bio) {
           setBio(user.bio);
         }
       } catch (err) {
@@ -65,7 +68,7 @@ const ProfilePage = () => {
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
-          `${baseUrl}/api/locations/${userId}`,
+          `/api/locations/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -110,7 +113,7 @@ const ProfilePage = () => {
       }
 
       const response = await axios.post(
-        `${baseUrl}/api/locations/${userId}`,
+        `/api/locations/${userId}`,
         { address, latitude: lat, longitude: lng },
         {
           headers: {
@@ -162,7 +165,7 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.put(
-        `${baseUrl}/api/users/${userId}/uploadProfilePicture`,
+        `/api/users/${userId}/uploadProfilePicture`,
         formData,
         {
           headers: {
@@ -174,7 +177,7 @@ const ProfilePage = () => {
 
       const newPath = response.data.profilePicture;
       updateProfilePicture(newPath); // This updates context and localStorage
-      setProfilePictureUrl(`${baseUrl}${newPath}`);
+      setProfilePictureUrl(newPath); 
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

@@ -38,18 +38,19 @@ const ProfilePage = () => {
 
     const fetchUserDetails = async () => {
       try {
-        const res = await axios.get(`${baseUrl}/api/users/${userId}`, {
+        const res = await axios.get(`/api/users/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-
+    
         const fetchedUser = res.data;
         console.log("Fetched user:", fetchedUser);
         setUser(fetchedUser);
-
+    
         if (fetchedUser.profilePicture) {
-          setProfilePictureUrl(`${baseUrl}${fetchedUser.profilePicture}`);
+          // Remove baseUrl and use the path directly
+          setProfilePictureUrl(fetchedUser.profilePicture);
         }
         if (fetchedUser.bio) {
           setBio(fetchedUser.bio);
@@ -62,7 +63,7 @@ const ProfilePage = () => {
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
-          `${baseUrl}/api/locations/${userId}`,
+          `/api/locations/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -107,7 +108,7 @@ const ProfilePage = () => {
       }
 
       const response = await axios.post(
-        `${baseUrl}/api/locations/${userId}`,
+        `/api/locations/${userId}`,
         { address, latitude: lat, longitude: lng },
         {
           headers: {
@@ -157,7 +158,7 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.put(
-        `${baseUrl}/api/users/${userId}/uploadProfilePicture`,
+        `/api/users/${userId}/uploadProfilePicture`,
         formData,
         {
           headers: {
@@ -168,8 +169,8 @@ const ProfilePage = () => {
       );
 
       const newPath = response.data.profilePicture;
-      updateProfilePicture(newPath);
-      setProfilePictureUrl(`${baseUrl}${newPath}`);
+      updateProfilePicture(newPath); // This updates context and localStorage
+      setProfilePictureUrl(newPath); 
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

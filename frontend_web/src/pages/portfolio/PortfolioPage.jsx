@@ -41,6 +41,7 @@ const PortfolioPage = () => {
   const { personalInfo } = usePersonalInfo();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,7 +53,7 @@ const PortfolioPage = () => {
 
     const fetchPortfolio = async () => {
       try {
-        const res = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
+        const res = await fetch(`/api/portfolios/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -76,7 +77,7 @@ const PortfolioPage = () => {
 
     const fetchComments = async (portfolioId) => {
       try {
-        const res = await fetch(`${baseUrl}/api/comments/portfolio/${portfolioId}`, {
+        const res = await fetch(`/api/comments/portfolio/${portfolioId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -94,12 +95,16 @@ const PortfolioPage = () => {
 
     const fetchUserDetails = async () => {
       try {
-        const res = await fetch(`${baseUrl}/api/users/${userID}`, {
+        const res = await fetch(`/api/users/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
           const data = await res.json();
           setUserDetails(data);
+  
+          // Get the profile picture URL after user details are fetched
+          const profilePicUrl = getProfilePictureUrl(data);
+          setProfilePictureUrl(profilePicUrl); // Update the state with the profile picture URL
         }
       } catch (err) {
         console.error("Failed to fetch user details:", err);
@@ -113,13 +118,19 @@ const PortfolioPage = () => {
   const handleAddPortfolio = () => navigate(`/add-portfolio/${userID}`);
   const handleUpdatePortfolio = () => navigate(`/edit-portfolio/${userID}`);
 
-  const getProfilePictureUrl = () => {
-    const pic = userDetails?.profilePicture || personalInfo?.profilePicture;
-    if (pic) {
-      return pic.startsWith("http") ? pic : `${baseUrl}${pic}`;
-    }
-    return "/default-avatar.png";
+  const getProfilePictureUrl = (user) => {
+    console.log("User object:", user);
+    const pic = user?.profilePicture; // Get profile picture path
+    console.log("Profile Picture URL:", pic);
+
+    if (!pic) return "/default-avatar.png"; // Fallback to default if no picture
+    return pic.startsWith("http") ? pic : `https://your-backend-url.com${pic}`; // Handle relative path if necessary
   };
+
+  // Ensure that user details are fetched before trying to render the profile picture
+  if (!userDetails) {
+    return <div>Loading...</div>; // Optionally, a loading state while data is being fetched
+  }
 
   if (loading) {
     return (
@@ -175,7 +186,7 @@ const PortfolioPage = () => {
             }}>
               <Avatar
                 alt={userDetails?.firstName || "User"}
-                src={getProfilePictureUrl()}
+                src={userDetails?.profilePicture}
                 sx={{ 
                   width: 100, 
                   height: 100, 
@@ -344,10 +355,10 @@ const PortfolioPage = () => {
                             alt={comment.authorName || "Anonymous"}
                             src={
                               comment.profilePicture
-                                ? comment.profilePicture.startsWith("http")
-                                  ? comment.profilePicture
-                                  : `${baseUrl}${comment.profilePicture}`
-                                : "/default-avatar.png"
+                              ? comment.profilePicture.startsWith("http")
+                                ? comment.profilePicture
+                                : comment.profilePicture // Remove baseUrl
+                              : "/default-avatar.png"
                             }
                             sx={{ width: 48, height: 48 }}
                           />

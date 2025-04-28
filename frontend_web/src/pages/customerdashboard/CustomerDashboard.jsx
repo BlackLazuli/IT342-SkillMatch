@@ -36,7 +36,7 @@ const ProviderDashboard = () => {
       try {
         const token = localStorage.getItem("token");
     
-        const response = await axios.get("http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/portfolios/getAllPortfolios", {
+        const response = await axios.get("/api/portfolios/getAllPortfolios", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -53,7 +53,7 @@ const ProviderDashboard = () => {
           if (portfolio.user?.id) {
             try {
               const locationRes = await axios.get(
-                `${baseUrl}/api/locations/${portfolio.user.id}`,
+                `/api/locations/${portfolio.user.id}`,
                 {
                   headers: { Authorization: `Bearer ${token}` },
                 }
@@ -106,7 +106,7 @@ const ProviderDashboard = () => {
     
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`${baseUrl}/api/locations/${userId}`, {
+        const response = await axios.get(`/api/locations/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
     
@@ -127,7 +127,7 @@ const ProviderDashboard = () => {
       const token = localStorage.getItem("token");
       try {
         const response = await axios.get(
-          `${baseUrl}/api/comments/portfolio/${portfolioId}`,
+          `/api/comments/portfolio/${portfolioId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -149,7 +149,7 @@ const ProviderDashboard = () => {
     const fetchUserLocation = async (userId) => { // ⭐ New
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get(`${baseUrl}/api/locations/${userId}`, {
+        const response = await axios.get(`/api/locations/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -187,9 +187,9 @@ const ProviderDashboard = () => {
 
   const getProfilePictureUrl = (user) => {
     if (!user?.profilePicture) return "/default-avatar.png";
-    return user.profilePicture.startsWith("http")
-      ? user.profilePicture
-      : `${baseUrl}${user.profilePicture}`;
+    return user.profilePicture.startsWith("http") 
+      ? user.profilePicture  // Use as-is if full HTTPS URL
+      : user.profilePicture; // Assume backend returns "/uploads/..." (relative path)
   };
 
   const filteredPortfolios = portfolios.filter((portfolio) => {

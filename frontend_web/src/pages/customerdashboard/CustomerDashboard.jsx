@@ -53,7 +53,7 @@ const ProviderDashboard = () => {
           if (portfolio.user?.id) {
             try {
               const locationRes = await axios.get(
-                `${baseUrl}/api/locations/${portfolio.user.id}`,
+                `/api/locations/${portfolio.user.id}`,
                 {
                   headers: { Authorization: `Bearer ${token}` },
                 }
@@ -106,7 +106,7 @@ const ProviderDashboard = () => {
     
       try {
         const token = localStorage.getItem("token");
-        const response = await axios.get(`${baseUrl}/api/locations/${userId}`, {
+        const response = await axios.get(`/api/locations/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
     
@@ -127,7 +127,7 @@ const ProviderDashboard = () => {
       const token = localStorage.getItem("token");
       try {
         const response = await axios.get(
-          `${baseUrl}/api/comments/portfolio/${portfolioId}`,
+          `/api/comments/portfolio/${portfolioId}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
@@ -149,7 +149,7 @@ const ProviderDashboard = () => {
     const fetchUserLocation = async (userId) => { // ⭐ New
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get(`${baseUrl}/api/locations/${userId}`, {
+        const response = await axios.get(`/api/locations/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 

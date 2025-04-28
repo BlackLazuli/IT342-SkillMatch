@@ -38,7 +38,7 @@ const ProfilePage = () => {
 
     const fetchUserDetails = async () => {
       try {
-        const res = await axios.get(`${baseUrl}/api/users/${userId}`, {
+        const res = await axios.get(`/api/users/${userId}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -62,7 +62,7 @@ const ProfilePage = () => {
     const fetchAddress = async () => {
       try {
         const response = await axios.get(
-          `${baseUrl}/api/locations/${userId}`,
+          `/api/locations/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -107,7 +107,7 @@ const ProfilePage = () => {
       }
 
       const response = await axios.post(
-        `${baseUrl}/api/locations/${userId}`,
+        `/api/locations/${userId}`,
         { address, latitude: lat, longitude: lng },
         {
           headers: {
@@ -157,7 +157,7 @@ const ProfilePage = () => {
 
     try {
       const response = await axios.put(
-        `${baseUrl}/api/users/${userId}/uploadProfilePicture`,
+        `/api/users/${userId}/uploadProfilePicture`,
         formData,
         {
           headers: {

@@ -52,7 +52,7 @@ const PortfolioPage = () => {
 
     const fetchPortfolio = async () => {
       try {
-        const res = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
+        const res = await fetch(`/api/portfolios/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -76,7 +76,7 @@ const PortfolioPage = () => {
 
     const fetchComments = async (portfolioId) => {
       try {
-        const res = await fetch(`${baseUrl}/api/comments/portfolio/${portfolioId}`, {
+        const res = await fetch(`/api/comments/portfolio/${portfolioId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -94,7 +94,7 @@ const PortfolioPage = () => {
 
     const fetchUserDetails = async () => {
       try {
-        const res = await fetch(`${baseUrl}/api/users/${userID}`, {
+        const res = await fetch(`/api/users/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {

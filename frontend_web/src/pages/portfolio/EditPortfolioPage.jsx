@@ -43,7 +43,7 @@ const EditPortfolioPage = () => {
       }
 
       try {
-        const response = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
+        const response = await fetch(`/api/portfolios/${userID}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -144,7 +144,7 @@ const EditPortfolioPage = () => {
 
     try {
       const response = await fetch(
-        `${baseUrl}/api/portfolios/${userID}`,
+        `/api/portfolios/${userID}`,
         {
           method: "PUT",
           headers: {

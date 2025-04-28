@@ -187,9 +187,9 @@ const ProviderDashboard = () => {
 
   const getProfilePictureUrl = (user) => {
     if (!user?.profilePicture) return "/default-avatar.png";
-    return user.profilePicture.startsWith("http")
-      ? user.profilePicture
-      : `${baseUrl}${user.profilePicture}`;
+    return user.profilePicture.startsWith("http") 
+      ? user.profilePicture  // Use as-is if full HTTPS URL
+      : user.profilePicture; // Assume backend returns "/uploads/..." (relative path)
   };
 
   const filteredPortfolios = portfolios.filter((portfolio) => {

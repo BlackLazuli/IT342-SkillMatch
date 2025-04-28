@@ -113,12 +113,10 @@ const PortfolioPage = () => {
   const handleAddPortfolio = () => navigate(`/add-portfolio/${userID}`);
   const handleUpdatePortfolio = () => navigate(`/edit-portfolio/${userID}`);
 
-  const getProfilePictureUrl = () => {
-    const pic = userDetails?.profilePicture || personalInfo?.profilePicture;
-    if (pic) {
-      return pic.startsWith("http") ? pic : `${baseUrl}${pic}`;
-    }
-    return "/default-avatar.png";
+  const getProfilePictureUrl = (user) => {
+    const pic = user?.profilePicture || user?.profilePicture;
+    if (!pic) return "/default-avatar.png";
+    return pic.startsWith("http") ? pic : pic; // Remove baseUrl, assume correct path
   };
 
   if (loading) {
@@ -344,10 +342,10 @@ const PortfolioPage = () => {
                             alt={comment.authorName || "Anonymous"}
                             src={
                               comment.profilePicture
-                                ? comment.profilePicture.startsWith("http")
-                                  ? comment.profilePicture
-                                  : `${baseUrl}${comment.profilePicture}`
-                                : "/default-avatar.png"
+                              ? comment.profilePicture.startsWith("http")
+                                ? comment.profilePicture
+                                : comment.profilePicture // Remove baseUrl
+                              : "/default-avatar.png"
                             }
                             sx={{ width: 48, height: 48 }}
                           />

@@ -135,36 +135,40 @@ const ProviderPortfolioPage = () => {
     }
   };
 
-  // Fetch user details
-  const fetchUserDetails = async () => {
-    try {
-      const res = await fetch(`/api/users/${userID}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setUserDetails(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch user details:", err);
+// Fetch user details and set the profile picture URL
+const fetchUserDetails = async () => {
+  try {
+    const res = await fetch(`/api/users/${userID}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setUserDetails(data);
+
+      // Get the profile picture URL after user details are fetched
+      const profilePicUrl = getProfilePictureUrl(data);
+      setProfilePictureUrl(profilePicUrl); // You can store it in state if you want
     }
-  };
+  } catch (err) {
+    console.error("Failed to fetch user details:", err);
+  }
+};
 
-  useEffect(() => {
-    fetchPortfolio();
-    fetchUserDetails();
-  }, [userID]);
+useEffect(() => {
+  fetchPortfolio();
+  fetchUserDetails();
+}, [userID]);
 
-  const getProfilePictureUrl = (user) => {
-    console.log("User object:", user);
-    const pic = user?.profilePicture;
-    console.log("Profile Picture URL:", pic);
-  
-    if (!pic) return "/default-avatar.png";
-    return pic.startsWith("http") ? pic : pic;
-  };
-  
-  
+// Profile Picture URL logic
+const getProfilePictureUrl = (user) => {
+  console.log("User object:", user);
+  const pic = user?.profilePicture;
+  console.log("Profile Picture URL:", pic);
+
+  if (!pic) return "/default-avatar.png";
+  return pic.startsWith("http") ? pic : pic; // Add base URL logic here if necessary
+};
+
 
 
   // Handle feedback submission (comment + rating)

@@ -263,7 +263,7 @@ const ProviderPortfolioPage = () => {
             }}>
 <Avatar
   alt={userDetails?.firstName || "User"}
-  src={getProfilePictureUrl(userDetails)} // Pass userDetails to the function
+  src={userDetails?.profilePicture} // Pass userDetails to the function
   sx={{
     width: 100,
     height: 100,

@@ -34,7 +34,6 @@ import {
   Event
 } from "@mui/icons-material";
 const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
-import { useEffect } from 'react';
 
 const ProviderPortfolioPage = () => {
   const { userID } = useParams();

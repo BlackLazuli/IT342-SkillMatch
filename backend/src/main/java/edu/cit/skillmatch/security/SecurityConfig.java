@@ -62,7 +62,8 @@ public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         "http://localhost",
         "http://localhost:8080",
         "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com",
-        "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"
+        "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080",
+        "https://it-342-skill-match.vercel.app" // Add this for Vercel frontend
     ));
     
     config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));

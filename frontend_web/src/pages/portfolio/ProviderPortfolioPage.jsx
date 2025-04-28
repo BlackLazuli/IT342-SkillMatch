@@ -61,7 +61,7 @@ const ProviderPortfolioPage = () => {
   if (!appointmentDateTime) return alert("Please select a date and time.");
 
   try {
-    const res = await fetch("/api/appointments/", {
+    const res = await fetch("/api/appointments", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${token}`,

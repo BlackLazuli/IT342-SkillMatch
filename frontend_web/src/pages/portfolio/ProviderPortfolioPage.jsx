@@ -71,25 +71,30 @@ const ProviderPortfolioPage = () => {
     console.log("Posting Appointment Data:", requestData);
   
     try {
-      const res = await fetch("/api/appointments", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData), // Posting the request data
-      });
+      // Use the useEffect-like pattern for posting the appointment data
+      const postAppointment = async () => {
+        const res = await fetch('/api/appointments/', {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(requestData), // Posting the request data
+        });
   
-      if (!res.ok) throw new Error("Failed to book appointment");
+        if (!res.ok) throw new Error("Failed to book appointment");
   
-      const data = await res.json();  // The returned AppointmentDTO
+        const data = await res.json();  // The returned AppointmentDTO
   
-      setAppointmentModalOpen(false);
-      setAppointmentDateTime("");
-      setAppointmentNotes("");
-      
-      alert("Appointment booked successfully!");
-      console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
+        setAppointmentModalOpen(false);
+        setAppointmentDateTime("");
+        setAppointmentNotes("");
+        
+        alert("Appointment booked successfully!");
+        console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
+      };
+  
+      postAppointment();
   
     } catch (error) {
       console.error("Appointment booking failed", error);

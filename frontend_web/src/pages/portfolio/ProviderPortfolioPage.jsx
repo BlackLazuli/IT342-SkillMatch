@@ -156,12 +156,14 @@ const ProviderPortfolioPage = () => {
   }, [userID]);
 
   const getProfilePictureUrl = (user) => {
+    console.log("User object:", user);
     const pic = user?.profilePicture;
-    console.log("Profile Picture URL:", pic); // <-- add this to see what you're getting
+    console.log("Profile Picture URL:", pic);
   
     if (!pic) return "/default-avatar.png";
     return pic.startsWith("http") ? pic : pic;
   };
+  
   
 
 

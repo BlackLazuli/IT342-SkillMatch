@@ -156,11 +156,8 @@ const ProviderPortfolioPage = () => {
   }, [userID]);
 
   // Get the profile picture URL
-  const getProfilePictureUrl = (user) => {
-    const pic = user?.profilePicture || user?.profilePicture;
-    if (!pic) return "/default-avatar.png";
-    return pic.startsWith("http") ? pic : pic; // Remove baseUrl, assume correct path
-  };
+  const getProfilePictureUrl = (user) => user?.profilePicture || "/default-avatar.png";
+
 
   // Handle feedback submission (comment + rating)
   const handleSubmitFeedback = async () => {

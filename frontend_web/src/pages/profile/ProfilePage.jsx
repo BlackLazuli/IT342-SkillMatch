@@ -50,7 +50,8 @@ const ProfilePage = () => {
     
         const user = userRes.data;
         if (user.profilePicture) {
-          const url = `${user.profilePicture}`;
+          const url = user.profilePicture; // Assumes backend returns "/uploads/file.jpg"
+          setProfilePictureUrl(url);
           console.log("Profile picture URL:", url); // Debug the URL
     
           // Test if the image loads

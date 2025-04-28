@@ -50,14 +50,17 @@ const ProfilePage = () => {
     
         const user = userRes.data;
         if (user.profilePicture) {
-          const url = `${baseUrl}${user.profilePicture}`;
-          console.log("Profile picture URL:", url); // Debug the URL
+          const url = user.profilePicture; // Use path directly
+          console.log("Profile picture URL:", url);
     
-          // Test if the image loads
+          // Test image loading
           const img = new Image();
           img.src = url;
           img.onload = () => setProfilePictureUrl(url);
-          img.onerror = () => console.error("Failed to load image:", url);
+          img.onerror = () => {
+            console.error("Failed to load image:", url);
+            setProfilePictureUrl("/default-avatar.png"); // Fallback
+          };
         }
       } catch (err) {
         console.error("Failed to fetch user profile:", err);
@@ -176,7 +179,7 @@ const ProfilePage = () => {
 
       const newPath = response.data.profilePicture;
       updateProfilePicture(newPath); // This updates context and localStorage
-      setProfilePictureUrl(`${baseUrl}${newPath}`);
+      setProfilePictureUrl(newPath); 
       alert('Profile picture updated successfully!');
     } catch (error) {
       console.error("Error uploading profile picture: ", error);

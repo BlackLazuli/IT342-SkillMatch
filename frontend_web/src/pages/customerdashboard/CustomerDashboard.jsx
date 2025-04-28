@@ -36,7 +36,7 @@ const ProviderDashboard = () => {
       try {
         const token = localStorage.getItem("token");
     
-        const response = await axios.get("http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/api/portfolios/getAllPortfolios", {
+        const response = await axios.get("/api/portfolios/getAllPortfolios", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

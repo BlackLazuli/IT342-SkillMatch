@@ -46,7 +46,7 @@ const ProviderDashboard = () => {
 
         // Fetch appointments
         const appointmentsRes = await fetch(
-          `${baseUrl}/api/appointments/all/${personalInfo.userId}`,
+          `/api/appointments/all/${personalInfo.userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -62,7 +62,7 @@ const ProviderDashboard = () => {
 
         // Fetch portfolio
         const portfolioRes = await fetch(
-          `${baseUrl}/api/portfolios/${personalInfo.userId}`,
+          `/api/portfolios/${personalInfo.userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

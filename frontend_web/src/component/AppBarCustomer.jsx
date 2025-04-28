@@ -29,22 +29,22 @@ const AppBar = () => {
     const fetchUserInfo = async () => {
       try {
         if (personalInfo?.userId) {
-          const res = await axios.get(`${baseUrl}/api/users/${personalInfo.userId}`);
+          const res = await axios.get(`/api/users/${personalInfo.userId}`);
           const userData = res.data;
           setUser(userData);
+          
           if (userData.profilePicture) {
             setProfilePictureUrl(
               userData.profilePicture.startsWith("http")
-                ? userData.profilePicture
-                : `${baseUrl}${userData.profilePicture}`
+                ? userData.profilePicture // Use as-is if full HTTPS URL
+                : userData.profilePicture // Assume backend returns "/uploads/..." (relative path)
             );
           }
         }
-      } catch (err) {
-        console.error("Error fetching user info:", err);
+      } catch (error) {
+        console.error("Failed to fetch user info:", error);
       }
     };
-
     fetchUserInfo();
   }, [personalInfo?.userId]);
 

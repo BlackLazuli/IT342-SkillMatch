@@ -33,6 +33,8 @@ import {
   Schedule
 } from "@mui/icons-material";
 import { DateTimePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
 const AppointmentDetailsCustomerPage = () => {
   const { userID } = useParams();
@@ -276,30 +278,32 @@ const AppointmentDetailsCustomerPage = () => {
 
         {/* Reschedule Dialog */}
         <Dialog open={rescheduleDialogOpen} onClose={handleCloseRescheduleDialog}>
-          <DialogTitle>Reschedule Appointment</DialogTitle>
-          <DialogContent>
-            <Box sx={{ mt: 2 }}>
-              <DateTimePicker
-                label="New Appointment Time"
-                value={newAppointmentTime}
-                onChange={setNewAppointmentTime}
-                renderInput={(params) => <TextField {...params} fullWidth />}
-                minDateTime={new Date()} // Prevent selecting past dates
-              />
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleCloseRescheduleDialog}>Cancel</Button>
-            <Button 
-              onClick={handleRescheduleAppointment} 
-              color="primary"
-              disabled={updating || !newAppointmentTime}
-              startIcon={updating ? <CircularProgress size={20} /> : <Schedule />}
-            >
-              Reschedule
-            </Button>
-          </DialogActions>
-        </Dialog>
+  <DialogTitle>Reschedule Appointment</DialogTitle>
+  <DialogContent>
+    <Box sx={{ mt: 2 }}>
+      <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <DateTimePicker
+          label="New Appointment Time"
+          value={newAppointmentTime}
+          onChange={setNewAppointmentTime}
+          renderInput={(params) => <TextField {...params} fullWidth />}
+          minDateTime={new Date()}
+        />
+      </LocalizationProvider>
+    </Box>
+  </DialogContent>
+  <DialogActions>
+    <Button onClick={handleCloseRescheduleDialog}>Cancel</Button>
+    <Button 
+      onClick={handleRescheduleAppointment} 
+      color="primary"
+      disabled={updating || !newAppointmentTime}
+      startIcon={updating ? <CircularProgress size={20} /> : <Schedule />}
+    >
+      Reschedule
+    </Button>
+  </DialogActions>
+</Dialog>
 
         <Grid container spacing={3}>
           {appointments.map((appointment) => (

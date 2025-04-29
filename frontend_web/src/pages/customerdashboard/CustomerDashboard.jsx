@@ -11,54 +11,44 @@ import {
   Rating,
   TextField,
   Slider,
+  Chip,
+  CardContent,
+  CardActions,
+  useTheme,
 } from "@mui/material";
-import { CalendarMonth, AccessTime } from "@mui/icons-material";
-import { useContext } from "react";
+import { CalendarMonth, AccessTime, LocationOn } from "@mui/icons-material";
 import { usePersonalInfo } from "../../context/PersonalInfoContext";
 
-const drawerWidth = 240;
-
 const ProviderDashboard = () => {
+  const theme = useTheme();
   const [portfolios, setPortfolios] = useState([]);
   const [ratings, setRatings] = useState({});
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
-  const [userLocations, setUserLocations] = useState({}); // ⭐ New
-  const [distanceFilter, setDistanceFilter] = useState(5); // ⭐ New (5 km default)
-  const [currentUserLocation, setCurrentUserLocation] = useState(null); // for logged-in user's lat/lng
+  const [userLocations, setUserLocations] = useState({});
+  const [distanceFilter, setDistanceFilter] = useState(5);
+  const [currentUserLocation, setCurrentUserLocation] = useState(null);
   const { personalInfo } = usePersonalInfo();
   const userId = personalInfo?.userId;
-  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
-  
   useEffect(() => {
     const fetchPortfolios = async () => {
       try {
         const token = localStorage.getItem("token");
-    
         const response = await axios.get("/api/portfolios/getAllPortfolios", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
-    
         setPortfolios(response.data);
-    
+
         const locations = {};
-    
         for (const portfolio of response.data) {
           await fetchAverageRating(portfolio.id);
-    
-          // Fetch provider's address
           if (portfolio.user?.id) {
             try {
               const locationRes = await axios.get(
                 `/api/locations/${portfolio.user.id}`,
-                {
-                  headers: { Authorization: `Bearer ${token}` },
-                }
+                { headers: { Authorization: `Bearer ${token}` } }
               );
-    
               if (locationRes.data) {
                 locations[portfolio.user.id] = {
                   latitude: Number(locationRes.data.latitude),
@@ -70,46 +60,20 @@ const ProviderDashboard = () => {
             }
           }
         }
-    
         setUserLocations(locations);
       } catch (err) {
         console.error("Error fetching portfolios:", err);
         setError("Failed to fetch portfolios.");
       }
     };
-    
 
-    const calculateDistance = (lat1, lon1, lat2, lon2) => {
-      const toRad = (value) => (value * Math.PI) / 180;
-      const R = 6371; // Earth radius in km
-    
-      const dLat = toRad(lat2 - lat1);
-      const dLon = toRad(lon2 - lon1);
-    
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(lat1)) *
-          Math.cos(toRad(lat2)) *
-          Math.sin(dLon / 2) *
-          Math.sin(dLon / 2);
-    
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const distance = R * c;
-    
-      return distance; // in km
-    };
     const fetchCurrentUserLocation = async () => {
-      if (!userId) {
-        console.error("User ID not available in context");
-        return;
-      }
-    
+      if (!userId) return;
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(`/api/locations/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-    
         if (response.data) {
           setCurrentUserLocation({
             lat: Number(response.data.latitude),
@@ -120,25 +84,18 @@ const ProviderDashboard = () => {
         console.error("Error fetching current user location:", err);
       }
     };
-    
-    
 
     const fetchAverageRating = async (portfolioId) => {
       const token = localStorage.getItem("token");
       try {
         const response = await axios.get(
           `/api/comments/portfolio/${portfolioId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
-
         const comments = response.data;
-        const avg =
-          comments.length > 0
-            ? comments.reduce((acc, c) => acc + (c.rating || 0), 0) / comments.length
-            : 0;
-
+        const avg = comments.length > 0
+          ? comments.reduce((acc, c) => acc + (c.rating || 0), 0) / comments.length
+          : 0;
         setRatings((prev) => ({ ...prev, [portfolioId]: avg }));
       } catch (err) {
         console.error(`Error fetching comments for portfolio ${portfolioId}:`, err);
@@ -146,35 +103,13 @@ const ProviderDashboard = () => {
       }
     };
 
-    const fetchUserLocation = async (userId) => { // ⭐ New
-      const token = localStorage.getItem("token");
-      try {
-        const response = await axios.get(`/api/locations/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (response.data) {
-          setUserLocations((prev) => ({
-            ...prev,
-            [userId]: {
-              latitude: Number(response.data.latitude),
-              longitude: Number(response.data.longitude),
-            },
-          }));
-        }
-      } catch (error) {
-        console.error(`Error fetching location for user ${userId}:`, error);
-      }
-    };
-
     fetchPortfolios();
-    fetchCurrentUserLocation(); // ✅ Only this
-  }, []);
+    fetchCurrentUserLocation();
+  }, [userId]);
 
-  // ⭐ New function
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const toRad = (value) => (value * Math.PI) / 180;
-    const R = 6371; // Radius of Earth in km
+    const R = 6371;
     const dLat = toRad(lat2 - lat1);
     const dLon = toRad(lon2 - lon1);
     const a =
@@ -182,14 +117,14 @@ const ProviderDashboard = () => {
       Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
       Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c; // Distance in km
+    return R * c;
   };
 
   const getProfilePictureUrl = (user) => {
     if (!user?.profilePicture) return "/default-avatar.png";
     return user.profilePicture.startsWith("http") 
-      ? user.profilePicture  // Use as-is if full HTTPS URL
-      : user.profilePicture; // Assume backend returns "/uploads/..." (relative path)
+      ? user.profilePicture
+      : user.profilePicture;
   };
 
   const filteredPortfolios = portfolios.filter((portfolio) => {
@@ -208,39 +143,53 @@ const ProviderDashboard = () => {
       providerLocation.latitude,
       providerLocation.longitude
     );
-  
     return matchesWorkExperience && distance <= distanceFilter;
   });
-  
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <AppBar />
-      <Box sx={{ flexGrow: 1, p: 3 }}>
+      <Box sx={{ flexGrow: 1, p: 3, maxWidth: 'calc(100% - 240px)' }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           Professionals Near You
         </Typography>
 
-        <TextField
-          label="Search by job title"
-          variant="outlined"
-          fullWidth
-          margin="normal"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-
-        {/* ⭐ New: Distance filter */}
-        <Box my={2}>
-          <Typography gutterBottom>Filter by distance (km)</Typography>
-          <Slider
-            value={distanceFilter}
-            min={1}
-            max={50}
-            step={1}
-            valueLabelDisplay="auto"
-            onChange={(e, newValue) => setDistanceFilter(newValue)}
+        <Box sx={{ 
+          display: 'flex', 
+          gap: 2, 
+          mb: 3,
+          [theme.breakpoints.down('sm')]: {
+            flexDirection: 'column'
+          }
+        }}>
+          <TextField
+            label="Search by job title"
+            variant="outlined"
+            fullWidth
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{
+              backgroundColor: 'background.paper',
+              borderRadius: 1
+            }}
           />
+          
+          <Box sx={{ width: '100%', maxWidth: 300 }}>
+            <Typography variant="body2" gutterBottom>
+              Filter by distance: <strong>{distanceFilter} km</strong>
+            </Typography>
+            <Slider
+              value={distanceFilter}
+              min={1}
+              max={50}
+              step={1}
+              valueLabelDisplay="auto"
+              onChange={(e, newValue) => setDistanceFilter(newValue)}
+              sx={{
+                color: theme.palette.primary.main,
+              }}
+            />
+          </Box>
         </Box>
 
         {error && (
@@ -249,114 +198,131 @@ const ProviderDashboard = () => {
           </Typography>
         )}
 
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           {filteredPortfolios.map((portfolio) => {
-            const { id: portfolioId, user, workExperience, daysAvailable, startTime, endTime } = portfolio;
+            const { id: portfolioId, user, workExperience, daysAvailable, time } = portfolio;
+            const distance = currentUserLocation && userLocations[user.id] 
+              ? calculateDistance(
+                  currentUserLocation.lat,
+                  currentUserLocation.lng,
+                  userLocations[user.id].latitude,
+                  userLocations[user.id].longitude
+                ).toFixed(2)
+              : null;
+
             return (
               <Grid item xs={12} sm={6} md={4} key={portfolioId}>
-<Card
-  elevation={3}
-  sx={{
-    height: 400,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    alignItems: "center",
-    backgroundColor: "#e0f7fa",
-    borderRadius: 2,
-    padding: 2,
-    textAlign: "center",
-    overflow: "hidden",
-  }}
->
-  <Avatar
-    src={getProfilePictureUrl(user)}
-    alt={user?.firstName || "User"}
-    sx={{ width: 100, height: 100, mb: 1 }}
-  />
-  
-  <Typography variant="h6" fontWeight="bold">
-    {user?.firstName || "Unknown"} {user?.lastName || ""}
-  </Typography>
+                <Card sx={{ 
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'transform 0.3s, box-shadow 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-5px)',
+                    boxShadow: theme.shadows[6]
+                  }
+                }}>
+                  <CardContent sx={{ 
+                    flexGrow: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    textAlign: 'center',
+                    p: 3
+                  }}>
+                    <Avatar
+                      src={getProfilePictureUrl(user)}
+                      alt={user?.firstName || "User"}
+                      sx={{ 
+                        width: 120, 
+                        height: 120, 
+                        mb: 2,
+                        border: `3px solid ${theme.palette.primary.main}`
+                      }}
+                    />
+                    
+                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                      {user?.firstName || "Unknown"} {user?.lastName || ""}
+                    </Typography>
 
-  {currentUserLocation && userLocations[user.id] && (
-    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-      {`${calculateDistance(
-        currentUserLocation.lat,
-        currentUserLocation.lng,
-        userLocations[user.id].latitude,
-        userLocations[user.id].longitude
-      ).toFixed(2)} km away`}
-    </Typography>
-  )}
+                    {distance && (
+                      <Chip
+                        icon={<LocationOn fontSize="small" />}
+                        label={`${distance} km away`}
+                        size="small"
+                        sx={{ 
+                          mb: 1,
+                          backgroundColor: theme.palette.grey[100]
+                        }}
+                      />
+                    )}
 
-  <Box sx={{ mt: 1, mb: 1 }}>
-    <Rating
-      value={ratings[portfolioId] || 0}
-      precision={0.1}
-      readOnly
-      size="small"
-    />
-  </Box>
-  
-  <Typography 
-    variant="h6"
-    sx={{
-      fontWeight: "bold",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-      display: "-webkit-box",
-      WebkitLineClamp: 2,
-      WebkitBoxOrient: "vertical",
-      minHeight: "3em"
-    }}
-  >
-    {workExperience || "Not specified"}
-  </Typography>
+                    <Box sx={{ my: 1 }}>
+                      <Rating
+                        value={ratings[portfolioId] || 0}
+                        precision={0.1}
+                        readOnly
+                      />
+                    </Box>
 
-  <Box display="flex" flexDirection="column" gap={0.5} mt={1} mb={1} width="100%">
-    <Box display="flex" alignItems="center" gap={1} sx={{ width: "100%" }}>
-      <CalendarMonth fontSize="small" color="action" />
-      <Typography 
-        variant="body2" 
-        color="text.secondary"
-        sx={{
-          overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
-          width: "100%"
-        }}
-      >
-        {portfolio.daysAvailable?.join(", ") || "N/A"}
-      </Typography>
-    </Box>
-    <Box display="flex" alignItems="center" gap={1} sx={{ width: "100%" }}>
-      <AccessTime fontSize="small" color="action" />
-      <Typography variant="body2" color="text.secondary">
-        {portfolio.time || "Not specified"}
-      </Typography>
-    </Box>
-  </Box>
+                    <Typography variant="subtitle1" color="primary" gutterBottom>
+                      <strong>{workExperience || "Not specified"}</strong>
+                    </Typography>
 
-  <Button
-    variant="contained"
-    sx={{
-      mt: 2,
-      backgroundColor: "#607d8b",
-      ":hover": { backgroundColor: "#455a64" },
-      color: "white",
-      fontWeight: "bold",
-    }}
-    onClick={() => (window.location.href = `/provider-portfolio/${user.id}`)}
-  >
-    MORE
-  </Button>
-</Card>
+                    <Box sx={{ 
+                      width: '100%',
+                      mt: 2,
+                      p: 1,
+                      backgroundColor: theme.palette.grey[50],
+                      borderRadius: 1
+                    }}>
+                      <Box display="flex" alignItems="center" gap={1} mb={1}>
+                        <CalendarMonth fontSize="small" color="primary" />
+                        <Typography variant="body2">
+                          {daysAvailable?.join(", ") || "N/A"}
+                        </Typography>
+                      </Box>
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <AccessTime fontSize="small" color="primary" />
+                        <Typography variant="body2">
+                          {time || "Not specified"}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </CardContent>
 
+                  <CardActions sx={{ justifyContent: 'center', p: 2 }}>
+                    <Button
+                      variant="contained"
+                      fullWidth
+                      sx={{
+                        py: 1,
+                        fontWeight: 'bold',
+                        letterSpacing: 0.5
+                      }}
+                      onClick={() => window.location.href = `/provider-portfolio/${user.id}`}
+                    >
+                      View Profile
+                    </Button>
+                  </CardActions>
+                </Card>
               </Grid>
             );
           })}
         </Grid>
+
+        {filteredPortfolios.length === 0 && (
+          <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '50vh'
+          }}>
+            <Typography variant="h6" color="text.secondary">
+              No professionals found matching your criteria
+            </Typography>
+          </Box>
+        )}
       </Box>
     </Box>
   );

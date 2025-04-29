@@ -128,6 +128,8 @@ class ProfessionalProfileActivity : AppCompatActivity(), OnMapReadyCallback {
         homeButton.setOnClickListener {
             // Navigate to home screen
             Toast.makeText(this, "Home button clicked", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, AppointmentProfessionalActivity::class.java)
+            startActivity(intent)
         }
 
         messagesButton.setOnClickListener {

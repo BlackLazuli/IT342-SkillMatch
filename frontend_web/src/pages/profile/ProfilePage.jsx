@@ -49,23 +49,27 @@ const ProfilePage = () => {
         });
     
         const user = userRes.data;
-        if (user.profilePicture) {
-          const url = user.profilePicture; // Use path directly
-          console.log("Profile picture URL:", url);
     
-          // Test image loading
+        if (user.profilePicture) {
+          const url = user.profilePicture;
           const img = new Image();
           img.src = url;
           img.onload = () => setProfilePictureUrl(url);
           img.onerror = () => {
             console.error("Failed to load image:", url);
-            setProfilePictureUrl("/default-avatar.png"); // Fallback
+            setProfilePictureUrl("/default-avatar.png");
           };
         }
+    
+        if (user.bio) {
+          setBio(user.bio); // ✅ set bio here
+        }
+    
       } catch (err) {
         console.error("Failed to fetch user profile:", err);
       }
     };
+    
   
     const fetchAddress = async () => {
       try {

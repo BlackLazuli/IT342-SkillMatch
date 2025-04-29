@@ -87,7 +87,7 @@ class Login : AppCompatActivity() {
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)
                             finish()
-                        } else if (loginResponse.role == "SERVICE_PROVIDER") {
+                        } else if (loginResponse.role == "SERVICE PROVIDER") {
                             val intent = Intent(this@Login, AppointmentProfessionalActivity::class.java)
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)

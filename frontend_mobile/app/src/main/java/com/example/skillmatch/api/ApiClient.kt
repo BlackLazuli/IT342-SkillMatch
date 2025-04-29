@@ -10,8 +10,8 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
     // Change this to your EC2 backend URL
-    private const val BASE_URL = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080/"
-    
+    private const val BASE_URL = "http://3.107.23.86:8080/api/"
+
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
     }

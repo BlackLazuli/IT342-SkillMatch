@@ -257,7 +257,6 @@ const ProfilePage = () => {
                   <Typography>{bio || 'No bio available.'}</Typography>
                 </Box>
               </Box>
-            </Grid>
               <Button
   variant="contained"
   color="primary"
@@ -266,6 +265,7 @@ const ProfilePage = () => {
 >
   {existingAddress ? 'Edit Address' : 'Add Address'}
 </Button>
+            </Grid>
           </Grid>
         </Card>
 

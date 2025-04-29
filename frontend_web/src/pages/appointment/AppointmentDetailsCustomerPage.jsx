@@ -279,13 +279,20 @@ const AppointmentDetailsCustomerPage = () => {
           <DialogTitle>Reschedule Appointment</DialogTitle>
           <DialogContent>
             <Box sx={{ mt: 2 }}>
-              <DateTimePicker
-                label="New Appointment Time"
-                value={newAppointmentTime}
-                onChange={setNewAppointmentTime}
-                renderInput={(params) => <TextField {...params} fullWidth />}
-                minDateTime={new Date()} // Prevent selecting past dates
-              />
+            <TextField
+  label="New Appointment Time"
+  type="datetime-local"
+  fullWidth
+  value={newAppointmentTime ? newAppointmentTime.toISOString().slice(0, 16) : ''}
+  onChange={(e) => setNewAppointmentTime(new Date(e.target.value))}
+  InputLabelProps={{
+    shrink: true,
+  }}
+  inputProps={{
+    min: new Date().toISOString().slice(0, 16) // Disable past dates
+  }}
+/>
+
             </Box>
           </DialogContent>
           <DialogActions>

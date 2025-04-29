@@ -242,9 +242,6 @@ const AppointmentDetailsCustomerPage = () => {
             <Typography variant="body1" color="text.secondary">
               You don't have any appointments scheduled yet.
             </Typography>
-            <Button variant="contained" sx={{ mt: 2 }}>
-              Book an Appointment
-            </Button>
           </Paper>
         </Box>
       </Box>

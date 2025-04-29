@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
@@ -13,20 +14,30 @@ import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.skillmatch.R
+import com.example.skillmatch.adapters.CommentAdapter
 import com.example.skillmatch.api.ApiClient
+import com.example.skillmatch.models.CommentResponse
 import com.example.skillmatch.models.Portfolio
 import com.example.skillmatch.models.Professional
 import com.example.skillmatch.models.Service
 import com.example.skillmatch.services.ProfessionalService
 import com.example.skillmatch.utils.SessionManager
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class CustomerViewCardActivity : AppCompatActivity() {
+class CustomerViewCardActivity : AppCompatActivity(), OnMapReadyCallback {
 
     private lateinit var backButton: ImageButton
     private lateinit var contactButton: Button
@@ -41,11 +52,18 @@ class CustomerViewCardActivity : AppCompatActivity() {
     private lateinit var availableDaysText: TextView
     private lateinit var availableTimeText: TextView
     private lateinit var locationText: TextView
+    private lateinit var commentsRecyclerView: RecyclerView
+    private lateinit var noCommentsText: TextView
     
     private lateinit var professionalService: ProfessionalService
     private var professionalId: Long = 0
     private var servicesList: List<Service> = emptyList()
     private lateinit var sessionManager: SessionManager  // Add SessionManager
+    private lateinit var commentAdapter: CommentAdapter
+    
+    // Google Maps variables
+    private var googleMap: GoogleMap? = null
+    private var professionalLocation: LatLng? = null
 
     companion object {
         private const val TAG = "CustomerViewCard"
@@ -76,6 +94,10 @@ class CustomerViewCardActivity : AppCompatActivity() {
         // Set up listeners
         setupListeners()
         
+        // Initialize Google Maps
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.mapFragment) as? SupportMapFragment
+        mapFragment?.getMapAsync(this)
+        
         // Load professional data
         loadProfessionalData()
     }
@@ -94,6 +116,12 @@ class CustomerViewCardActivity : AppCompatActivity() {
         availableDaysText = findViewById(R.id.availableDaysText)
         availableTimeText = findViewById(R.id.availableTimeText)
         locationText = findViewById(R.id.locationText)
+        commentsRecyclerView = findViewById(R.id.commentsRecyclerView)
+        commentsRecyclerView.layoutManager = LinearLayoutManager(this)
+        commentAdapter = CommentAdapter(emptyList())
+        commentsRecyclerView.adapter = commentAdapter
+        
+        noCommentsText = findViewById(R.id.noCommentsText)
     }
     
     private fun setupListeners() {
@@ -116,34 +144,87 @@ class CustomerViewCardActivity : AppCompatActivity() {
         }
     }
     
+    override fun onMapReady(map: GoogleMap) {
+        googleMap = map
+        
+        // If we already have the professional's location, update the map
+        professionalLocation?.let { location ->
+            updateMapLocation(location)
+        }
+    }
+    
+    private fun updateMapLocation(location: LatLng) {
+        googleMap?.clear()
+        googleMap?.addMarker(MarkerOptions()
+            .position(location)
+            .title(professionalNameText.text.toString()))
+        googleMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f))
+        
+        // Log the location for debugging
+        Log.d(TAG, "Updating map location to: ${location.latitude}, ${location.longitude}")
+    }
+    
     private fun loadProfessionalData() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val professional = professionalService.getProfessionalById(professionalId)
-                var portfolio: Portfolio? = null
-                try {
-                    // Get token from SessionManager instead of SharedPreferences
-                    val token = sessionManager.getToken()
-                    if (token.isNullOrEmpty()) {
-                        Log.e(TAG, "Token is missing or empty")
-                    } else {
-                        val response = ApiClient.apiService.getPortfolio("Bearer $token", professionalId.toString())
-                        if (response.isSuccessful && response.body() != null) {
-                            portfolio = response.body()
-                        } else {
-                            Log.e(TAG, "Portfolio fetch failed: ${response.code()} - ${response.errorBody()?.string()}")
-                        }
-                    }
-                } catch (e: Exception) {
-                    Log.e(TAG, "Error fetching portfolio", e)
-                }
-                withContext(Dispatchers.Main) {
-                    if (professional != null) {
-                        displayProfessionalData(professional, portfolio)
-                    } else {
+                // Get token from SessionManager
+                val token = sessionManager.getToken()
+                if (token.isNullOrEmpty()) {
+                    Log.e(TAG, "Token is missing or empty")
+                    withContext(Dispatchers.Main) {
                         Toast.makeText(
                             this@CustomerViewCardActivity,
-                            "Professional not found",
+                            "Authentication error. Please log in again.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        finish()
+                    }
+                    return@launch
+                }
+                
+                // Fetch portfolio data which contains the professional information
+                val portfolioResponse = ApiClient.apiService.getPortfolio("Bearer $token", professionalId.toString())
+                
+                withContext(Dispatchers.Main) {
+                    if (portfolioResponse.isSuccessful && portfolioResponse.body() != null) {
+                        val portfolio = portfolioResponse.body()!!
+                        
+                        // Extract professional data from the portfolio's user field
+                        val user = portfolio.user
+                        if (user != null) {
+                            // Convert User to Professional
+                            val professional = Professional(
+                                id = user.id?.toLong() ?: professionalId,
+                                firstName = user.firstName ?: "",
+                                lastName = user.lastName ?: "",
+                                email = user.email ?: "",
+                                occupation = user.role ?: "Professional",
+                                bio = user.bio,
+                                phoneNumber = user.phoneNumber,
+                                rating = user.rating,
+                                profilePicture = user.profilePicture,
+                                location = user.location,
+                                availableDays = portfolio.daysAvailable,
+                                availableHours = portfolio.time ?: ""
+                            )
+                            
+                            displayProfessionalData(professional, portfolio)
+                            
+                            // Load comments for this portfolio
+                            loadComments(portfolio.id)
+                        } else {
+                            Toast.makeText(
+                                this@CustomerViewCardActivity,
+                                "Professional information not found",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            finish()
+                        }
+                    } else {
+                        Log.e(TAG, "Portfolio fetch failed: ${portfolioResponse.code()} - ${portfolioResponse.errorBody()?.string()}")
+                        Toast.makeText(
+                            this@CustomerViewCardActivity,
+                            "Failed to load professional data",
                             Toast.LENGTH_SHORT
                         ).show()
                         finish()
@@ -162,6 +243,56 @@ class CustomerViewCardActivity : AppCompatActivity() {
             }
         }
     }
+    
+    private fun loadComments(portfolioId: Long?) {
+        if (portfolioId == null) {
+            Log.e(TAG, "Cannot load comments: Portfolio ID is null")
+            noCommentsText.visibility = View.VISIBLE
+            commentsRecyclerView.visibility = View.GONE
+            return
+        }
+        
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val token = sessionManager.getToken()
+                if (token.isNullOrEmpty()) {
+                    Log.e(TAG, "Token is missing or empty")
+                    return@launch
+                }
+                
+                val commentsResponse = ApiClient.apiService.getCommentsByPortfolio(
+                    "Bearer $token", 
+                    portfolioId.toString()
+                )
+                
+                withContext(Dispatchers.Main) {
+                    if (commentsResponse.isSuccessful && commentsResponse.body() != null) {
+                        val comments = commentsResponse.body()!!
+                        
+                        if (comments.isNotEmpty()) {
+                            commentAdapter.updateComments(comments)
+                            noCommentsText.visibility = View.GONE
+                            commentsRecyclerView.visibility = View.VISIBLE
+                        } else {
+                            noCommentsText.visibility = View.VISIBLE
+                            commentsRecyclerView.visibility = View.GONE
+                        }
+                    } else {
+                        Log.e(TAG, "Failed to load comments: ${commentsResponse.code()} - ${commentsResponse.errorBody()?.string()}")
+                        noCommentsText.visibility = View.VISIBLE
+                        commentsRecyclerView.visibility = View.GONE
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading comments", e)
+                withContext(Dispatchers.Main) {
+                    noCommentsText.visibility = View.VISIBLE
+                    commentsRecyclerView.visibility = View.GONE
+                }
+            }
+        }
+    }
+    
     private fun displayPortfolioServices(services: List<Service>) {
         // Clear existing views
         servicesContainer.removeAllViews()
@@ -268,6 +399,29 @@ class CustomerViewCardActivity : AppCompatActivity() {
 
         // Display location
         locationText.text = professional.location?.address.orEmpty().ifEmpty { "Location not specified" }
+        
+        // Update map with professional's location
+        professional.location?.let { location ->
+            // Since latitude and longitude are non-nullable Double in the Location class,
+            // we can use them directly without conversion
+            val lat = location.latitude
+            val lng = location.longitude
+            
+            Log.d(TAG, "Professional location found: $lat, $lng")
+            professionalLocation = LatLng(lat, lng)
+            
+            // Update map if it's already initialized
+            googleMap?.let { map ->
+                updateMapLocation(professionalLocation!!)
+            }
+        } ?: run {
+            Log.d(TAG, "Professional location is null")
+            // Set a default location (e.g., Manila, Philippines)
+            professionalLocation = LatLng(14.5995, 120.9842)
+            googleMap?.let { map ->
+                updateMapLocation(professionalLocation!!)
+            }
+        }
 
         // Display services from portfolio if available
         if (portfolio != null && !portfolio.servicesOffered.isNullOrEmpty()) {
@@ -292,7 +446,6 @@ class CustomerViewCardActivity : AppCompatActivity() {
             }
             availableDaysText.text = daysText
             availableTimeText.text = hoursText
-            // Remove or comment out this line: availableTimeText.visibility = View.GONE
         } else {
             // No portfolio services, display professional's availability
             Log.d(TAG, "No portfolio services available, using professional data")

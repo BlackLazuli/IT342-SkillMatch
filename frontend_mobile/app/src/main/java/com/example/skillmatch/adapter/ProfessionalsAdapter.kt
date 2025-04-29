@@ -107,7 +107,12 @@ class ProfessionalsAdapter(
                             setDefaultAvailability(holder, professionals[holder.adapterPosition])
                         }
                     } else {
-                        Log.e(TAG, "Portfolio fetch failed: ${response.code()} - ${response.errorBody()?.string()}")
+                        // Handle 404 error specifically
+                        if (response.code() == 404) {
+                            Log.w(TAG, "No portfolio found for professional $professionalId - this is normal for new users")
+                        } else {
+                            Log.e(TAG, "Portfolio fetch failed: ${response.code()} - ${response.errorBody()?.string()}")
+                        }
                         setDefaultAvailability(holder, professionals[holder.adapterPosition])
                     }
                 }

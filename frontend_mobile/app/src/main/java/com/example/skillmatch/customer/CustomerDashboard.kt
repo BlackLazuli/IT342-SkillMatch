@@ -102,28 +102,43 @@ class CustomerDashboard : AppCompatActivity() {
                         return@launch
                     }
                     
-                    val portfolioResponse = ApiClient.apiService.getPortfolio("Bearer $token", professional.id.toString())
-                    if (portfolioResponse.isSuccessful && portfolioResponse.body() != null) {
-                        val services = portfolioResponse.body()!!.servicesOffered ?: emptyList()
-                        withContext(Dispatchers.Main) {
-                            val intent = Intent(this@CustomerDashboard, CustomerViewCardActivity::class.java)
-                            intent.putExtra(CustomerViewCardActivity.EXTRA_PROFESSIONAL_ID, professional.id)
+                    // Always navigate to the detail view, regardless of portfolio fetch success
+                    val intent = Intent(this@CustomerDashboard, CustomerViewCardActivity::class.java)
+                    intent.putExtra(CustomerViewCardActivity.EXTRA_PROFESSIONAL_ID, professional.id)
+                    
+                    try {
+                        val portfolioResponse = ApiClient.apiService.getPortfolio("Bearer $token", professional.id.toString())
+                        if (portfolioResponse.isSuccessful && portfolioResponse.body() != null) {
+                            val services = portfolioResponse.body()!!.servicesOffered ?: emptyList()
                             intent.putParcelableArrayListExtra(
                                 "EXTRA_SERVICES_LIST",
                                 ArrayList(services)
                             )
-                            startActivity(intent)
+                        } else {
+                            // Log the issue but continue with navigation
+                            if (portfolioResponse.code() == 404) {
+                                Log.w(TAG, "No portfolio found for professional ${professional.id} - proceeding without services")
+                            } else {
+                                Log.e(TAG, "Portfolio fetch failed: ${portfolioResponse.code()} - ${portfolioResponse.errorBody()?.string()}")
+                            }
                         }
-                    } else {
-                        Log.e(TAG, "Portfolio fetch failed: ${portfolioResponse.code()} - ${portfolioResponse.errorBody()?.string()}")
-                        withContext(Dispatchers.Main) {
-                            val intent = Intent(this@CustomerDashboard, CustomerViewCardActivity::class.java)
-                            intent.putExtra(CustomerViewCardActivity.EXTRA_PROFESSIONAL_ID, professional.id)
-                            startActivity(intent)
-                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error fetching portfolio", e)
+                    }
+                    
+                    // Start the activity with whatever data we have
+                    withContext(Dispatchers.Main) {
+                        startActivity(intent)
                     }
                 } catch (e: Exception) {
-                    // ... existing error handling
+                    Log.e(TAG, "Error navigating to professional details", e)
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(
+                            this@CustomerDashboard,
+                            "Error: ${e.message}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
                 }
             }
         }
@@ -262,7 +277,7 @@ class CustomerDashboard : AppCompatActivity() {
                if (response.isSuccessful && response.body() != null) {
                    // Filter users to get only professionals
                    val allUsers = response.body()!!
-                   val professionalUsers = allUsers.filter { it.role == "SERVICE_PROVIDER" }
+                   val professionalUsers = allUsers.filter { it.role == "SERVICE PROVIDER" }
 
                    // Convert User objects to Professional objects
                    val professionalsList = professionalUsers.map { user ->
@@ -277,20 +292,29 @@ class CustomerDashboard : AppCompatActivity() {
                        val availableDays = user.availableDays?.split(",")?.map { it.trim() } ?: emptyList()
                        val availableHours = user.availableHours ?: ""
 
+                       // Get token from SessionManager instead of SharedPreferences
+                       val token = sessionManager.getAuthToken()
+                       
                        // Try to get service data for this professional
                        val services = try {
-                           // Get token from SharedPreferences
-                           val sharedPreferences = applicationContext.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-                           val token = sharedPreferences.getString("token", "") ?: ""
-
-                           val portfolioResponse = ApiClient.apiService.getPortfolio("Bearer $token", user.id.toString())
-                           if (portfolioResponse.isSuccessful && portfolioResponse.body() != null) {
-                               val portfolio = portfolioResponse.body()!!
-                               Log.d(TAG, "Portfolio for user ${user.id}: ${portfolio.servicesOffered?.size ?: 0} services")
-                               portfolio.servicesOffered ?: emptyList()
-                           } else {
-                               Log.e(TAG, "Portfolio fetch failed: ${portfolioResponse.code()} - ${portfolioResponse.errorBody()?.string()}")
+                           if (token.isNullOrEmpty()) {
+                               Log.e(TAG, "Token is null or empty when fetching portfolio")
                                emptyList()
+                           } else {
+                               val portfolioResponse = ApiClient.apiService.getPortfolio("Bearer $token", user.id.toString())
+                               if (portfolioResponse.isSuccessful && portfolioResponse.body() != null) {
+                                   val portfolio = portfolioResponse.body()!!
+                                   Log.d(TAG, "Portfolio for user ${user.id}: ${portfolio.servicesOffered?.size ?: 0} services")
+                                   portfolio.servicesOffered ?: emptyList()
+                               } else {
+                                   // Log the error but continue with empty services
+                                   when (portfolioResponse.code()) {
+                                       403 -> Log.e(TAG, "Permission denied (403) when fetching portfolio for user ${user.id}")
+                                       404 -> Log.d(TAG, "No portfolio found (404) for user ${user.id} - this is normal for new users")
+                                       else -> Log.e(TAG, "Portfolio fetch failed: ${portfolioResponse.code()} - ${portfolioResponse.errorBody()?.string()}")
+                                   }
+                                   emptyList()
+                               }
                            }
                        } catch (e: Exception) {
                            Log.e(TAG, "Error fetching portfolio for user ${user.id}", e)
@@ -305,15 +329,17 @@ class CustomerDashboard : AppCompatActivity() {
 
                        // Get portfolio data to access availability information
                        val portfolio = try {
-                           // Reuse the token from above
-                           val sharedPreferences = applicationContext.getSharedPreferences("MyPrefs", Context.MODE_PRIVATE)
-                           val token = sharedPreferences.getString("token", "") ?: ""
-                           
-                           val portfolioResponse = ApiClient.apiService.getPortfolio("Bearer $token", user.id.toString())
-                           if (portfolioResponse.isSuccessful && portfolioResponse.body() != null) {
-                               portfolioResponse.body()
-                           } else {
+                           if (token.isNullOrEmpty()) {
+                               Log.e(TAG, "Token is null or empty when fetching portfolio for availability")
                                null
+                           } else {
+                               val portfolioResponse = ApiClient.apiService.getPortfolio("Bearer $token", user.id.toString())
+                               if (portfolioResponse.isSuccessful && portfolioResponse.body() != null) {
+                                   portfolioResponse.body()
+                               } else {
+                                   // Don't log errors again since we already logged them above
+                                   null
+                               }
                            }
                        } catch (e: Exception) {
                            Log.e(TAG, "Error fetching portfolio for availability", e)

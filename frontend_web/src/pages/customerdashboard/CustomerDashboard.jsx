@@ -257,7 +257,7 @@ const ProviderDashboard = () => {
 <Card
   elevation={3}
   sx={{
-    height: 400, // Fixed height
+    height: 400,
     display: "flex",
     flexDirection: "column",
     justifyContent: "space-between",
@@ -266,30 +266,29 @@ const ProviderDashboard = () => {
     borderRadius: 2,
     padding: 2,
     textAlign: "center",
+    overflow: "hidden",
   }}
 >
-
   <Avatar
     src={getProfilePictureUrl(user)}
     alt={user?.firstName || "User"}
     sx={{ width: 100, height: 100, mb: 1 }}
   />
+  
   <Typography variant="h6" fontWeight="bold">
     {user?.firstName || "Unknown"} {user?.lastName || ""}
   </Typography>
 
-  {/* ⭐ Distance shown here */}
   {currentUserLocation && userLocations[user.id] && (
-  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-    {`${calculateDistance(
-      currentUserLocation.lat,
-      currentUserLocation.lng,
-      userLocations[user.id].latitude,
-      userLocations[user.id].longitude
-    ).toFixed(2)} km away`}
-  </Typography>
-)}
-
+    <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+      {`${calculateDistance(
+        currentUserLocation.lat,
+        currentUserLocation.lng,
+        userLocations[user.id].latitude,
+        userLocations[user.id].longitude
+      ).toFixed(2)} km away`}
+    </Typography>
+  )}
 
   <Box sx={{ mt: 1, mb: 1 }}>
     <Rating
@@ -299,30 +298,39 @@ const ProviderDashboard = () => {
       size="small"
     />
   </Box>
-  <Typography variant="h6">
-    <strong>{workExperience || "Not specified"}</strong>
+  
+  <Typography 
+    variant="h6"
+    sx={{
+      fontWeight: "bold",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      display: "-webkit-box",
+      WebkitLineClamp: 2,
+      WebkitBoxOrient: "vertical",
+      minHeight: "3em"
+    }}
+  >
+    {workExperience || "Not specified"}
   </Typography>
-  {currentUserLocation && userLocations[user.id] && (
-  <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-    {`${calculateDistance(
-      currentUserLocation.lat,
-      currentUserLocation.lng,
-      userLocations[user.id].latitude,
-      userLocations[user.id].longitude
-    ).toFixed(2)} km away`}
-  </Typography>
-)}
 
-
-  {/* Days and Time */}
-  <Box display="flex" flexDirection="column" gap={0.5} mt={1} mb={1}>
-    <Box display="flex" alignItems="center" gap={1}>
+  <Box display="flex" flexDirection="column" gap={0.5} mt={1} mb={1} width="100%">
+    <Box display="flex" alignItems="center" gap={1} sx={{ width: "100%" }}>
       <CalendarMonth fontSize="small" color="action" />
-      <Typography variant="body2" color="text.secondary">
+      <Typography 
+        variant="body2" 
+        color="text.secondary"
+        sx={{
+          overflow: "hidden",
+          textOverflow: "ellipsis",
+          whiteSpace: "nowrap",
+          width: "100%"
+        }}
+      >
         {portfolio.daysAvailable?.join(", ") || "N/A"}
       </Typography>
     </Box>
-    <Box display="flex" alignItems="center" gap={1}>
+    <Box display="flex" alignItems="center" gap={1} sx={{ width: "100%" }}>
       <AccessTime fontSize="small" color="action" />
       <Typography variant="body2" color="text.secondary">
         {portfolio.time || "Not specified"}
@@ -339,9 +347,7 @@ const ProviderDashboard = () => {
       color: "white",
       fontWeight: "bold",
     }}
-    onClick={() =>
-      (window.location.href = `/provider-portfolio/${user.id}`)
-    }
+    onClick={() => (window.location.href = `/provider-portfolio/${user.id}`)}
   >
     MORE
   </Button>

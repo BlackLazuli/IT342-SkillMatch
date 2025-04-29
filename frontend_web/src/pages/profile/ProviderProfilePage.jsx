@@ -93,6 +93,10 @@ const fetchUserDetails = async () => {
           setProfilePictureUrl("/default-avatar.png"); // Add fallback
         };
       }
+      if (user.bio) {
+        setBio(user.bio); // ✅ set bio here
+      }
+  
     } catch (portfolioError) {
       console.error("Error fetching portfolio details:", portfolioError);
       setProfilePictureUrl("/default-avatar.png"); // Fallback for complete failure

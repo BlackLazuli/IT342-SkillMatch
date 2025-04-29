@@ -150,7 +150,7 @@ const ProviderDashboard = () => {
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <AppBar />
       <Box sx={{ flexGrow: 1, p: 3, maxWidth: 'calc(100% - 240px)' }}>
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
+        <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ color: '#455a64' }}>
           Professionals Near You
         </Typography>
 
@@ -169,13 +169,13 @@ const ProviderDashboard = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             sx={{
-              backgroundColor: 'background.paper',
+              backgroundColor: 'white',
               borderRadius: 1
             }}
           />
           
           <Box sx={{ width: '100%', maxWidth: 300 }}>
-            <Typography variant="body2" gutterBottom>
+            <Typography variant="body2" gutterBottom sx={{ color: '#455a64' }}>
               Filter by distance: <strong>{distanceFilter} km</strong>
             </Typography>
             <Slider
@@ -186,7 +186,7 @@ const ProviderDashboard = () => {
               valueLabelDisplay="auto"
               onChange={(e, newValue) => setDistanceFilter(newValue)}
               sx={{
-                color: theme.palette.primary.main,
+                color: '#607d8b',
               }}
             />
           </Box>
@@ -217,9 +217,10 @@ const ProviderDashboard = () => {
                   display: 'flex',
                   flexDirection: 'column',
                   transition: 'transform 0.3s, box-shadow 0.3s',
+                  backgroundColor: '#e0f7fa',
                   '&:hover': {
                     transform: 'translateY(-5px)',
-                    boxShadow: theme.shadows[6]
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
                   }
                 }}>
                   <CardContent sx={{ 
@@ -234,25 +235,26 @@ const ProviderDashboard = () => {
                       src={getProfilePictureUrl(user)}
                       alt={user?.firstName || "User"}
                       sx={{ 
-                        width: 120, 
-                        height: 120, 
+                        width: 100, 
+                        height: 100, 
                         mb: 2,
-                        border: `3px solid ${theme.palette.primary.main}`
+                        border: '3px solid #607d8b'
                       }}
                     />
                     
-                    <Typography variant="h6" fontWeight="bold" gutterBottom>
+                    <Typography variant="h6" fontWeight="bold" gutterBottom sx={{ color: '#455a64' }}>
                       {user?.firstName || "Unknown"} {user?.lastName || ""}
                     </Typography>
 
                     {distance && (
                       <Chip
-                        icon={<LocationOn fontSize="small" />}
+                        icon={<LocationOn fontSize="small" sx={{ color: '#607d8b' }} />}
                         label={`${distance} km away`}
                         size="small"
                         sx={{ 
                           mb: 1,
-                          backgroundColor: theme.palette.grey[100]
+                          backgroundColor: 'rgba(96, 125, 139, 0.1)',
+                          color: '#455a64'
                         }}
                       />
                     )}
@@ -262,29 +264,31 @@ const ProviderDashboard = () => {
                         value={ratings[portfolioId] || 0}
                         precision={0.1}
                         readOnly
+                        sx={{ color: '#607d8b' }}
                       />
                     </Box>
 
-                    <Typography variant="subtitle1" color="primary" gutterBottom>
-                      <strong>{workExperience || "Not specified"}</strong>
+                    <Typography variant="subtitle1" gutterBottom sx={{ color: '#455a64', fontWeight: 'bold' }}>
+                      {workExperience || "Not specified"}
                     </Typography>
 
                     <Box sx={{ 
                       width: '100%',
                       mt: 2,
-                      p: 1,
-                      backgroundColor: theme.palette.grey[50],
-                      borderRadius: 1
+                      p: 2,
+                      backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                      borderRadius: 1,
+                      border: '1px solid rgba(96, 125, 139, 0.2)'
                     }}>
                       <Box display="flex" alignItems="center" gap={1} mb={1}>
-                        <CalendarMonth fontSize="small" color="primary" />
-                        <Typography variant="body2">
+                        <CalendarMonth fontSize="small" sx={{ color: '#607d8b' }} />
+                        <Typography variant="body2" sx={{ color: '#455a64' }}>
                           {daysAvailable?.join(", ") || "N/A"}
                         </Typography>
                       </Box>
                       <Box display="flex" alignItems="center" gap={1}>
-                        <AccessTime fontSize="small" color="primary" />
-                        <Typography variant="body2">
+                        <AccessTime fontSize="small" sx={{ color: '#607d8b' }} />
+                        <Typography variant="body2" sx={{ color: '#455a64' }}>
                           {time || "Not specified"}
                         </Typography>
                       </Box>
@@ -298,7 +302,9 @@ const ProviderDashboard = () => {
                       sx={{
                         py: 1,
                         fontWeight: 'bold',
-                        letterSpacing: 0.5
+                        letterSpacing: 0.5,
+                        backgroundColor: '#607d8b',
+                        '&:hover': { backgroundColor: '#455a64' }
                       }}
                       onClick={() => window.location.href = `/provider-portfolio/${user.id}`}
                     >
@@ -318,7 +324,7 @@ const ProviderDashboard = () => {
             alignItems: 'center', 
             height: '50vh'
           }}>
-            <Typography variant="h6" color="text.secondary">
+            <Typography variant="h6" sx={{ color: '#455a64' }}>
               No professionals found matching your criteria
             </Typography>
           </Box>

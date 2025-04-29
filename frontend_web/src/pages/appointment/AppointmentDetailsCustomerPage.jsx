@@ -395,16 +395,6 @@ const AppointmentDetailsCustomerPage = () => {
                     <>
                       <Button 
                         size="small" 
-                        color="info"
-                        sx={{ ml: 1 }}
-                        onClick={() => handleOpenRescheduleDialog(appointment)}
-                        disabled={updating}
-                        startIcon={<Schedule />}
-                      >
-                        Reschedule
-                      </Button>
-                      <Button 
-                        size="small" 
                         color="error" 
                         sx={{ ml: 1 }}
                         onClick={() => updateAppointmentStatus(appointment.id, 'CANCELED')}

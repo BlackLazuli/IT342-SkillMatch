@@ -85,7 +85,7 @@ class SignUp : AppCompatActivity() {
         lifecycleScope.launch {
             try {
                 // Convert PROFESSIONAL to SERVICE_PROVIDER to match backend
-                val role = if (userType == "PROFESSIONAL") "SERVICE_PROVIDER" else userType
+                val role = if (userType == "PROFESSIONAL") "SERVICE PROVIDER" else userType
                 
                 // Add debug logging
                 android.util.Log.d("SignUp", "Attempting to register: $firstName, $lastName, $email, [password], $phoneNumber, $role")
@@ -122,7 +122,7 @@ class SignUp : AppCompatActivity() {
                             startActivity(intent)
                             finish()
                         } else if (signupResponse.role == "PROFESSIONAL" || 
-                                  signupResponse.role == "SERVICE_PROVIDER") {
+                                  signupResponse.role == "SERVICE PROVIDER") {
                             val intent = Intent(this@SignUp, EditProfessionalProfile::class.java)
                             intent.putExtra("USER_ID", signupResponse.userId)
                             startActivity(intent)

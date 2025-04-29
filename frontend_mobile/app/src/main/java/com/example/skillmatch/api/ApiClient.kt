@@ -9,9 +9,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object ApiClient {
-    // Update this to your actual backend URL
-    internal const val BASE_URL = "http://10.0.2.2:8080/api/"
-   //private const val BASE_URL = "http://192.168.1.10:8080/api/"// For Android emulator pointing to localhost
+    // Change this to your EC2 backend URL
+    private const val BASE_URL = "http://3.107.23.86:8080/api/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
@@ -23,8 +22,13 @@ object ApiClient {
             val request = chain.request()
             Log.d("ApiClient", "Request URL: ${request.url}")
             Log.d("ApiClient", "Request Method: ${request.method}")
+            
+            // Add content type header to all requests
+            val newRequest = request.newBuilder()
+                .header("Content-Type", "application/json")
+                .build()
 
-            val response = chain.proceed(request)
+            val response = chain.proceed(newRequest)
             Log.d("ApiClient", "Response Code: ${response.code}")
 
             response
@@ -38,34 +42,16 @@ object ApiClient {
         .setLenient()
         .create()
 
+    // Create a single Retrofit instance
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create(gson))
         .build()
 
-    // Add this to your ApiClient.kt file to include the token in all requests
+    // Use the retrofit instance to create the API service
     val apiService: ApiService by lazy {
-        val client = OkHttpClient.Builder()
-            .addInterceptor { chain ->
-                val original = chain.request()
-                val request = original.newBuilder()
-                    .header("Content-Type", "application/json")
-                    .method(original.method, original.body)
-                    .build()
-                chain.proceed(request)
-            }
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
-            })
-            .build()
-
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
+        retrofit.create(ApiService::class.java)
     }
 }
 

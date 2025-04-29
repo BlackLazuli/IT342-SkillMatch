@@ -19,6 +19,7 @@ class AppointmentAdapter(
 
     interface AppointmentClickListener {
         fun onAppointmentClick(appointment: AppointmentResponse)
+        fun onRateAppointmentClick(appointment: AppointmentResponse)
     }
 
     class AppointmentViewHolder(view: View) : RecyclerView.ViewHolder(view) {
@@ -27,6 +28,7 @@ class AppointmentAdapter(
         val dateTimeText: TextView = view.findViewById(R.id.appointmentDateTimeText)
         val providerNameText: TextView = view.findViewById(R.id.providerNameText)
         val notesText: TextView = view.findViewById(R.id.appointmentNotesText)
+        val rateButton: TextView? = view.findViewById(R.id.rateButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppointmentViewHolder {
@@ -59,10 +61,6 @@ class AppointmentAdapter(
         holder.dateTimeText.text = formatDateTime(appointment.appointmentTime)
         
         // Set provider name
-        // Set provider name with fallback
-        val firstName = appointment.professionalFirstName
-        val lastName = appointment.professionalLastName
-        // In the onBindViewHolder method
         holder.providerNameText.text = "With: ${appointment.providerFirstName ?: ""} ${appointment.providerLastName ?: ""}"
         
         // Set notes (if any)
@@ -71,6 +69,18 @@ class AppointmentAdapter(
         } else {
             holder.notesText.visibility = View.VISIBLE
             holder.notesText.text = appointment.notes
+        }
+        
+        // Show rate button only for completed appointments that haven't been rated yet
+        holder.rateButton?.let {
+            if (appointment.status == "COMPLETED" && appointment.rated != true) {
+                it.visibility = View.VISIBLE
+                it.setOnClickListener { _ ->
+                    listener.onRateAppointmentClick(appointment)
+                }
+            } else {
+                it.visibility = View.GONE
+            }
         }
         
         // Set click listener

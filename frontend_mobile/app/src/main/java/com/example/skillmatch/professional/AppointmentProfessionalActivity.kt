@@ -1,4 +1,4 @@
-package com.example.skillmatch.customer
+package com.example.skillmatch.professional
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -6,28 +6,17 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.example.skillmatch.R
 import com.example.skillmatch.adapters.AppointmentAdapter
-
 import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.models.AppointmentResponse
-import com.example.skillmatch.models.CommentRequest
-import com.example.skillmatch.professional.ProfessionalProfileActivity
 import com.example.skillmatch.utils.SessionManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,17 +24,16 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
-class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentClickListener {
+class AppointmentProfessionalActivity : AppCompatActivity(), AppointmentAdapter.AppointmentClickListener {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var appointmentAdapter: AppointmentAdapter
     private lateinit var sessionManager: SessionManager
-    private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private var userId: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_appointment)
+        setContentView(R.layout.activity_appointment_professional)
 
         // Initialize SessionManager and get userId
         sessionManager = SessionManager(this)
@@ -57,12 +45,6 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         appointmentAdapter = AppointmentAdapter(emptyList(), this)
         recyclerView.adapter = appointmentAdapter
 
-        // Set up SwipeRefreshLayout
-        swipeRefreshLayout = findViewById(R.id.swipeRefreshLayout)
-        swipeRefreshLayout.setOnRefreshListener {
-            loadAppointments()
-        }
-
         // Load appointments
         loadAppointments()
 
@@ -73,17 +55,9 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
     
         // Set up bottom navigation
         findViewById<View>(R.id.homeButton).setOnClickListener {
-            // Navigate to home/dashboard based on user role
-            val userRole = sessionManager.getUserRole()
-            if (userRole == "PROFESSIONAL" || userRole == "SERVICE_PROVIDER") {
-                val intent = Intent(this, ProfessionalProfileActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                startActivity(intent)
-            } else {
-                val intent = Intent(this, CustomerDashboard::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
-                startActivity(intent)
-            }
+            val intent = Intent(this, ProfessionalProfileActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(intent)
             finish()
         }
         
@@ -98,15 +72,8 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         }
         
         findViewById<View>(R.id.profileButton).setOnClickListener {
-            // Navigate to profile based on user role
-            val userRole = sessionManager.getUserRole()
-            if (userRole == "PROFESSIONAL" || userRole == "SERVICE_PROVIDER") {
-                val intent = Intent(this, ProfessionalProfileActivity::class.java)
-                startActivity(intent)
-            } else {
-                val intent = Intent(this, CustomerProfileActivity::class.java)
-                startActivity(intent)
-            }
+            val intent = Intent(this, ProfessionalProfileActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -114,9 +81,8 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         // Show loading state
         findViewById<View>(R.id.emptyStateLayout).visibility = View.GONE
         
-        // Get authentication token and role
+        // Get authentication token
         val token = sessionManager.getToken()
-        val userRole = sessionManager.getUserRole()
         
         if (token.isNullOrEmpty()) {
             Toast.makeText(this, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show()
@@ -124,14 +90,8 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
             return
         }
         
-        // Call the appropriate API based on user role
-        val call = if (userRole == "PROFESSIONAL" || userRole == "SERVICE_PROVIDER") {
-            // Use the all endpoint for professionals which includes both customer and provider appointments
-            ApiClient.apiService.getAllAppointmentsForProfessional("Bearer $token", userId)
-        } else {
-            // Use the user endpoint for customers
-            ApiClient.apiService.getAllAppointmentsForUser("Bearer $token", userId, userRole.toString())
-        }
+        // Call the API for professionals
+        val call = ApiClient.apiService.getAllAppointmentsForProfessional("Bearer $token", userId)
         
         call.enqueue(object : Callback<List<AppointmentResponse>> {
             override fun onResponse(call: Call<List<AppointmentResponse>>, response: Response<List<AppointmentResponse>>) {
@@ -154,7 +114,7 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
                         404 -> "No appointments found."
                         else -> "Failed to load appointments: ${response.code()}"
                     }
-                    Toast.makeText(this@AppointmentActivity, errorMessage, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentProfessionalActivity, errorMessage, Toast.LENGTH_SHORT).show()
                     
                     // Show empty state with error
                     showEmptyState(errorMessage)
@@ -163,25 +123,24 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
 
             override fun onFailure(call: Call<List<AppointmentResponse>>, t: Throwable) {
                 // Handle network failure
-                Toast.makeText(this@AppointmentActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AppointmentProfessionalActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
                 
                 // Show empty state with error
                 showEmptyState("Failed to load appointments")
                 
                 // Log the error for debugging
-                Log.e("AppointmentActivity", "Network error loading appointments", t)
+                Log.e("AppointmentProfessionalActivity", "Network error loading appointments", t)
             }
         })
     }
 
-    // Add this helper method to show empty state with custom message
+    // Helper method to show empty state with custom message
     private fun showEmptyState(message: String) {
         val emptyStateLayout = findViewById<View>(R.id.emptyStateLayout)
         emptyStateLayout.visibility = View.VISIBLE
         recyclerView.visibility = View.GONE
         
         // Find the TextView in your empty state layout that shows the main message
-        // Use the correct ID from your layout file
         val titleTextView = emptyStateLayout.findViewById<TextView>(R.id.empty)
         if (titleTextView != null) {
             titleTextView.text = message
@@ -189,8 +148,8 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
     }
 
     override fun onAppointmentClick(appointment: AppointmentResponse) {
-        // Open appointment detail dialog
-        val dialogView = layoutInflater.inflate(R.layout.dialog_appointment_detail, null)
+        // Open appointment detail dialog for professionals
+        val dialogView = layoutInflater.inflate(R.layout.dialog_appointment_detail_professional, null)
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
             .create()
@@ -199,28 +158,19 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         dialogView.findViewById<TextView>(R.id.appointmentIdText).text = "Appointment #${appointment.id}"
         dialogView.findViewById<TextView>(R.id.appointmentStatusText).text = "Status: ${appointment.status}"
         dialogView.findViewById<TextView>(R.id.appointmentTimeText).text = "Time: ${formatDateTime(appointment.appointmentTime)}"
+        dialogView.findViewById<TextView>(R.id.clientNameText).text = "Client: ${appointment.userFirstName} ${appointment.userLastName}"
         dialogView.findViewById<TextView>(R.id.appointmentNotesText).text = "Notes: ${appointment.notes ?: "No notes"}"
 
         // Set up action buttons based on appointment status
-        val rescheduleButton = dialogView.findViewById<Button>(R.id.rescheduleButton)
-        val cancelButton = dialogView.findViewById<Button>(R.id.cancelButton)
-        val rateButton = dialogView.findViewById<Button>(R.id.rateButton)
+        val rescheduleButton = dialogView.findViewById<android.widget.Button>(R.id.rescheduleButton)
+        val cancelButton = dialogView.findViewById<android.widget.Button>(R.id.cancelButton)
+        val completeButton = dialogView.findViewById<android.widget.Button>(R.id.completeButton)
         
-        // Only show reschedule/cancel buttons if appointment is not completed or canceled
+        // Only show action buttons if appointment is not completed or canceled
         if (appointment.status == "COMPLETED" || appointment.status == "CANCELED") {
             rescheduleButton.visibility = View.GONE
             cancelButton.visibility = View.GONE
-            
-            // Show rate button for completed appointments that haven't been rated
-            if (appointment.status == "COMPLETED" && appointment.rated != true) {
-                rateButton.visibility = View.VISIBLE
-                rateButton.setOnClickListener {
-                    dialog.dismiss()
-                    showRatingDialog(appointment)
-                }
-            } else {
-                rateButton.visibility = View.GONE
-            }
+            completeButton.visibility = View.GONE
         } else {
             // Set up reschedule button
             rescheduleButton.setOnClickListener {
@@ -234,125 +184,19 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
                 showCancelConfirmation(appointment)
             }
             
-            // Hide rate button for non-completed appointments
-            rateButton.visibility = View.GONE
+            // Set up complete button
+            completeButton.setOnClickListener {
+                dialog.dismiss()
+                showCompleteConfirmation(appointment)
+            }
         }
 
         // Close button
-        dialogView.findViewById<Button>(R.id.closeButton).setOnClickListener {
+        dialogView.findViewById<android.widget.Button>(R.id.closeButton).setOnClickListener {
             dialog.dismiss()
         }
 
         dialog.show()
-    }
-    
-    override fun onRateAppointmentClick(appointment: AppointmentResponse) {
-        showRatingDialog(appointment)
-    }
-    
-    private fun showRatingDialog(appointment: AppointmentResponse) {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_rate_professional, null)
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .create()
-            
-        // Set professional name
-        val professionalName = "${appointment.providerFirstName ?: ""} ${appointment.providerLastName ?: ""}"
-        dialogView.findViewById<TextView>(R.id.professionalNameText).text = professionalName
-        
-        // Get rating and comment views
-        val ratingBar = dialogView.findViewById<RatingBar>(R.id.ratingBar)
-        val commentEditText = dialogView.findViewById<EditText>(R.id.commentEditText)
-        
-        // Set up buttons
-        dialogView.findViewById<Button>(R.id.cancelButton).setOnClickListener {
-            dialog.dismiss()
-        }
-        
-        dialogView.findViewById<Button>(R.id.submitButton).setOnClickListener {
-            val rating = ratingBar.rating.toInt()
-            val comment = commentEditText.text.toString().trim()
-            
-            if (rating == 0) {
-                Toast.makeText(this, "Please select a rating", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-            
-            // Submit rating and comment
-            submitRatingAndComment(appointment, rating, comment)
-            dialog.dismiss()
-        }
-        
-        dialog.show()
-    }
-    
-    private fun submitRatingAndComment(appointment: AppointmentResponse, rating: Int, comment: String) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val token = sessionManager.getAuthToken()
-                if (token.isNullOrEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@AppointmentActivity, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show()
-                    }
-                    return@launch
-                }
-                
-                // Create comment request
-                val commentRequest = CommentRequest(
-                    message = comment,
-                    rating = rating
-                )
-                
-                // Submit comment to the professional's portfolio
-                val response = ApiClient.apiService.addComment(
-                    "Bearer $token",
-                    userId.toString(),
-                    appointment.providerId.toString(),
-                    commentRequest
-                )
-                
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        Toast.makeText(this@AppointmentActivity, "Thank you for your feedback!", Toast.LENGTH_SHORT).show()
-                        
-                        // Mark appointment as rated
-                        markAppointmentAsRated(appointment.id)
-                    } else {
-                        Toast.makeText(this@AppointmentActivity, "Failed to submit rating: ${response.code()}", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("AppointmentActivity", "Error submitting rating", e)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(this@AppointmentActivity, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
-                }
-            }
-        }
-    }
-    
-    private fun markAppointmentAsRated(appointmentId: Long) {
-        CoroutineScope(Dispatchers.IO).launch {
-            try {
-                val token = sessionManager.getAuthToken()
-                if (token.isNullOrEmpty()) {
-                    return@launch
-                }
-                
-                val response = ApiClient.apiService.markAppointmentAsRated(
-                    "Bearer $token",
-                    appointmentId
-                )
-                
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        // Refresh appointments list
-                        loadAppointments()
-                    }
-                }
-            } catch (e: Exception) {
-                Log.e("AppointmentActivity", "Error marking appointment as rated", e)
-            }
-        }
     }
 
     private fun showRescheduleDateTimePicker(appointment: AppointmentResponse) {
@@ -408,15 +252,15 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         ApiClient.apiService.rescheduleAppointment("Bearer $token", appointmentId, newTime).enqueue(object : Callback<AppointmentResponse> {
             override fun onResponse(call: Call<AppointmentResponse>, response: Response<AppointmentResponse>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@AppointmentActivity, "Appointment rescheduled successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentProfessionalActivity, "Appointment rescheduled successfully", Toast.LENGTH_SHORT).show()
                     loadAppointments() // Refresh the list
                 } else {
-                    Toast.makeText(this@AppointmentActivity, "Failed to reschedule appointment", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentProfessionalActivity, "Failed to reschedule appointment", Toast.LENGTH_SHORT).show()
                 }
             }
     
             override fun onFailure(call: Call<AppointmentResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AppointmentProfessionalActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
@@ -443,19 +287,54 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         ApiClient.apiService.cancelAppointment("Bearer $token", appointmentId).enqueue(object : Callback<AppointmentResponse> {
             override fun onResponse(call: Call<AppointmentResponse>, response: Response<AppointmentResponse>) {
                 if (response.isSuccessful) {
-                    Toast.makeText(this@AppointmentActivity, "Appointment canceled successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentProfessionalActivity, "Appointment canceled successfully", Toast.LENGTH_SHORT).show()
                     loadAppointments() // Refresh the list
                 } else {
-                    Toast.makeText(this@AppointmentActivity, "Failed to cancel appointment", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AppointmentProfessionalActivity, "Failed to cancel appointment", Toast.LENGTH_SHORT).show()
                 }
             }
-            
+    
             override fun onFailure(call: Call<AppointmentResponse>, t: Throwable) {
-                Toast.makeText(this@AppointmentActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AppointmentProfessionalActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
-
+    
+    private fun showCompleteConfirmation(appointment: AppointmentResponse) {
+        AlertDialog.Builder(this)
+            .setTitle("Complete Appointment")
+            .setMessage("Mark this appointment as completed?")
+            .setPositiveButton("Yes") { _, _ ->
+                // Call the completeAppointment method
+                completeAppointment(appointment.id)
+            }
+            .setNegativeButton("No", null)
+            .show()
+    }
+    
+    private fun completeAppointment(appointmentId: Long) {
+        val token = sessionManager.getToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        
+        ApiClient.apiService.completeAppointment("Bearer $token", appointmentId).enqueue(object : Callback<AppointmentResponse> {
+            override fun onResponse(call: Call<AppointmentResponse>, response: Response<AppointmentResponse>) {
+                if (response.isSuccessful) {
+                    Toast.makeText(this@AppointmentProfessionalActivity, "Appointment marked as completed", Toast.LENGTH_SHORT).show()
+                    loadAppointments() // Refresh the list
+                } else {
+                    Toast.makeText(this@AppointmentProfessionalActivity, "Failed to complete appointment", Toast.LENGTH_SHORT).show()
+                }
+            }
+    
+            override fun onFailure(call: Call<AppointmentResponse>, t: Throwable) {
+                Toast.makeText(this@AppointmentProfessionalActivity, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+    
     private fun formatDateTime(dateTimeString: String): String {
         try {
             val inputFormatter = DateTimeFormatter.ISO_DATE_TIME
@@ -465,5 +344,12 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         } catch (e: Exception) {
             return dateTimeString
         }
+    }
+
+    // Add this method to implement the interface
+    override fun onRateAppointmentClick(appointment: AppointmentResponse) {
+        // Professionals don't rate appointments, so this can be empty
+        // This method is only used by customers to rate professionals
+        // But we need to implement it to satisfy the interface
     }
 }

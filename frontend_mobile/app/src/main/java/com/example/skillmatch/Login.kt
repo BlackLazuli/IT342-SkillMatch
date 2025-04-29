@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.skillmatch.customer.CustomerDashboard
 import com.example.skillmatch.customer.CustomerProfileActivity
 import com.example.skillmatch.customer.EditCustomerProfile
+import com.example.skillmatch.professional.AppointmentProfessionalActivity
 import com.example.skillmatch.professional.EditProfessionalProfile
 import com.example.skillmatch.professional.ProfessionalProfileActivity
 import com.example.skillmatch.repository.SkillMatchRepository
@@ -86,8 +87,8 @@ class Login : AppCompatActivity() {
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)
                             finish()
-                        } else if (loginResponse.role == "SERVICE_PROVIDER") {
-                            val intent = Intent(this@Login, ProfessionalProfileActivity::class.java)
+                        } else if (loginResponse.role == "SERVICE PROVIDER") {
+                            val intent = Intent(this@Login, AppointmentProfessionalActivity::class.java)
                             intent.putExtra("USER_ID", loginResponse.userId)
                             startActivity(intent)
                             finish()

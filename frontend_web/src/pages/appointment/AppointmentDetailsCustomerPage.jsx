@@ -15,7 +15,12 @@ import {
   Button,
   Link,
   Alert,
-  Snackbar
+  Snackbar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField
 } from "@mui/material";
 import AppBar from "../../component/AppBarCustomer";
 import {
@@ -24,8 +29,10 @@ import {
   AccessTime,
   CheckCircle,
   Notes,
-  Event
+  Event,
+  Schedule
 } from "@mui/icons-material";
+import { DateTimePicker } from "@mui/x-date-pickers";
 
 const AppointmentDetailsCustomerPage = () => {
   const { userID } = useParams();
@@ -35,9 +42,11 @@ const AppointmentDetailsCustomerPage = () => {
   const [updating, setUpdating] = useState(false);
   const [error, setError] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [rescheduleDialogOpen, setRescheduleDialogOpen] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [newAppointmentTime, setNewAppointmentTime] = useState(null);
   const token = localStorage.getItem("token");
   const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
-
 
   const handleProviderClick = (providerId) => {
     if (!providerId) {
@@ -52,6 +61,18 @@ const AppointmentDetailsCustomerPage = () => {
     setError(null);
   };
 
+  const handleOpenRescheduleDialog = (appointment) => {
+    setSelectedAppointment(appointment);
+    setNewAppointmentTime(new Date(appointment.appointmentTime));
+    setRescheduleDialogOpen(true);
+  };
+
+  const handleCloseRescheduleDialog = () => {
+    setRescheduleDialogOpen(false);
+    setSelectedAppointment(null);
+    setNewAppointmentTime(null);
+  };
+
   const updateAppointmentStatus = async (appointmentId, newStatus) => {
     setUpdating(true);
     try {
@@ -63,14 +84,13 @@ const AppointmentDetailsCustomerPage = () => {
       let endpoint;
       let method = 'PUT';
       
-      // Determine endpoint based on action
       if (newStatus === 'COMPLETED') {
         endpoint = `/api/appointments/${appointmentId}/complete`;
       } else if (newStatus === 'CANCELED') {
         endpoint = `/api/appointments/${appointmentId}/cancel`;
       } else {
         endpoint = `/api/appointments/${appointmentId}`;
-        method = 'PATCH'; // More appropriate for partial updates
+        method = 'PATCH';
       }
   
       const headers = {
@@ -93,13 +113,60 @@ const AppointmentDetailsCustomerPage = () => {
         throw new Error(errorData.message || `Failed to update status to ${newStatus}`);
       }
   
-      // Update local state
       setAppointments(appointments.map(appt => 
         appt.id === appointmentId ? { ...appt, status: newStatus } : appt
       ));
     } catch (error) {
       console.error("Update error:", error);
-      // Show error to user (e.g., using a snackbar or alert)
+      setError(error.message);
+      setOpenSnackbar(true);
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const handleRescheduleAppointment = async () => {
+    if (!selectedAppointment || !newAppointmentTime) return;
+    
+    setUpdating(true);
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("No authentication token found");
+      }
+
+      const res = await fetch(`/api/appointments/${selectedAppointment.id}/reschedule`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          newTime: newAppointmentTime.toISOString()
+        })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Failed to reschedule appointment");
+      }
+
+      const updatedAppointment = await res.json();
+      
+      setAppointments(appointments.map(appt => 
+        appt.id === updatedAppointment.id ? { 
+          ...appt, 
+          status: 'RESCHEDULED',
+          appointmentTime: updatedAppointment.appointmentTime 
+        } : appt
+      ));
+
+      setOpenSnackbar(true);
+      handleCloseRescheduleDialog();
+    } catch (error) {
+      console.error("Reschedule error:", error);
+      setError(error.message);
+      setOpenSnackbar(true);
     } finally {
       setUpdating(false);
     }
@@ -203,9 +270,36 @@ const AppointmentDetailsCustomerPage = () => {
             severity={error ? "error" : "success"}
             sx={{ width: '100%' }}
           >
-            {error || "Appointment status updated successfully!"}
+            {error || "Appointment updated successfully!"}
           </Alert>
         </Snackbar>
+
+        {/* Reschedule Dialog */}
+        <Dialog open={rescheduleDialogOpen} onClose={handleCloseRescheduleDialog}>
+          <DialogTitle>Reschedule Appointment</DialogTitle>
+          <DialogContent>
+            <Box sx={{ mt: 2 }}>
+              <DateTimePicker
+                label="New Appointment Time"
+                value={newAppointmentTime}
+                onChange={setNewAppointmentTime}
+                renderInput={(params) => <TextField {...params} fullWidth />}
+                minDateTime={new Date()} // Prevent selecting past dates
+              />
+            </Box>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseRescheduleDialog}>Cancel</Button>
+            <Button 
+              onClick={handleRescheduleAppointment} 
+              color="primary"
+              disabled={updating || !newAppointmentTime}
+              startIcon={updating ? <CircularProgress size={20} /> : <Schedule />}
+            >
+              Reschedule
+            </Button>
+          </DialogActions>
+        </Dialog>
 
         <Grid container spacing={3}>
           {appointments.map((appointment) => (
@@ -288,29 +382,31 @@ const AppointmentDetailsCustomerPage = () => {
                 </CardContent>
 
                 <Box sx={{ p: 2, display: 'flex', justifyContent: 'flex-end' }}>
-                  {appointment.status.toLowerCase() === 'pending' && (
-                    <Button 
-                      size="small" 
-                      color="error" 
-                      sx={{ ml: 1 }}
-                      onClick={() => updateAppointmentStatus(appointment.id, 'CANCELED')}
-                      disabled={updating}
-                    >
-                      Cancel
-                    </Button>
-                  )}
                   {(appointment.status.toLowerCase() === 'scheduled' || 
-                    appointment.status.toLowerCase() === 'confirmed') && (
-                    <Button 
-                      size="small" 
-                      color="success" 
-                      sx={{ ml: 1 }}
-                      onClick={() => updateAppointmentStatus(appointment.id, 'CANCELED')}
-                      disabled={updating}
-                      startIcon={updating ? <CircularProgress size={20} /> : null}
-                    >
-                      Cancel
-                    </Button>
+                    appointment.status.toLowerCase() === 'confirmed' ||
+                    appointment.status.toLowerCase() === 'pending') && (
+                    <>
+                      <Button 
+                        size="small" 
+                        color="info"
+                        sx={{ ml: 1 }}
+                        onClick={() => handleOpenRescheduleDialog(appointment)}
+                        disabled={updating}
+                        startIcon={<Schedule />}
+                      >
+                        Reschedule
+                      </Button>
+                      <Button 
+                        size="small" 
+                        color="error" 
+                        sx={{ ml: 1 }}
+                        onClick={() => updateAppointmentStatus(appointment.id, 'CANCELED')}
+                        disabled={updating}
+                        startIcon={updating ? <CircularProgress size={20} /> : null}
+                      >
+                        Cancel
+                      </Button>
+                    </>
                   )}
                 </Box>
               </Card>

@@ -2,6 +2,8 @@ package com.example.skillmatch.api
 
 import com.example.skillmatch.models.AppointmentRequest
 import com.example.skillmatch.models.AppointmentResponse
+import com.example.skillmatch.models.CommentRequest
+import com.example.skillmatch.models.CommentResponse
 import com.example.skillmatch.models.LoginRequest
 import com.example.skillmatch.models.LoginResponse
 import com.example.skillmatch.models.SignupRequest
@@ -112,5 +114,33 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("id") appointmentId: Long
     ): Call<AppointmentResponse>
+    
+    @PUT("appointments/{id}/complete")
+    fun completeAppointment(
+        @Header("Authorization") token: String,
+        @Path("id") appointmentId: Long
+    ): Call<AppointmentResponse>
 
+    // Add comment to a professional's portfolio
+    @POST("api/comments/{userId}/{portfolioId}")
+    suspend fun addComment(
+        @Header("Authorization") token: String,
+        @Path("userId") userId: String,
+        @Path("portfolioId") portfolioId: String,
+        @Body commentRequest: CommentRequest
+    ): Response<CommentResponse>
+    
+    // Get comments for a portfolio
+    @GET("api/comments/portfolio/{portfolioId}")
+    suspend fun getCommentsByPortfolio(
+        @Header("Authorization") token: String,
+        @Path("portfolioId") portfolioId: String
+    ): Response<List<CommentResponse>>
+    
+    // Mark appointment as rated
+    @PUT("api/appointments/{appointmentId}/markRated")
+    suspend fun markAppointmentAsRated(
+        @Header("Authorization") token: String,
+        @Path("appointmentId") appointmentId: Long
+    ): Response<AppointmentResponse>
 }

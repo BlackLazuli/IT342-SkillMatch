@@ -15,7 +15,7 @@ import AppBar from "../../component/AppBar";
 
 const daysOfWeek = [
   "Monday", "Tuesday", "Wednesday",
-  "Thursday", "Friday", "Saturday", "Sunday"
+  "Thursday", "Friday", "Saturday", "Sunday", "Everyday"
 ];
 
 const AddPortfolioPage = () => {

@@ -58,7 +58,11 @@ const ProviderDashboard = () => {
           throw new Error(`Appointments error ${appointmentsRes.status}: ${err}`);
         }
         const appointmentsData = await appointmentsRes.json();
-        setAppointmentCount(appointmentsData.length);
+        const scheduledAppointments = appointmentsData.filter(
+          (appt) => appt.status === "SCHEDULED" || appt.status === "RESCHEDULED"
+        );
+        setAppointmentCount(scheduledAppointments.length);
+        
 
         // Fetch portfolio
         const portfolioRes = await fetch(

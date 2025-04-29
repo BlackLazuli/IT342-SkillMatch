@@ -259,16 +259,15 @@ const ProfilePage = () => {
                 </Box>
               </Box>
 
-              {!existingAddress && (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  sx={{ mt: 3 }}
-                  onClick={handleOpenModal}
-                >
-                  Add Address
-                </Button>
-              )}
+              <Button
+  variant="contained"
+  color="primary"
+  sx={{ mt: 3 }}
+  onClick={handleOpenModal}
+>
+  {existingAddress ? 'Edit Address' : 'Add Address'}
+</Button>
+
             </Grid>
 
           </Grid>

@@ -196,20 +196,19 @@ const ProfilePage = () => {
                 PROFILE PICTURE
               </Typography>
               <Box sx={{ position: 'relative', display: 'inline-block' }}>
-                <Avatar
-                  src={profilePictureUrl || '/default-avatar.png'}
-                  alt="Profile"
-                  sx={{ width: 150, height: 150, mx: 'auto', cursor: 'pointer' }}
-                  onClick={() => document.getElementById('profile-pic-input').click()}
-                />
-                <input
-                  id="profile-pic-input"
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  onChange={handleProfilePicChange}
-                />
-              </Box>
+  <Avatar
+    src={profilePictureUrl || '/default-avatar.png'}
+    alt="Profile"
+    sx={{ width: 150, height: 150, mx: 'auto' }} // Removed cursor: 'pointer'
+  />
+  <input
+    id="profile-pic-input"
+    type="file"
+    accept="image/*"
+    style={{ display: 'none' }}
+    onChange={handleProfilePicChange}
+  />
+</Box>
             </Grid>
 
             <Grid item xs={12} md={8}>
@@ -251,17 +250,6 @@ const ProfilePage = () => {
                   <Typography>{bio || 'No bio available.'}</Typography>
                 </Box>
               </Box>
-
-              {!existingAddress && (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  sx={{ mt: 3 }}
-                  onClick={handleOpenModal}
-                >
-                  Add Address
-                </Button>
-              )}
             </Grid>
           </Grid>
         </Card>

@@ -254,11 +254,13 @@ const ProviderDashboard = () => {
             const { id: portfolioId, user, workExperience, daysAvailable, startTime, endTime } = portfolio;
             return (
               <Grid item xs={12} sm={6} md={4} key={portfolioId}>
-                <Card
+<Card
   elevation={3}
   sx={{
+    height: 400, // Fixed height
     display: "flex",
     flexDirection: "column",
+    justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: "#e0f7fa",
     borderRadius: 2,
@@ -266,6 +268,7 @@ const ProviderDashboard = () => {
     textAlign: "center",
   }}
 >
+
   <Avatar
     src={getProfilePictureUrl(user)}
     alt={user?.firstName || "User"}

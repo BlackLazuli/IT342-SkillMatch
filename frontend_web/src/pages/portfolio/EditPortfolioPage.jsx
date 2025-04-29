@@ -15,8 +15,9 @@ import AppBar from "../../component/AppBar";
 
 const daysOfWeek = [
   "Monday", "Tuesday", "Wednesday",
-  "Thursday", "Friday", "Saturday", "Sunday"
+  "Thursday", "Friday", "Saturday", "Sunday", "Everyday"
 ];
+
 
 const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 

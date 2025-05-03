@@ -28,7 +28,7 @@ import {
   Comment
 } from "@mui/icons-material";
 
-const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
+const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080";
 
 const PortfolioPage = () => {
   const { userID } = useParams();
@@ -43,6 +43,29 @@ const PortfolioPage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
 
+  const formatTime = (time) => {
+    if (!time) return "";
+    
+    // Handle case where time is an object (LocalTime)
+    if (typeof time === 'object' && time.hour !== undefined) {
+      const hour = time.hour % 12 || 12;
+      const ampm = time.hour >= 12 ? 'PM' : 'AM';
+      const minutes = time.minute.toString().padStart(2, '0');
+      return `${hour}:${minutes} ${ampm}`;
+    }
+    
+    // Handle case where time is a string (HH:mm:ss)
+    if (typeof time === 'string') {
+      const [hours, minutes] = time.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const hour12 = hour % 12 || 12;
+      return `${hour12}:${minutes} ${ampm}`;
+    }
+    
+    return "Not specified";
+  };
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -53,7 +76,7 @@ const PortfolioPage = () => {
 
     const fetchPortfolio = async () => {
       try {
-        const res = await fetch(`/api/portfolios/${userID}`, {
+        const res = await fetch(`${baseUrl}/api/portfolios/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -77,7 +100,7 @@ const PortfolioPage = () => {
 
     const fetchComments = async (portfolioId) => {
       try {
-        const res = await fetch(`/api/comments/portfolio/${portfolioId}`, {
+        const res = await fetch(`${baseUrl}/api/comments/portfolio/${portfolioId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
@@ -95,16 +118,13 @@ const PortfolioPage = () => {
 
     const fetchUserDetails = async () => {
       try {
-        const res = await fetch(`/api/users/${userID}`, {
+        const res = await fetch(`${baseUrl}/api/users/${userID}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
           const data = await res.json();
           setUserDetails(data);
-  
-          // Get the profile picture URL after user details are fetched
-          const profilePicUrl = getProfilePictureUrl(data);
-          setProfilePictureUrl(profilePicUrl); // Update the state with the profile picture URL
+          setProfilePictureUrl(data.profilePicture || "/default-avatar.png");
         }
       } catch (err) {
         console.error("Failed to fetch user details:", err);
@@ -117,20 +137,6 @@ const PortfolioPage = () => {
 
   const handleAddPortfolio = () => navigate(`/add-portfolio/${userID}`);
   const handleUpdatePortfolio = () => navigate(`/edit-portfolio/${userID}`);
-
-  const getProfilePictureUrl = (user) => {
-    console.log("User object:", user);
-    const pic = user?.profilePicture; // Get profile picture path
-    console.log("Profile Picture URL:", pic);
-
-    if (!pic) return "/default-avatar.png"; // Fallback to default if no picture
-    return pic.startsWith("http") ? pic : `https://your-backend-url.com${pic}`; // Handle relative path if necessary
-  };
-
-  // Ensure that user details are fetched before trying to render the profile picture
-  if (!userDetails) {
-    return <div>Loading...</div>; // Optionally, a loading state while data is being fetched
-  }
 
   if (loading) {
     return (
@@ -186,7 +192,7 @@ const PortfolioPage = () => {
             }}>
               <Avatar
                 alt={userDetails?.firstName || "User"}
-                src={userDetails?.profilePicture}
+                src={profilePictureUrl}
                 sx={{ 
                   width: 100, 
                   height: 100, 
@@ -272,7 +278,9 @@ const PortfolioPage = () => {
                     Hours:
                   </Typography>
                   <Typography variant="body1">
-                    {portfolio?.time || "Not specified"}
+                    {portfolio?.startTime && portfolio?.endTime 
+                      ? `${formatTime(portfolio.startTime)} - ${formatTime(portfolio.endTime)}`
+                      : "Not specified"}
                   </Typography>
                 </Box>
               </Box>
@@ -353,13 +361,7 @@ const PortfolioPage = () => {
                         <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
                           <Avatar
                             alt={comment.authorName || "Anonymous"}
-                            src={
-                              comment.profilePicture
-                              ? comment.profilePicture.startsWith("http")
-                                ? comment.profilePicture
-                                : comment.profilePicture // Remove baseUrl
-                              : "/default-avatar.png"
-                            }
+                            src={comment.profilePicture || "/default-avatar.png"}
                             sx={{ width: 48, height: 48 }}
                           />
                           <Box>

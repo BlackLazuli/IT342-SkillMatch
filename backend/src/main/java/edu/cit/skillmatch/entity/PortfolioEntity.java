@@ -1,6 +1,7 @@
 package edu.cit.skillmatch.entity;
 
 import jakarta.persistence.*;
+import java.time.LocalTime;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -24,7 +25,10 @@ public class PortfolioEntity {
     private List<String> daysAvailable; // Comma-separated list like "Monday,Tuesday,Friday"
 
     @Column
-    private String time; // Example: "9:00 AM - 5:00 PM"
+    private LocalTime startTime; // Example: 09:00
+
+    @Column
+    private LocalTime endTime; // Example: 17:00
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL)
     private List<ServiceEntity> servicesOffered;
@@ -68,12 +72,20 @@ public class PortfolioEntity {
         this.daysAvailable = daysAvailable;
     }
 
-    public String getTime() {
-        return time;
+    public LocalTime getStartTime() {
+        return startTime;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 
     public List<ServiceEntity> getServicesOffered() {

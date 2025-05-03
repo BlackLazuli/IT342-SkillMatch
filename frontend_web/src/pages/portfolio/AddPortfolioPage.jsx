@@ -10,6 +10,7 @@ import {
   FormControlLabel,
   Checkbox,
   FormGroup,
+  Grid,
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
 
@@ -22,7 +23,6 @@ const AddPortfolioPage = () => {
   const { userID } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
   const [portfolioData, setPortfolioData] = useState({
     workExperience: "",
@@ -30,8 +30,9 @@ const AddPortfolioPage = () => {
     newServiceName: "",
     newServiceDescription: "",
     newServicePricing: "",
-    daysAvailable: [], // Global availability
-    availableTime: "", // Global availability
+    daysAvailable: [],
+    startTime: "09:00", // Default start time
+    endTime: "17:00",   // Default end time
   });
 
   const handleChange = (e) => {
@@ -113,7 +114,8 @@ const AddPortfolioPage = () => {
           body: JSON.stringify({
             workExperience: portfolioData.workExperience,
             daysAvailable: portfolioData.daysAvailable,
-            time: portfolioData.availableTime,
+            startTime: portfolioData.startTime,
+            endTime: portfolioData.endTime,
             servicesOffered: portfolioData.servicesOffered,
           }),
         }
@@ -168,14 +170,41 @@ const AddPortfolioPage = () => {
                 />
               ))}
             </FormGroup>
-            <TextField
-              label="Available Time"
-              name="availableTime"
-              value={portfolioData.availableTime}
-              onChange={handleChange}
-              fullWidth
-              margin="normal"
-            />
+
+            <Grid container spacing={2} sx={{ mt: 1 }}>
+              <Grid item xs={6}>
+                <TextField
+                  label="Start Time"
+                  name="startTime"
+                  type="time"
+                  value={portfolioData.startTime}
+                  onChange={handleChange}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 300, // 5 min intervals
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="End Time"
+                  name="endTime"
+                  type="time"
+                  value={portfolioData.endTime}
+                  onChange={handleChange}
+                  fullWidth
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                  inputProps={{
+                    step: 300, // 5 min intervals
+                  }}
+                />
+              </Grid>
+            </Grid>
 
             <Typography variant="h6" sx={{ mt: 2 }}>
               Services

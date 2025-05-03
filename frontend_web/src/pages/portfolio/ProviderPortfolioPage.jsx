@@ -54,6 +54,7 @@ const ProviderPortfolioPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
+  const [selectedService, setSelectedService] = useState(null);
 // Helper to check if selected time is within available hours
 const isTimeInRange = (selectedDateTime, startTime, endTime) => {
   if (!selectedDateTime || !startTime || !endTime) return false;
@@ -103,6 +104,10 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
       return alert("Please select a date and time.");
     }
   
+    if (!selectedService) {
+      return alert("Please select a service.");
+    }
+  
     // Validate day availability
     if (!isAvailableDay(appointmentDateTime, portfolio?.daysAvailable)) {
       return alert("Provider is not available on the selected day.");
@@ -117,6 +122,7 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
       user: { id: personalInfo.userId },
       role: "CUSTOMER",
       portfolio: { id: portfolio.id },
+      service: selectedService, // Add the selected service
       appointmentTime: appointmentDateTime,
       notes: appointmentNotes,
     };
@@ -137,6 +143,7 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
       setAppointmentModalOpen(false);
       setAppointmentDateTime("");
       setAppointmentNotes("");
+      setSelectedService(null);
       alert("Appointment booked successfully!");
     } catch (error) {
       console.error("Appointment booking failed", error);
@@ -352,13 +359,16 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
                   Add Review
                 </Button>
                 <Button
-                  variant="outlined"
-                  startIcon={<Event />}
-                  onClick={() => setAppointmentModalOpen(true)}
-                  sx={{ borderRadius: 2 }}
-                >
-                  Book Appointment
-                </Button>
+  variant="outlined"
+  startIcon={<Event />}
+  onClick={() => {
+    setAppointmentModalOpen(true);
+    setSelectedService(null);
+  }}
+  sx={{ borderRadius: 2 }}
+>
+  Book Appointment
+</Button>
               </Stack>
             </Box>
 
@@ -580,68 +590,93 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
           </DialogActions>
         </Dialog>
 
-        {/* Appointment Modal */}
-        <Dialog 
-          open={appointmentModalOpen} 
-          onClose={() => setAppointmentModalOpen(false)}
-          fullWidth
-          maxWidth="sm"
-        >
-          <DialogTitle>Book Appointment</DialogTitle>
-          <DialogContent>
-            <Box sx={{ mt: 2 }}>
-            <TextField
-  label="Appointment Date & Time"
-  type="datetime-local"
+{/* Appointment Modal */}
+<Dialog 
+  open={appointmentModalOpen} 
+  onClose={() => setAppointmentModalOpen(false)}
   fullWidth
-  InputLabelProps={{ shrink: true }}
-  value={appointmentDateTime}
-  onChange={(e) => setAppointmentDateTime(e.target.value)}
-  sx={{ mb: 3 }}
-  inputProps={{
-    min: getMinDateTime(), // Prevent selecting past dates/times
-    step: 900 // 15-minute intervals
-  }}
-  error={appointmentDateTime && (
-    !isAvailableDay(appointmentDateTime, portfolio?.daysAvailable) || 
-    !isTimeInRange(appointmentDateTime, portfolio?.startTime, portfolio?.endTime)
-  )}
-  helperText={
-    appointmentDateTime && (
-      !isAvailableDay(appointmentDateTime, portfolio?.daysAvailable) 
-        ? "Provider is not available on this day" 
-        : !isTimeInRange(appointmentDateTime, portfolio?.startTime, portfolio?.endTime)
-          ? "Time must be between provider's working hours"
-          : ""
-    )
-  }
-/>
-              <TextField
-                label="Notes (optional)"
-                fullWidth
-                multiline
-                rows={3}
-                value={appointmentNotes}
-                onChange={(e) => setAppointmentNotes(e.target.value)}
-              />
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button 
-              onClick={() => setAppointmentModalOpen(false)} 
-              sx={{ borderRadius: 2 }}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleSubmitAppointment} 
-              variant="contained"
-              sx={{ borderRadius: 2 }}
-            >
-              Confirm Booking
-            </Button>
-          </DialogActions>
-        </Dialog>
+  maxWidth="sm"
+>
+  <DialogTitle>Book Appointment</DialogTitle>
+  <DialogContent>
+    <Box sx={{ mt: 2 }}>
+      {/* Service Selection Dropdown */}
+      <TextField
+        select
+        label="Select Service"
+        fullWidth
+        value={selectedService || ''}
+        onChange={(e) => setSelectedService(e.target.value)}
+        sx={{ mb: 3 }}
+        SelectProps={{
+          native: true,
+        }}
+      >
+        <option value="">Select a service...</option>
+        {portfolio?.servicesOffered?.map((service, index) => (
+          <option key={index} value={service.name}>
+            {service.name} - {service.pricing}
+          </option>
+        ))}
+      </TextField>
+
+      <TextField
+        label="Appointment Date & Time"
+        type="datetime-local"
+        fullWidth
+        InputLabelProps={{ shrink: true }}
+        value={appointmentDateTime}
+        onChange={(e) => setAppointmentDateTime(e.target.value)}
+        sx={{ mb: 3 }}
+        inputProps={{
+          min: getMinDateTime(),
+          step: 900 // 15-minute intervals
+        }}
+        error={appointmentDateTime && (
+          !isAvailableDay(appointmentDateTime, portfolio?.daysAvailable) || 
+          !isTimeInRange(appointmentDateTime, portfolio?.startTime, portfolio?.endTime)
+        )}
+        helperText={
+          appointmentDateTime && (
+            !isAvailableDay(appointmentDateTime, portfolio?.daysAvailable) 
+              ? "Provider is not available on this day" 
+              : !isTimeInRange(appointmentDateTime, portfolio?.startTime, portfolio?.endTime)
+                ? "Time must be between provider's working hours"
+                : ""
+          )
+        }
+      />
+      
+      <TextField
+        label="Notes (optional)"
+        fullWidth
+        multiline
+        rows={3}
+        value={appointmentNotes}
+        onChange={(e) => setAppointmentNotes(e.target.value)}
+      />
+    </Box>
+  </DialogContent>
+  <DialogActions>
+    <Button 
+      onClick={() => {
+        setAppointmentModalOpen(false);
+        setSelectedService(null);
+      }} 
+      sx={{ borderRadius: 2 }}
+    >
+      Cancel
+    </Button>
+    <Button 
+      onClick={handleSubmitAppointment} 
+      variant="contained"
+      disabled={!selectedService}
+      sx={{ borderRadius: 2 }}
+    >
+      Confirm Booking
+    </Button>
+  </DialogActions>
+</Dialog>
       </Container>
     </Box>
   );

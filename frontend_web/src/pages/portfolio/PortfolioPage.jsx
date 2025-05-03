@@ -242,39 +242,43 @@ const PortfolioPage = () => {
               <Divider sx={{ my: 3 }} />
 
               <Box sx={{ display: "flex", gap: 4, flexDirection: isMobile ? "column" : "row" }}>
-                <Box sx={{ flex: 1 }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
-                    <Schedule color="primary" />
-                    <Typography variant="h6" fontWeight="bold">
-                      Availability
-                    </Typography>
-                  </Box>
-                  
-                  <Typography variant="body1" fontWeight="medium" gutterBottom>
-                    Days Available:
-                  </Typography>
-                  <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mb: 2 }}>
-                    {portfolio?.daysAvailable?.length > 0 ? (
-                      portfolio.daysAvailable.map((day, index) => (
-                        <Chip 
-                          key={index} 
-                          label={day} 
-                          color="primary"
-                          variant="outlined"
-                        />
-                      ))
-                    ) : (
-                      <Typography variant="body2">Not specified</Typography>
-                    )}
-                  </Stack>
+              <Box sx={{ flex: 1 }}>
+  <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2 }}>
+    <Schedule color="primary" />
+    <Typography variant="h6" fontWeight="bold">
+      Availability
+    </Typography>
+  </Box>
+  
+  <Typography variant="body1" fontWeight="medium" gutterBottom>
+    Days Available:
+  </Typography>
+  <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", gap: 1, mb: 2 }}>
+    {portfolio?.daysAvailable?.length > 0 ? (
+      portfolio.daysAvailable.map((day, index) => (
+        <Chip 
+          key={index} 
+          label={day} 
+          color="primary"
+          variant="outlined"
+        />
+      ))
+    ) : (
+      <Typography variant="body2">Not specified</Typography>
+    )}
+  </Stack>
 
-                  <Typography variant="body1" fontWeight="medium" gutterBottom>
-                    Hours:
-                  </Typography>
-                  <Typography variant="body1">
-                    {portfolio?.time || "Not specified"}
-                  </Typography>
-                </Box>
+  <Typography variant="body1" fontWeight="medium" gutterBottom>
+    Available Hours:
+  </Typography>
+  {portfolio?.startTime && portfolio?.endTime ? (
+    <Typography variant="body1">
+      {formatTime(portfolio.startTime)} - {formatTime(portfolio.endTime)}
+    </Typography>
+  ) : (
+    <Typography variant="body1">Not specified</Typography>
+  )}
+</Box>
               </Box>
             </Paper>
 

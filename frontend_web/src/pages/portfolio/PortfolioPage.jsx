@@ -75,6 +75,7 @@ const PortfolioPage = () => {
         if (!res.ok) throw new Error("Failed to fetch portfolio.");
 
         const data = await res.json();
+        console.log("Fetched Portfolio Data:", data); 
         setPortfolio(data);
         fetchComments(data.id);
       } catch (error) {

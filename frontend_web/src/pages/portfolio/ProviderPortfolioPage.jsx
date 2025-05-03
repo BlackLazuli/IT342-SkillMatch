@@ -54,6 +54,39 @@ const ProviderPortfolioPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
+// Helper to check if selected time is within available hours
+const isTimeInRange = (selectedDateTime, startTime, endTime) => {
+  if (!selectedDateTime || !startTime || !endTime) return false;
+  
+  const selectedDate = new Date(selectedDateTime);
+  const selectedHours = selectedDate.getHours();
+  const selectedMinutes = selectedDate.getMinutes();
+
+  const [startHours, startMinutes] = startTime.split(':').map(Number);
+  const [endHours, endMinutes] = endTime.split(':').map(Number);
+
+  const selectedTotalMinutes = selectedHours * 60 + selectedMinutes;
+  const startTotalMinutes = startHours * 60 + startMinutes;
+  const endTotalMinutes = endHours * 60 + endMinutes;
+
+  return selectedTotalMinutes >= startTotalMinutes && 
+         selectedTotalMinutes <= endTotalMinutes;
+};
+
+// Helper to get minimum datetime for input (current datetime)
+const getMinDateTime = () => {
+  const now = new Date();
+  // Format as YYYY-MM-DDTHH:MM (browser datetime-local input format)
+  return now.toISOString().slice(0, 16);
+};
+
+// Helper to check if selected date is an available day
+const isAvailableDay = (selectedDateTime, availableDays) => {
+  if (!selectedDateTime || !availableDays?.length) return false;
+  const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const selectedDay = dayNames[new Date(selectedDateTime).getDay()];
+  return availableDays.includes(selectedDay) || availableDays.includes('Everyday');
+};
 
   const formatTime = (time) => {
     if (!time) return "";
@@ -66,45 +99,45 @@ const ProviderPortfolioPage = () => {
 
 
   const handleSubmitAppointment = async () => {
-    if (!appointmentDateTime) return alert("Please select a date and time.");
+    if (!appointmentDateTime) {
+      return alert("Please select a date and time.");
+    }
   
-    // Log the data being sent in the request
+    // Validate day availability
+    if (!isAvailableDay(appointmentDateTime, portfolio?.daysAvailable)) {
+      return alert("Provider is not available on the selected day.");
+    }
+  
+    // Validate time range
+    if (!isTimeInRange(appointmentDateTime, portfolio?.startTime, portfolio?.endTime)) {
+      return alert("Please select a time within the provider's working hours.");
+    }
+  
     const requestData = {
       user: { id: personalInfo.userId },
-      role: "CUSTOMER",  // Can be "CUSTOMER" or "SERVICE_PROVIDER"
+      role: "CUSTOMER",
       portfolio: { id: portfolio.id },
       appointmentTime: appointmentDateTime,
       notes: appointmentNotes,
     };
   
-    console.log("Posting Appointment Data:", requestData);
-  
     try {
-      // Use the useEffect-like pattern for posting the appointment data
-      const postAppointment = async () => {
-        const res = await fetch("/api/appointments/", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(requestData), // Posting the request data
-        });
+      const res = await fetch("/api/appointments/", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
   
-        if (!res.ok) throw new Error("Failed to book appointment");
+      if (!res.ok) throw new Error("Failed to book appointment");
   
-        const data = await res.json();  // The returned AppointmentDTO
-  
-        setAppointmentModalOpen(false);
-        setAppointmentDateTime("");
-        setAppointmentNotes("");
-        
-        alert("Appointment booked successfully!");
-        console.log("Booked Appointment Data:", data); // You can log or handle the response as needed
-      };
-  
-      postAppointment();
-  
+      const data = await res.json();
+      setAppointmentModalOpen(false);
+      setAppointmentDateTime("");
+      setAppointmentNotes("");
+      alert("Appointment booked successfully!");
     } catch (error) {
       console.error("Appointment booking failed", error);
       alert("Failed to book appointment");
@@ -557,15 +590,32 @@ const ProviderPortfolioPage = () => {
           <DialogTitle>Book Appointment</DialogTitle>
           <DialogContent>
             <Box sx={{ mt: 2 }}>
-              <TextField
-                label="Appointment Date & Time"
-                type="datetime-local"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                value={appointmentDateTime}
-                onChange={(e) => setAppointmentDateTime(e.target.value)}
-                sx={{ mb: 3 }}
-              />
+            <TextField
+  label="Appointment Date & Time"
+  type="datetime-local"
+  fullWidth
+  InputLabelProps={{ shrink: true }}
+  value={appointmentDateTime}
+  onChange={(e) => setAppointmentDateTime(e.target.value)}
+  sx={{ mb: 3 }}
+  inputProps={{
+    min: getMinDateTime(), // Prevent selecting past dates/times
+    step: 900 // 15-minute intervals
+  }}
+  error={appointmentDateTime && (
+    !isAvailableDay(appointmentDateTime, portfolio?.daysAvailable) || 
+    !isTimeInRange(appointmentDateTime, portfolio?.startTime, portfolio?.endTime)
+  )}
+  helperText={
+    appointmentDateTime && (
+      !isAvailableDay(appointmentDateTime, portfolio?.daysAvailable) 
+        ? "Provider is not available on this day" 
+        : !isTimeInRange(appointmentDateTime, portfolio?.startTime, portfolio?.endTime)
+          ? "Time must be between provider's working hours"
+          : ""
+    )
+  }
+/>
               <TextField
                 label="Notes (optional)"
                 fullWidth

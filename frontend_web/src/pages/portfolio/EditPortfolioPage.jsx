@@ -119,11 +119,11 @@ const EditPortfolioPage = () => {
     }
   };
 
-  const handleServiceRemove = (serviceToRemove) => {
+  const handleServiceRemove = (indexToRemove) => {
     setPortfolioData((prevState) => ({
       ...prevState,
       servicesOffered: prevState.servicesOffered.filter(
-        (service) => service.name !== serviceToRemove.name
+        (_, index) => index !== indexToRemove
       ),
     }));
   };
@@ -277,11 +277,11 @@ const EditPortfolioPage = () => {
             </Button>
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
               {portfolioData.servicesOffered.map((service, index) => (
-                <Chip
-                  key={index}
-                  label={`${service.name} - ${service.pricing}`}
-                  onDelete={() => handleServiceRemove(service)}
-                />
+  <Chip
+  key={index}
+  label={`${service.name} - ${service.pricing}`}
+  onDelete={() => handleServiceRemove(index)}
+/>
               ))}
             </Box>
 

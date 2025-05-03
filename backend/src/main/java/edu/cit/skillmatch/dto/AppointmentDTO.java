@@ -14,18 +14,12 @@ public class AppointmentDTO {
     private AppointmentStatus status;
     private String notes;
     private LocalDateTime createdAt;
-    private Long portfolioId;
+    private Long portfolioId; // Add portfolioId field
 
+    
     private String providerFirstName;
     private String providerLastName;
-    private Long providerId;
-
-    // ✅ New service-related fields
-    private Long serviceId;
-    private String serviceName;
-    private String serviceDescription;
-    private String servicePricing;
-    private String serviceTime;
+    private Long providerId;  
 
     // Getters and Setters
     public Long getId() {
@@ -108,6 +102,7 @@ public class AppointmentDTO {
         this.portfolioId = portfolioId;
     }
 
+    
     public String getProviderFirstName() {
         return providerFirstName;
     }
@@ -132,44 +127,5 @@ public class AppointmentDTO {
         this.providerId = providerId;
     }
 
-    // ✅ Service-related getters and setters
-    public Long getServiceId() {
-        return serviceId;
-    }
 
-    public void setServiceId(Long serviceId) {
-        this.serviceId = serviceId;
-    }
-
-    public String getServiceName() {
-        return serviceName;
-    }
-
-    public void setServiceName(String serviceName) {
-        this.serviceName = serviceName;
-    }
-
-    public String getServiceDescription() {
-        return serviceDescription;
-    }
-
-    public void setServiceDescription(String serviceDescription) {
-        this.serviceDescription = serviceDescription;
-    }
-
-    public String getServicePricing() {
-        return servicePricing;
-    }
-
-    public void setServicePricing(String servicePricing) {
-        this.servicePricing = servicePricing;
-    }
-
-    public String getServiceTime() {
-        return serviceTime;
-    }
-
-    public void setServiceTime(String serviceTime) {
-        this.serviceTime = serviceTime;
-    }
 }

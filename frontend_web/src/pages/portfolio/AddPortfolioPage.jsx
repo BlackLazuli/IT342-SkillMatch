@@ -10,7 +10,6 @@ import {
   FormControlLabel,
   Checkbox,
   FormGroup,
-  Grid,
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
 
@@ -23,7 +22,7 @@ const AddPortfolioPage = () => {
   const { userID } = useParams();
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080";
+  const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
   const [portfolioData, setPortfolioData] = useState({
     workExperience: "",
@@ -31,9 +30,8 @@ const AddPortfolioPage = () => {
     newServiceName: "",
     newServiceDescription: "",
     newServicePricing: "",
-    daysAvailable: [],
-    startTime: "", // Changed from availableTime
-    endTime: "",  // New field
+    daysAvailable: [], // Global availability
+    availableTime: "", // Global availability
   });
 
   const handleChange = (e) => {
@@ -115,8 +113,7 @@ const AddPortfolioPage = () => {
           body: JSON.stringify({
             workExperience: portfolioData.workExperience,
             daysAvailable: portfolioData.daysAvailable,
-            startTime: portfolioData.startTime, // Updated field
-            endTime: portfolioData.endTime,     // New field
+            time: portfolioData.availableTime,
             servicesOffered: portfolioData.servicesOffered,
           }),
         }
@@ -152,8 +149,6 @@ const AddPortfolioPage = () => {
               fullWidth
               required
               margin="normal"
-              multiline
-              rows={4}
             />
 
             <Typography variant="h6" sx={{ mt: 2 }}>
@@ -173,40 +168,20 @@ const AddPortfolioPage = () => {
                 />
               ))}
             </FormGroup>
-
-            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
-              Available Hours
-            </Typography>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  label="Start Time"
-                  name="startTime"
-                  type="time"
-                  value={portfolioData.startTime}
-                  onChange={handleChange}
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <TextField
-                  label="End Time"
-                  name="endTime"
-                  type="time"
-                  value={portfolioData.endTime}
-                  onChange={handleChange}
-                  fullWidth
-                  InputLabelProps={{ shrink: true }}
-                />
-              </Grid>
-            </Grid>
+            <TextField
+              label="Available Time"
+              name="availableTime"
+              value={portfolioData.availableTime}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
 
             <Typography variant="h6" sx={{ mt: 2 }}>
               Services
             </Typography>
             <TextField
-              label="Service Name"
+              label="New Service Name"
               name="newServiceName"
               value={portfolioData.newServiceName}
               onChange={handleChange}
@@ -214,29 +189,26 @@ const AddPortfolioPage = () => {
               margin="normal"
             />
             <TextField
-              label="Service Description"
+              label="New Service Description"
               name="newServiceDescription"
               value={portfolioData.newServiceDescription}
               onChange={handleChange}
               fullWidth
               margin="normal"
-              multiline
-              rows={3}
             />
             <TextField
-              label="Pricing"
+              label="New Service Pricing"
               name="newServicePricing"
               value={portfolioData.newServicePricing}
               onChange={handleChange}
               fullWidth
               margin="normal"
-              placeholder="e.g., $50/hour or $200 flat rate"
             />
             <Button
               type="button"
               variant="outlined"
               onClick={handleServiceAdd}
-              sx={{ alignSelf: "flex-start", mb: 2, mt: 1 }}
+              sx={{ alignSelf: "flex-start", mb: 2 }}
             >
               Add Service
             </Button>
@@ -250,13 +222,8 @@ const AddPortfolioPage = () => {
               ))}
             </Box>
 
-            <Button 
-              type="submit" 
-              variant="contained" 
-              fullWidth 
-              sx={{ mt: 3, py: 1.5 }}
-            >
-              Submit Portfolio
+            <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+              Submit
             </Button>
           </form>
         </Paper>

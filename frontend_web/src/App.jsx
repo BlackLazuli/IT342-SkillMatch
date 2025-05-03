@@ -19,14 +19,14 @@ import ProviderProfilePage from './pages/profile/ProviderProfilePage';
 
 
 function App() {
-  const { personalInfo } = usePersonalInfo(); // Access context
+  const { personalInfo, loading } = usePersonalInfo(); // ✅ Use loading
 
   // PrivateRoute logic
   const PrivateRoute = ({ children }) => {
-    if (personalInfo === null) {
-      return <div>Loading...</div>; // Show loading until context is ready
+    if (loading) {
+      return <div>Loading...</div>; // Optional: You can show a spinner instead
     }
-
+  
     return personalInfo && personalInfo.userId ? children : <Navigate to="/" />;
   };
 

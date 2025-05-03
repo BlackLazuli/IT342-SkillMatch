@@ -4,6 +4,7 @@ const PersonalInfoContext = createContext(null);
 
 export const PersonalInfoProvider = ({ children }) => {
   const [personalInfo, setPersonalInfoState] = useState(null);
+  const [loading, setLoading] = useState(true); // ✅ Added loading state
 
   // Load personalInfo from localStorage on mount
   useEffect(() => {
@@ -11,6 +12,7 @@ export const PersonalInfoProvider = ({ children }) => {
     if (storedPersonalInfo) {
       setPersonalInfoState(JSON.parse(storedPersonalInfo));
     }
+    setLoading(false); // ✅ Mark loading as done
   }, []);
 
   // Helper to update personalInfo and save to localStorage
@@ -34,6 +36,7 @@ export const PersonalInfoProvider = ({ children }) => {
     <PersonalInfoContext.Provider
       value={{
         personalInfo,
+        loading, // ✅ Provide loading state
         setPersonalInfo: updatePersonalInfo,
         updateProfilePicture,
       }}

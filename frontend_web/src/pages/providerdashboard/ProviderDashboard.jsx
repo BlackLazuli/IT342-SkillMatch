@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AppBar from "../../component/AppBar";
+import { useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -24,6 +25,7 @@ import {
 
 const ProviderDashboard = () => {
   const [appointmentCount, setAppointmentCount] = useState(0);
+  const navigate = useNavigate();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,6 +35,12 @@ const ProviderDashboard = () => {
   const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  // Redirect to login if user is not authenticated
+useEffect(() => {
+  if (!personalInfo?.userId) {
+    navigate("/", { replace: true });
+  }
+}, [personalInfo?.userId, navigate]);
   useEffect(() => {
     if (!personalInfo?.userId) {
       console.log("No user ID available yet");

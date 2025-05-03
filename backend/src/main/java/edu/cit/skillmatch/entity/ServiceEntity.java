@@ -26,10 +26,6 @@ public class ServiceEntity {
     @JsonIgnore // Prevent cyclic reference
     private PortfolioEntity portfolio; // Back-reference to PortfolioEntity
 
-    @ManyToOne
-    @JoinColumn(name = "service_id", nullable = false)
-    private ServiceEntity service;
-
     // Getters and setters
     public Long getId() {
         return id;
@@ -71,13 +67,4 @@ public class ServiceEntity {
     public void setPortfolio(PortfolioEntity portfolio) {
         this.portfolio = portfolio;
     }
-
-    public ServiceEntity getService() {
-        return service;
-    }
-    
-    public void setService(ServiceEntity service) {
-        this.service = service;
-    }
-    
 }

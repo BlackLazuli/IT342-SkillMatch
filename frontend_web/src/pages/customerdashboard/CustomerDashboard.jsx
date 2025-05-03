@@ -31,6 +31,16 @@ const ProviderDashboard = () => {
   const { personalInfo } = usePersonalInfo();
   const userId = personalInfo?.userId;
 
+  // Helper function to format time
+  const formatTime = (time) => {
+    if (!time) return "";
+    const [hours, minutes] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const hour12 = hour % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
+  };
+
   useEffect(() => {
     const fetchPortfolios = async () => {
       try {
@@ -200,7 +210,7 @@ const ProviderDashboard = () => {
 
         <Grid container spacing={3}>
           {filteredPortfolios.map((portfolio) => {
-            const { id: portfolioId, user, workExperience, daysAvailable, time } = portfolio;
+            const { id: portfolioId, user, workExperience, daysAvailable, startTime, endTime } = portfolio;
             const distance = currentUserLocation && userLocations[user.id] 
               ? calculateDistance(
                   currentUserLocation.lat,
@@ -289,7 +299,9 @@ const ProviderDashboard = () => {
                       <Box display="flex" alignItems="center" gap={1}>
                         <AccessTime fontSize="small" sx={{ color: '#607d8b' }} />
                         <Typography variant="body2" sx={{ color: '#455a64' }}>
-                          {time || "Not specified"}
+                          {startTime && endTime 
+                            ? `${formatTime(startTime)} - ${formatTime(endTime)}`
+                            : "Not specified"}
                         </Typography>
                       </Box>
                     </Box>

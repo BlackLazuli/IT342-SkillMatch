@@ -9,7 +9,8 @@ import {
   Chip,
   FormControlLabel,
   Checkbox,
-  FormGroup
+  FormGroup,
+  Grid,
 } from "@mui/material";
 import AppBar from "../../component/AppBar";
 
@@ -18,8 +19,7 @@ const daysOfWeek = [
   "Thursday", "Friday", "Saturday", "Sunday", "Everyday"
 ];
 
-
-const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
+const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080";
 
 const EditPortfolioPage = () => {
   const { userID } = useParams();
@@ -33,7 +33,8 @@ const EditPortfolioPage = () => {
     newServiceDescription: "",
     newServicePricing: "",
     daysAvailable: [],
-    time: "",
+    startTime: "", // Changed from time
+    endTime: "",  // New field
   });
 
   useEffect(() => {
@@ -59,7 +60,8 @@ const EditPortfolioPage = () => {
           workExperience: portfolio.workExperience,
           servicesOffered: portfolio.servicesOffered || [],
           daysAvailable: portfolio.daysAvailable || [],
-          time: portfolio.time || "",
+          startTime: portfolio.startTime || "", // Updated field
+          endTime: portfolio.endTime || "",     // New field
           newServiceName: "",
           newServiceDescription: "",
           newServicePricing: "",
@@ -82,16 +84,11 @@ const EditPortfolioPage = () => {
   };
 
   const handleDayCheckboxChange = (day) => {
-    console.log("Toggling day: ", day);  // Debugging
-
     setPortfolioData((prevState) => {
       const currentDays = prevState.daysAvailable;
       const updatedDays = currentDays.includes(day)
         ? currentDays.filter((d) => d !== day)
         : [...currentDays, day];
-
-      console.log("Updated daysAvailable: ", updatedDays);  // Debugging
-
       return {
         ...prevState,
         daysAvailable: updatedDays,
@@ -141,8 +138,6 @@ const EditPortfolioPage = () => {
       return;
     }
 
-    console.log("Submitting data: ", portfolioData); // Debugging
-
     try {
       const response = await fetch(
         `/api/portfolios/${userID}`,
@@ -155,7 +150,8 @@ const EditPortfolioPage = () => {
           body: JSON.stringify({
             workExperience: portfolioData.workExperience,
             daysAvailable: portfolioData.daysAvailable,
-            time: portfolioData.time,
+            startTime: portfolioData.startTime, // Updated field
+            endTime: portfolioData.endTime,     // New field
             servicesOffered: portfolioData.servicesOffered,
           }),
         }
@@ -191,73 +187,110 @@ const EditPortfolioPage = () => {
               fullWidth
               required
               margin="normal"
+              multiline
+              rows={4}
             />
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-              <TextField
-                label="New Service Name"
-                name="newServiceName"
-                value={portfolioData.newServiceName}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="New Service Description"
-                name="newServiceDescription"
-                value={portfolioData.newServiceDescription}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <TextField
-                label="New Service Pricing"
-                name="newServicePricing"
-                value={portfolioData.newServicePricing}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <FormGroup row sx={{ flexWrap: "wrap", gap: 1 }}>
-                {daysOfWeek.map((day) => (
-                  <FormControlLabel
-                    key={day}
-                    control={
-                      <Checkbox
-                        checked={portfolioData.daysAvailable.includes(day)}
-                        onChange={() => handleDayCheckboxChange(day)}
-                      />
-                    }
-                    label={day}
-                  />
-                ))}
-              </FormGroup>
-              <TextField
-                label="Available Time"
-                name="time"
-                value={portfolioData.time}
-                onChange={handleChange}
-                fullWidth
-                margin="normal"
-              />
-              <Button
-                type="button"
-                variant="outlined"
-                onClick={handleServiceAdd}
-                sx={{ alignSelf: "flex-start", mb: 2 }}
-              >
-                Add Service
-              </Button>
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-                {portfolioData.servicesOffered.map((service, index) => (
-                  <Chip
-                    key={index}
-                    label={`${service.name} - ${service.pricing}`}
-                    onDelete={() => handleServiceRemove(service)}
-                  />
-                ))}
-              </Box>
+
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Availability
+            </Typography>
+            <FormGroup row sx={{ flexWrap: "wrap", gap: 1 }}>
+              {daysOfWeek.map((day) => (
+                <FormControlLabel
+                  key={day}
+                  control={
+                    <Checkbox
+                      checked={portfolioData.daysAvailable.includes(day)}
+                      onChange={() => handleDayCheckboxChange(day)}
+                    />
+                  }
+                  label={day}
+                />
+              ))}
+            </FormGroup>
+
+            <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
+              Available Hours
+            </Typography>
+            <Grid container spacing={2}>
+              <Grid item xs={6}>
+                <TextField
+                  label="Start Time"
+                  name="startTime"
+                  type="time"
+                  value={portfolioData.startTime}
+                  onChange={handleChange}
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField
+                  label="End Time"
+                  name="endTime"
+                  type="time"
+                  value={portfolioData.endTime}
+                  onChange={handleChange}
+                  fullWidth
+                  InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+            </Grid>
+
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Services
+            </Typography>
+            <TextField
+              label="Service Name"
+              name="newServiceName"
+              value={portfolioData.newServiceName}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+            />
+            <TextField
+              label="Service Description"
+              name="newServiceDescription"
+              value={portfolioData.newServiceDescription}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              multiline
+              rows={3}
+            />
+            <TextField
+              label="Pricing"
+              name="newServicePricing"
+              value={portfolioData.newServicePricing}
+              onChange={handleChange}
+              fullWidth
+              margin="normal"
+              placeholder="e.g., $50/hour or $200 flat rate"
+            />
+            <Button
+              type="button"
+              variant="outlined"
+              onClick={handleServiceAdd}
+              sx={{ alignSelf: "flex-start", mb: 2, mt: 1 }}
+            >
+              Add Service
+            </Button>
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+              {portfolioData.servicesOffered.map((service, index) => (
+                <Chip
+                  key={index}
+                  label={`${service.name} - ${service.pricing}`}
+                  onDelete={() => handleServiceRemove(service)}
+                />
+              ))}
             </Box>
-            <Button type="submit" variant="contained" fullWidth sx={{ mt: 2 }}>
+
+            <Button 
+              type="submit" 
+              variant="contained" 
+              fullWidth 
+              sx={{ mt: 3, py: 1.5 }}
+            >
               Update Portfolio
             </Button>
           </form>

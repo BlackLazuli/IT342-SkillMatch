@@ -15,6 +15,8 @@ import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.models.AppointmentRequest
 import com.example.skillmatch.models.Portfolio
+import com.example.skillmatch.models.PortfolioReference
+import com.example.skillmatch.models.UserReference
 import com.example.skillmatch.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -69,31 +71,24 @@ class SetAppointmentActivity : AppCompatActivity() {
         professionalId = intent.getLongExtra(EXTRA_PROFESSIONAL_ID, 0)
         val professionalName = intent.getStringExtra(EXTRA_PROFESSIONAL_NAME) ?: "Professional"
         val professionalRole = intent.getStringExtra(EXTRA_PROFESSIONAL_ROLE) ?: "Service Provider"
-        val professionalRating = intent.getFloatExtra(EXTRA_PROFESSIONAL_RATING, 0.0f)
-        
-        if (professionalId == 0L) {
-            Toast.makeText(this, "Error: Professional not found", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
+        val professionalRating = intent.getFloatExtra(EXTRA_PROFESSIONAL_RATING, 0f)
         
         // Initialize views
         initializeViews()
         
-        // Set initial professional info from intent
+        // Set professional info
         professionalNameText.text = professionalName
         professionalRoleText.text = professionalRole
-        ratingText.text = String.format("%.1f", professionalRating)
+        ratingText.text = "$professionalRating"
         
-        // Set current date and time
+        // Set current date
         updateDateDisplay()
-        updateTimeDisplay()
         
         // Set up listeners
         setupListeners()
         
-        // Fetch professional portfolio data
-        fetchProfessionalPortfolio()
+        // Fetch portfolio data (if available)
+        fetchPortfolioData()
     }
     
     private fun initializeViews() {
@@ -115,42 +110,46 @@ class SetAppointmentActivity : AppCompatActivity() {
         availableTimeText = availabilityContainer.findViewById(R.id.availableTimeText)
     }
     
-    private fun fetchProfessionalPortfolio() {
+    private fun fetchPortfolioData() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val token = sessionManager.getToken()
+                val token = sessionManager.getAuthToken()
                 if (token.isNullOrEmpty()) {
                     Log.e(TAG, "Token is missing or empty")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@SetAppointmentActivity, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show()
+                        // Continue with appointment setup even without portfolio
+                        availableDaysText.text = "Not specified"
+                        availableTimeText.text = "Not specified"
                     }
                     return@launch
                 }
                 
                 val response = ApiClient.apiService.getPortfolio("Bearer $token", professionalId.toString())
-                
                 if (response.isSuccessful && response.body() != null) {
                     portfolio = response.body()
-                    
                     withContext(Dispatchers.Main) {
-                        updatePortfolioUI()
+                        displayPortfolioData(portfolio!!)
                     }
                 } else {
-                    Log.e(TAG, "Failed to fetch portfolio: ${response.code()} - ${response.message()}")
+                    Log.e(TAG, "Failed to fetch portfolio: ${response.code()} - ${response.errorBody()?.string()}")
                     withContext(Dispatchers.Main) {
-                        Toast.makeText(this@SetAppointmentActivity, "Could not load professional's portfolio. Please try again later.", Toast.LENGTH_SHORT).show()
+                        // Continue with appointment setup even without portfolio
+                        availableDaysText.text = "Not specified"
+                        availableTimeText.text = "Not specified"
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error fetching portfolio", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@SetAppointmentActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
+                    // Continue with appointment setup even without portfolio
+                    availableDaysText.text = "Not specified"
+                    availableTimeText.text = "Not specified"
                 }
             }
         }
     }
     
-    private fun updatePortfolioUI() {
+    private fun displayPortfolioData(portfolio: Portfolio) {
         portfolio?.let { portfolio ->
             // Update available days
             val daysAvailable = portfolio.daysAvailable
@@ -224,6 +223,13 @@ class SetAppointmentActivity : AppCompatActivity() {
                 // Validate selected date against professional's availability
                 portfolio?.let { portfolio ->
                     val daysAvailable = portfolio.daysAvailable
+                    
+                    // If "Everyday" is in the list, any day is valid
+                    if (daysAvailable.any { it.equals("Everyday", ignoreCase = true) }) {
+                        // All days are available, no validation needed
+                        return@let
+                    }
+                    
                     val dayOfWeek = selectedDate.get(Calendar.DAY_OF_WEEK)
                     val dayName = when (dayOfWeek) {
                         Calendar.MONDAY -> "monday"
@@ -298,12 +304,13 @@ class SetAppointmentActivity : AppCompatActivity() {
         // Get portfolio ID and ensure it's a non-nullable Long
         val portfolioId = portfolio?.id ?: 0L
         
-        // Create the appointment request
+        // Create the appointment request with proper structure
         val appointmentRequest = AppointmentRequest(
-            userId = userId,
+            user = UserReference(id = userId),
+            portfolio = PortfolioReference(id = portfolioId),
             role = "CUSTOMER", // Assuming the role is CUSTOMER when booking
-            portfolioId = portfolioId, // Use the extracted non-nullable Long
             appointmentTime = dateTime,
+            status = "SCHEDULED", // Explicitly set status
             notes = notesEditText.text.toString().trim()
         )
         
@@ -314,18 +321,8 @@ class SetAppointmentActivity : AppCompatActivity() {
         // Make the API call
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val token = sessionManager.getToken()
-                if (token.isNullOrEmpty()) {
-                    withContext(Dispatchers.Main) {
-                        Toast.makeText(this@SetAppointmentActivity, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show()
-                        setAppointmentButton.isEnabled = true
-                        setAppointmentButton.text = "Set Appointment"
-                    }
-                    return@launch
-                }
-                
                 Log.d(TAG, "Sending appointment request: $appointmentRequest")
-                val response = ApiClient.apiService.bookAppointment("Bearer $token", appointmentRequest)
+                val response = ApiClient.apiService.bookAppointment(appointmentRequest)
                 
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
@@ -333,12 +330,13 @@ class SetAppointmentActivity : AppCompatActivity() {
                         finish() // Go back to previous screen
                     } else {
                         val errorCode = response.code()
+                        val errorBody = response.errorBody()?.string() ?: ""
                         val errorMessage = when (errorCode) {
                             404 -> "Professional's portfolio not found. Please try again later."
                             400 -> "Invalid appointment details. Please check and try again."
                             else -> "Failed to book appointment: Error $errorCode"
                         }
-                        Log.e(TAG, "Appointment booking failed: $errorCode - ${response.message()}")
+                        Log.e(TAG, "Appointment booking failed: $errorCode - $errorBody")
                         Toast.makeText(this@SetAppointmentActivity, errorMessage, Toast.LENGTH_LONG).show()
                         setAppointmentButton.isEnabled = true
                         setAppointmentButton.text = "Set Appointment"

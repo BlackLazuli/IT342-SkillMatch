@@ -50,7 +50,9 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("userId") userId: String
     ): Response<Portfolio>
-
+    
+    @GET("portfolios/getAllPortfolios")
+    suspend fun getAllPortfolios(): Response<List<Portfolio>>
     // Make sure your ApiService has this method defined correctly
     @POST("portfolios/{userId}")
     suspend fun createOrUpdatePortfolio(
@@ -79,11 +81,7 @@ interface ApiService {
     suspend fun getUserWithProfilePicture(@Path("userId") userId: String): Response<User>
 
     @POST("appointments/")
-    @Headers("Content-Type: application/json")
-    suspend fun bookAppointment(
-        @Header("Authorization") token: String,
-        @Body appointmentRequest: AppointmentRequest
-    ): Response<AppointmentResponse>
+    suspend fun bookAppointment(@Body request: AppointmentRequest): Response<AppointmentResponse>
 
     // New appointment management endpoints
     // Update to match the backend controller endpoints
@@ -121,8 +119,8 @@ interface ApiService {
         @Path("id") appointmentId: Long
     ): Call<AppointmentResponse>
 
-    // Add comment to a professional's portfolio
-    @POST("api/comments/{userId}/{portfolioId}")
+    // Add comment to a professional's portfolio - Fixed endpoint URL
+    @POST("comments/{userId}/{portfolioId}")
     suspend fun addComment(
         @Header("Authorization") token: String,
         @Path("userId") userId: String,
@@ -130,15 +128,15 @@ interface ApiService {
         @Body commentRequest: CommentRequest
     ): Response<CommentResponse>
     
-    // Get comments for a portfolio
-    @GET("api/comments/portfolio/{portfolioId}")
-    suspend fun getCommentsByPortfolio(
-        @Header("Authorization") token: String,
-        @Path("portfolioId") portfolioId: String
+    // Get comments for a portfolio - Fixed endpoint URL
+    @GET("comments/portfolio/{portfolioId}") 
+    suspend fun getCommentsByPortfolio( 
+        @Header("Authorization") token: String, 
+        @Path("portfolioId") portfolioId: String 
     ): Response<List<CommentResponse>>
     
     // Mark appointment as rated
-    @PUT("api/appointments/{appointmentId}/markRated")
+    @PUT("appointments/{appointmentId}/markRated")
     suspend fun markAppointmentAsRated(
         @Header("Authorization") token: String,
         @Path("appointmentId") appointmentId: Long

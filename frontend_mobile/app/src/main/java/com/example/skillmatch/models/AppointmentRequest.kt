@@ -1,15 +1,22 @@
 package com.example.skillmatch.models
 
+import com.google.gson.annotations.SerializedName
+
 data class AppointmentRequest(
     val id: Long? = null,
-    val userId: Long,
-    val userFirstName: String? = null,
-    val userLastName: String? = null,
+    val user: UserReference,
+    val portfolio: PortfolioReference,
     val role: String,
-    val portfolioId: Long,
     val appointmentTime: String, // Keep as string in ISO format
     val status: String? = null,
     val notes: String?,
     val createdAt: String? = null
+)
 
+data class UserReference(
+    val id: Long
+)
+
+data class PortfolioReference(
+    val id: Long
 )

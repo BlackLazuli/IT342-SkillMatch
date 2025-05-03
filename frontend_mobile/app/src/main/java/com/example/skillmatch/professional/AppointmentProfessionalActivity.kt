@@ -62,8 +62,8 @@ class AppointmentProfessionalActivity : AppCompatActivity(), AppointmentAdapter.
         }
         
         findViewById<View>(R.id.calendarButton).setOnClickListener {
-            // Already on appointments screen, do nothing or refresh
-            loadAppointments()
+            val intent = Intent(this, PortfolioActivity::class.java)
+            startActivity(intent)
         }
         
         findViewById<View>(R.id.settingsNavButton).setOnClickListener {

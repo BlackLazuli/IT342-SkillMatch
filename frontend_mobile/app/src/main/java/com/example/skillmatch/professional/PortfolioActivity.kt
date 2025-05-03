@@ -6,14 +6,17 @@ import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Base64
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
+import com.example.skillmatch.models.CommentResponse
 import com.example.skillmatch.models.Portfolio
 import com.example.skillmatch.utils.SessionManager
 import de.hdodenhof.circleimageview.CircleImageView
@@ -21,6 +24,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class PortfolioActivity : AppCompatActivity() {
 
@@ -33,6 +40,9 @@ class PortfolioActivity : AppCompatActivity() {
     private lateinit var pricingContainer: LinearLayout
     private lateinit var availableDaysText: TextView
     private lateinit var availableTimeText: TextView
+    private lateinit var commentsContainer: LinearLayout
+    private lateinit var overallRatingBar: RatingBar
+    private lateinit var overallRatingText: TextView
 
     // Bottom navigation
     private lateinit var homeButton: ImageButton
@@ -56,6 +66,9 @@ class PortfolioActivity : AppCompatActivity() {
         pricingContainer = findViewById(R.id.pricingContainer)
         availableDaysText = findViewById(R.id.availableDaysText)
         availableTimeText = findViewById(R.id.availableTimeText)
+        commentsContainer = findViewById(R.id.commentsContainer)
+        overallRatingBar = findViewById(R.id.overallRatingBar)
+        overallRatingText = findViewById(R.id.overallRatingText)
 
         // Initialize bottom navigation
         homeButton = findViewById(R.id.homeButton)
@@ -83,8 +96,8 @@ class PortfolioActivity : AppCompatActivity() {
 
         // Bottom navigation
         homeButton.setOnClickListener {
-            // Navigate to home screen
-            // Intent to home activity
+            val intent = Intent(this, AppointmentProfessionalActivity::class.java)
+            startActivity(intent)
         }
 
         messagesButton.setOnClickListener {
@@ -98,7 +111,8 @@ class PortfolioActivity : AppCompatActivity() {
         }
 
         profileButton.setOnClickListener {
-            // Already on profile screen
+            val intent = Intent(this, ProfessionalProfileActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -124,6 +138,9 @@ class PortfolioActivity : AppCompatActivity() {
                                 val user = userResponse.body()!!
                                 displayProfilePicture(user.profilePicture)
                             }
+                            
+                            // Fetch comments for this portfolio - use portfolio.id instead of userId
+                            fetchComments(portfolio.id.toString())
                         } else {
                             // No portfolio found
                             Log.d("Portfolio", "No portfolio found")
@@ -145,6 +162,107 @@ class PortfolioActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+    }
+    
+    private fun fetchComments(portfolioId: String) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val token = "Bearer ${sessionManager.getToken()}"
+                val response = ApiClient.apiService.getCommentsByPortfolio(token, portfolioId)
+                
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val comments = response.body()!!
+                        displayComments(comments)
+                    } else {
+                        Log.d("Portfolio", "No comments found or error fetching comments")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("Portfolio", "Error fetching comments", e)
+            }
+        }
+    }
+    
+    private fun displayComments(comments: List<CommentResponse>) {
+        // Clear existing comments
+        commentsContainer.removeAllViews()
+        
+        if (comments.isEmpty()) {
+            val noCommentsText = TextView(this)
+            noCommentsText.text = "No comments yet"
+            noCommentsText.textSize = 14f
+            noCommentsText.setTextColor(resources.getColor(android.R.color.darker_gray, theme))
+            commentsContainer.addView(noCommentsText)
+            
+            // Set overall rating to 0
+            overallRatingBar.rating = 0f
+            overallRatingText.text = "0.0"
+            return
+        }
+        
+        // Calculate average rating
+        val averageRating = comments.map { it.rating }.average().toFloat()
+        overallRatingBar.rating = averageRating
+        overallRatingText.text = String.format("%.1f", averageRating)
+        
+        // Add each comment to the container
+        val inflater = LayoutInflater.from(this)
+        
+        for (comment in comments) {
+            val commentView = inflater.inflate(R.layout.item_comment, commentsContainer, false)
+            
+            // Set comment data
+            val authorImage = commentView.findViewById<CircleImageView>(R.id.authorImage)
+            val authorNameText = commentView.findViewById<TextView>(R.id.authorNameText)
+            val commentDateText = commentView.findViewById<TextView>(R.id.commentDateText)
+            val commentRatingBar = commentView.findViewById<RatingBar>(R.id.commentRatingBar)
+            val commentMessageText = commentView.findViewById<TextView>(R.id.commentMessageText)
+            
+            // Set author name and comment message
+            authorNameText.text = comment.authorName
+            commentMessageText.text = comment.message
+            commentRatingBar.rating = comment.rating.toFloat()
+            
+            // Format and set date
+            try {
+                val timestamp = comment.timestamp
+                val formattedDate = formatTimestamp(timestamp)
+                commentDateText.text = formattedDate
+            } catch (e: Exception) {
+                commentDateText.text = "Unknown date"
+                Log.e("Portfolio", "Error parsing date", e)
+            }
+            
+            // Set author profile picture if available
+            if (!comment.profilePicture.isNullOrEmpty()) {
+                try {
+                    val decodedBytes = Base64.decode(comment.profilePicture, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                    authorImage.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    Log.e("Portfolio", "Error decoding profile picture", e)
+                }
+            }
+            
+            // Add the comment view to the container
+            commentsContainer.addView(commentView)
+        }
+    }
+    
+    private fun formatTimestamp(timestamp: String): String {
+        try {
+            // Parse the timestamp string to a LocalDateTime
+            val formatter = DateTimeFormatter.ISO_DATE_TIME
+            val dateTime = LocalDateTime.parse(timestamp, formatter)
+            
+            // Format to a more readable date
+            val outputFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.getDefault())
+            return dateTime.format(outputFormatter)
+        } catch (e: Exception) {
+            Log.e("Portfolio", "Error formatting date", e)
+            return "Unknown date"
         }
     }
 

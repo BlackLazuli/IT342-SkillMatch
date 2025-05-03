@@ -75,7 +75,7 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         findViewById<View>(R.id.homeButton).setOnClickListener {
             // Navigate to home/dashboard based on user role
             val userRole = sessionManager.getUserRole()
-            if (userRole == "PROFESSIONAL" || userRole == "SERVICE_PROVIDER") {
+            if (userRole == "PROFESSIONAL" || userRole == "SERVICE PROVIDER") {
                 val intent = Intent(this, ProfessionalProfileActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
                 startActivity(intent)
@@ -100,7 +100,7 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         findViewById<View>(R.id.profileButton).setOnClickListener {
             // Navigate to profile based on user role
             val userRole = sessionManager.getUserRole()
-            if (userRole == "PROFESSIONAL" || userRole == "SERVICE_PROVIDER") {
+            if (userRole == "PROFESSIONAL" || userRole == "SERVICE PROVIDER") {
                 val intent = Intent(this, ProfessionalProfileActivity::class.java)
                 startActivity(intent)
             } else {
@@ -125,7 +125,7 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
         }
         
         // Call the appropriate API based on user role
-        val call = if (userRole == "PROFESSIONAL" || userRole == "SERVICE_PROVIDER") {
+        val call = if (userRole == "PROFESSIONAL" || userRole == "SERVICE PROVIDER") {
             // Use the all endpoint for professionals which includes both customer and provider appointments
             ApiClient.apiService.getAllAppointmentsForProfessional("Bearer $token", userId)
         } else {
@@ -303,22 +303,33 @@ class AppointmentActivity : AppCompatActivity(), AppointmentAdapter.AppointmentC
                     rating = rating
                 )
                 
-                // Submit comment to the professional's portfolio
-                val response = ApiClient.apiService.addComment(
-                    "Bearer $token",
-                    userId.toString(),
-                    appointment.providerId.toString(),
-                    commentRequest
-                )
+                // Use the portfolioId directly from the appointment
+                val portfolioId = appointment.portfolioId
                 
-                withContext(Dispatchers.Main) {
-                    if (response.isSuccessful) {
-                        Toast.makeText(this@AppointmentActivity, "Thank you for your feedback!", Toast.LENGTH_SHORT).show()
-                        
-                        // Mark appointment as rated
-                        markAppointmentAsRated(appointment.id)
-                    } else {
-                        Toast.makeText(this@AppointmentActivity, "Failed to submit rating: ${response.code()}", Toast.LENGTH_SHORT).show()
+                if (portfolioId != null && portfolioId > 0) {
+                    // Submit comment to the professional's portfolio using the portfolio ID from appointment
+                    val response = ApiClient.apiService.addComment(
+                        "Bearer $token",
+                        userId.toString(),
+                        portfolioId.toString(),
+                        commentRequest
+                    )
+                    
+                    withContext(Dispatchers.Main) {
+                        if (response.isSuccessful) {
+                            Toast.makeText(this@AppointmentActivity, "Thank you for your feedback!", Toast.LENGTH_SHORT).show()
+                            
+                            // Mark appointment as rated
+                            markAppointmentAsRated(appointment.id)
+                        } else {
+                            Toast.makeText(this@AppointmentActivity, "Failed to submit rating: ${response.code()}", Toast.LENGTH_SHORT).show()
+                            Log.e("AppointmentActivity", "Error response: ${response.errorBody()?.string()}")
+                        }
+                    }
+                } else {
+                    withContext(Dispatchers.Main) {
+                        Toast.makeText(this@AppointmentActivity, "Invalid portfolio ID for this provider", Toast.LENGTH_SHORT).show()
+                        Log.e("AppointmentActivity", "Invalid portfolio ID: $portfolioId")
                     }
                 }
             } catch (e: Exception) {

@@ -122,7 +122,7 @@
             android:layout_weight="1"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Calendar"
-            android:src="@drawable/appointment" />
+            android:src="@drawable/briefcase" />
 
         <ImageButton
             android:id="@+id/settingsNavButton"

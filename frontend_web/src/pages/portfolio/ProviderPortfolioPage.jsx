@@ -609,7 +609,7 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
   onChange={(e) => {
     const serviceId = e.target.value;
     const service = portfolio.servicesOffered.find(s => s.id === serviceId);
-    setSelectedService(service);
+    setSelectedService(service); // Set service object, not just the ID
   }}
   sx={{ mb: 3 }}
   SelectProps={{
@@ -623,6 +623,7 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
     </option>
   ))}
 </TextField>
+
 
       <TextField
         label="Appointment Date & Time"

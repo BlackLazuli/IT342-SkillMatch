@@ -100,21 +100,27 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
 
 
   const handleSubmitAppointment = async () => {
+    console.log("[1] Starting appointment submission...");
+    
     if (!appointmentDateTime) {
+      console.error("[Validation] No appointment date/time selected");
       return alert("Please select a date and time.");
     }
   
     if (!selectedService) {
+      console.error("[Validation] No service selected");
       return alert("Please select a service.");
     }
   
     // Validate day availability
     if (!isAvailableDay(appointmentDateTime, portfolio?.daysAvailable)) {
+      console.error("[Validation] Provider not available on selected day");
       return alert("Provider is not available on the selected day.");
     }
   
     // Validate time range
     if (!isTimeInRange(appointmentDateTime, portfolio?.startTime, portfolio?.endTime)) {
+      console.error("[Validation] Time outside working hours");
       return alert("Please select a time within the provider's working hours.");
     }
   
@@ -122,12 +128,18 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
       user: { id: personalInfo.userId },
       role: "CUSTOMER",
       portfolio: { id: portfolio.id },
-      service: selectedService.id, // Send service ID
+      service: { id: selectedService.id },
       appointmentTime: appointmentDateTime,
       notes: appointmentNotes,
     };
   
+    console.log("[2] Request payload:", JSON.stringify(requestData, null, 2));
+    console.log("[3] Selected service details:", selectedService);
+    console.log("[4] Auth token:", token ? "Present" : "Missing");
+  
     try {
+      console.log("[5] Sending request to /api/appointments/");
+      
       const res = await fetch("/api/appointments/", {
         method: "POST",
         headers: {
@@ -137,17 +149,28 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
         body: JSON.stringify(requestData),
       });
   
-      if (!res.ok) throw new Error("Failed to book appointment");
+      console.log("[6] Response status:", res.status);
+      
+      if (!res.ok) {
+        const errorResponse = await res.text();
+        console.error("[7] Error response:", errorResponse);
+        throw new Error(`Failed to book appointment: ${res.status}`);
+      }
   
       const data = await res.json();
+      console.log("[8] Success response:", data);
+      
       setAppointmentModalOpen(false);
       setAppointmentDateTime("");
       setAppointmentNotes("");
       setSelectedService(null);
+      
+      console.log("[9] Appointment booked successfully!");
       alert("Appointment booked successfully!");
+      
     } catch (error) {
-      console.error("Appointment booking failed", error);
-      alert("Failed to book appointment");
+      console.error("[10] Appointment booking failed:", error);
+      alert("Failed to book appointment. Please check console for details.");
     }
   };
   

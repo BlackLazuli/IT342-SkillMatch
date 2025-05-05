@@ -122,7 +122,7 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
       user: { id: personalInfo.userId },
       role: "CUSTOMER",
       portfolio: { id: portfolio.id },
-      service: { id: selectedService }, // Send service ID
+      service: selectedService.id, // Send service ID
       appointmentTime: appointmentDateTime,
       notes: appointmentNotes,
     };

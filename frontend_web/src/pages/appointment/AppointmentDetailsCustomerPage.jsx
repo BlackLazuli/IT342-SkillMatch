@@ -329,8 +329,17 @@ const AppointmentDetailsCustomerPage = () => {
                   </Stack>
 
                   <Divider sx={{ my: 2 }} />
+                  
 
                   <Stack spacing={2}>
+
+                        {/* Add Service Name Here */}
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <WorkOutline color="action" sx={{ mr: 1 }} />
+      <Typography variant="body1">
+        <strong>Service:</strong> {appointment.service?.name || 'N/A'}
+      </Typography>
+    </Box>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Person color="action" sx={{ mr: 1 }} />
                       <Typography variant="body1">

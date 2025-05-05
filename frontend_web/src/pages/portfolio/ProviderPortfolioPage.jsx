@@ -609,22 +609,17 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
   onChange={(e) => {
     const serviceId = e.target.value;
     const service = portfolio.servicesOffered.find(s => s.id === serviceId);
-    setSelectedService(service); // Set service object, not just the ID
+    setSelectedService(service);
   }}
   sx={{ mb: 3 }}
-  SelectProps={{
-    native: true,
-  }}
 >
   <option value="">Select a service...</option>
-  {portfolio?.servicesOffered?.map((service, index) => (
-    <option key={index} value={service.id}>
+  {portfolio?.servicesOffered?.map((service) => (
+    <option key={service.id} value={service.id}>
       {service.name} - {service.pricing}
     </option>
   ))}
 </TextField>
-
-
       <TextField
         label="Appointment Date & Time"
         type="datetime-local"

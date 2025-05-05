@@ -608,8 +608,8 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
   value={selectedService ? selectedService.id : ''}
   onChange={(e) => {
     const serviceId = e.target.value;
-    const service = portfolio.servicesOffered.find(s => s.id === serviceId);
-    setSelectedService(service);
+    const service = portfolio.servicesOffered.find(s => s.id.toString() === serviceId.toString());
+    setSelectedService(service || null);
   }}
   sx={{ mb: 3 }}
 >

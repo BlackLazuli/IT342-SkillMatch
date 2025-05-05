@@ -605,21 +605,36 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
   select
   label="Select Service"
   fullWidth
-  value={selectedService ? selectedService.id : ''}
+  value={selectedService?.id || ''}
   onChange={(e) => {
     const serviceId = e.target.value;
-    const service = portfolio.servicesOffered.find(s => s.id.toString() === serviceId.toString());
+    if (!serviceId) {
+      setSelectedService(null);
+      return;
+    }
+    const service = portfolio?.servicesOffered?.find(s => 
+      String(s.id) === String(serviceId)
+    );
     setSelectedService(service || null);
   }}
   sx={{ mb: 3 }}
+  SelectProps={{
+    native: true,
+  }}
 >
   <option value="">Select a service...</option>
   {portfolio?.servicesOffered?.map((service) => (
-    <option key={service.id} value={service.id}>
+    <option 
+      key={service.id} 
+      value={service.id}
+      onMouseDown={(e) => e.preventDefault()} // Prevent immediate menu close
+    >
       {service.name} - {service.pricing}
     </option>
   ))}
 </TextField>
+
+      {/* Rest of your appointment modal content */}
       <TextField
         label="Appointment Date & Time"
         type="datetime-local"

@@ -30,7 +30,8 @@ import {
   CheckCircle,
   Notes,
   Event,
-  Schedule
+  Schedule,
+  WorkOutline
 } from "@mui/icons-material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 

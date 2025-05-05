@@ -23,7 +23,8 @@ import {
   AccessTime,
   CheckCircle,
   Notes,
-  Event
+  Event,
+  WorkOutline
 } from "@mui/icons-material";
 
 const AppointmentDetailsCustomerPage = () => {

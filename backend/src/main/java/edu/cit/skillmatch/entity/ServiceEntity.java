@@ -26,6 +26,10 @@ public class ServiceEntity {
     @JsonIgnore // Prevent cyclic reference
     private PortfolioEntity portfolio; // Back-reference to PortfolioEntity
 
+    @OneToMany(mappedBy = "service", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<AppointmentEntity> appointments = new ArrayList<>();
+
     // Getters and setters
     public Long getId() {
         return id;
@@ -66,5 +70,13 @@ public class ServiceEntity {
 
     public void setPortfolio(PortfolioEntity portfolio) {
         this.portfolio = portfolio;
+    }
+
+    public List<AppointmentEntity> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<AppointmentEntity> appointments) {
+        this.appointments = appointments;
     }
 }

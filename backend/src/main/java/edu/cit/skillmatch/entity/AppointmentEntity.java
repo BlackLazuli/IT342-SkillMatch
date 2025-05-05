@@ -23,6 +23,10 @@ public class AppointmentEntity {
     @JsonBackReference("portfolio-appointments")  // Back reference to prevent circular reference
     private PortfolioEntity portfolio;
 
+    @ManyToOne
+    @JoinColumn(name = "service_id")
+    private ServiceEntity service;  // New relationship to ServiceEntity
+
     @Column()
     private String role; // "CUSTOMER" or "SERVICE_PROVIDER"
 
@@ -98,5 +102,14 @@ public class AppointmentEntity {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    
+    public ServiceEntity getService() {
+        return service;
+    }
+
+    public void setService(ServiceEntity service) {
+        this.service = service;
     }
 }

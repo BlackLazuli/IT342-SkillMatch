@@ -54,7 +54,7 @@ const ProviderPortfolioPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [profilePictureUrl, setProfilePictureUrl] = useState("/default-avatar.png");
-  const [selectedService, setSelectedService] = useState(null);
+  const [selectedService, setSelectedService] = useState(null); // Store the entire service object
 // Helper to check if selected time is within available hours
 const isTimeInRange = (selectedDateTime, startTime, endTime) => {
   if (!selectedDateTime || !startTime || !endTime) return false;
@@ -122,7 +122,7 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
       user: { id: personalInfo.userId },
       role: "CUSTOMER",
       portfolio: { id: portfolio.id },
-      service: selectedService, // Add the selected service
+      service: { id: selectedService }, // Send service ID
       appointmentTime: appointmentDateTime,
       notes: appointmentNotes,
     };
@@ -602,23 +602,27 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
     <Box sx={{ mt: 2 }}>
       {/* Service Selection Dropdown */}
       <TextField
-        select
-        label="Select Service"
-        fullWidth
-        value={selectedService || ''}
-        onChange={(e) => setSelectedService(e.target.value)}
-        sx={{ mb: 3 }}
-        SelectProps={{
-          native: true,
-        }}
-      >
-        <option value="">Select a service...</option>
-        {portfolio?.servicesOffered?.map((service, index) => (
-          <option key={index} value={service.name}>
-            {service.name} - {service.pricing}
-          </option>
-        ))}
-      </TextField>
+  select
+  label="Select Service"
+  fullWidth
+  value={selectedService ? selectedService.id : ''}
+  onChange={(e) => {
+    const serviceId = e.target.value;
+    const service = portfolio.servicesOffered.find(s => s.id === serviceId);
+    setSelectedService(service);
+  }}
+  sx={{ mb: 3 }}
+  SelectProps={{
+    native: true,
+  }}
+>
+  <option value="">Select a service...</option>
+  {portfolio?.servicesOffered?.map((service, index) => (
+    <option key={index} value={service.id}>
+      {service.name} - {service.pricing}
+    </option>
+  ))}
+</TextField>
 
       <TextField
         label="Appointment Date & Time"

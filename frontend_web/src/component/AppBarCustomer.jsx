@@ -67,8 +67,8 @@ const AppBar = () => {
     }
   
     // If path needs dynamic user info
-    if (path === "/appointments") {
-      navigate(`/appointments/${personalInfo.userId}`);
+    if (path === "/appointments-customer") {
+      navigate(`/appointments-customer/${personalInfo.userId}`);
     } else if (path === "/settings") {
       navigate(`/settings/${personalInfo.userId}`); // Navigate to user-specific settings
     } else {

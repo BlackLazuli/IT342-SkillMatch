@@ -141,7 +141,8 @@ class ProfessionalProfileActivity : AppCompatActivity(), OnMapReadyCallback {
 
         settingsNavButton.setOnClickListener {
             // Navigate to settings screen
-            Toast.makeText(this, "Settings button clicked", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, ProfessionalSettingsActivity::class.java)
+            startActivity(intent)
         }
 
         profileButton.setOnClickListener {

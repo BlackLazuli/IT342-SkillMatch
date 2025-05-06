@@ -32,8 +32,6 @@ const SettingsPage = () => {
         sx={{
           flexGrow: 1,
           p: 3,
-          marginLeft: `${drawerWidth}px`,
-          width: `calc(100% - ${drawerWidth}px)`,
         }}
       >
         <Container maxWidth="md">

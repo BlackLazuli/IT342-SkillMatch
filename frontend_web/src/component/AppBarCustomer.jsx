@@ -54,9 +54,9 @@ const AppBar = () => {
   };
 
   const menuItems = [
-    { text: "Home", icon: <Home />, path: "/provider-dashboard" },
-    { text: "Profile", icon: <Person />, path: "/profile" },
-    { text: "Appointments", icon: <Event />, path: "/appointments" },
+    { text: "Home", icon: <Home />, path: "/customer-dashboard" },
+    { text: "Profile", icon: <Person />, path: "/profile-customer" },
+    { text: "Appointments", icon: <Event />, path: "/appointments-customer" },
     { text: "Settings", icon: <Settings />, path: "/settings" }, // Added Settings to main menu
   ];
 

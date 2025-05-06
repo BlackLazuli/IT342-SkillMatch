@@ -56,7 +56,8 @@ const SettingsPage = () => {
                   Personal Information
                 </Typography>
                 <Typography>Email: {user.email}</Typography>
-                <Typography>Phone: {user.phone || "Not provided"}</Typography>
+                <Typography>Phone: {user.phoneNumber || "Not provided"}</Typography>
+                <Typography>Email: {user.password}</Typography>
                 {/* Add more user fields as needed */}
               </Box>
               
@@ -75,6 +76,4 @@ const SettingsPage = () => {
 };
 
 // Make sure this matches the drawerWidth in your AppBar component
-const drawerWidth = 240;
-
 export default SettingsPage;

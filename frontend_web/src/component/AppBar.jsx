@@ -18,7 +18,6 @@ import { usePersonalInfo } from "../context/PersonalInfoContext";
 const drawerWidth = 240;
 const baseUrl = "http://ec2-3-107-23-86.ap-southeast-2.compute.amazonaws.com:8080"; // Change to your EC2 public IP/DNS
 
-
 const AppBar = () => {
   const { personalInfo, setPersonalInfo } = usePersonalInfo();
   const navigate = useNavigate();
@@ -37,8 +36,8 @@ const AppBar = () => {
           if (userData.profilePicture) {
             setProfilePictureUrl(
               userData.profilePicture.startsWith("http")
-                ? userData.profilePicture // Use as-is if full HTTPS URL
-                : userData.profilePicture // Assume backend returns "/uploads/..." (relative path)
+                ? userData.profilePicture
+                : userData.profilePicture
             );
           }
         }
@@ -63,6 +62,7 @@ const AppBar = () => {
       path: personalInfo?.userId ? `/portfolio/${personalInfo.userId}` : "/",
     },
     { text: "Appointments", icon: <Event />, path: "/appointments" },
+    { text: "Settings", icon: <Settings />, path: "/settings" }, // Added Settings to main menu
   ];
 
   const handleNavigation = (path) => {
@@ -73,7 +73,9 @@ const AppBar = () => {
   
     // If path needs dynamic user info
     if (path === "/appointments") {
-      navigate(`/appointments/${personalInfo.userId}`); // Or fetch latest appointment
+      navigate(`/appointments/${personalInfo.userId}`);
+    } else if (path === "/settings") {
+      navigate(`/settings/${personalInfo.userId}`); // Navigate to user-specific settings
     } else {
       navigate(path);
     }
@@ -133,24 +135,8 @@ const AppBar = () => {
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Bottom section: settings, logout and user info */}
+      {/* Bottom section: logout and user info */}
       <Box>
-        <ListItem
-          button
-          sx={{
-            borderRadius: 2,
-            mb: 1,
-            "&:hover": {
-              backgroundColor: "#c1e3c6",
-            },
-          }}
-        >
-          <ListItemIcon sx={{ color: "#333" }}>
-            <Settings />
-          </ListItemIcon>
-          <ListItemText primary="Settings" primaryTypographyProps={{ fontWeight: 500 }} />
-        </ListItem>
-
         <ListItem
           button
           sx={{

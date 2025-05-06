@@ -94,18 +94,27 @@ public class UserEntity {
     public void setEmail(String email) {
         this.email = email;
     }
-
     public String getPassword() {
         return password;
     }
 
     public void setPassword(String password) {
-        this.password = passwordEncoder.encode(password);
+        this.password = password;
     }
 
-    public boolean checkPassword(String rawPassword) {
+    public void setNewPassword(PasswordEncoder passwordEncoder, String rawPassword) {
+        if (rawPassword != null && !rawPassword.isEmpty()) {
+            this.password = passwordEncoder.encode(rawPassword);
+        }
+    }
+
+    public boolean checkPassword(PasswordEncoder passwordEncoder, String rawPassword) {
+        if (password == null || rawPassword == null) {
+            return false;
+        }
         return passwordEncoder.matches(rawPassword, this.password);
     }
+
 
     public String getRole() {
         return role;

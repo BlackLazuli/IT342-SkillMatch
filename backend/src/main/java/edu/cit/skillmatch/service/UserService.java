@@ -15,7 +15,7 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
-    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    private final PasswordEncoder passwordEncoder;
 
     // Directory for storing profile pictures
     @Value("${profile.picture.upload.dir}")
@@ -23,8 +23,8 @@ public class UserService {
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
-
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
     }
@@ -49,7 +49,7 @@ public class UserService {
                 user.setEmail(updatedUser.getEmail());
             }
             if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                user.setPassword(passwordEncoder.encode(updatedUser.getPassword())); // Ensure password is hashed
+                user.setNewPassword(passwordEncoder, updatedUser.getPassword());
             }
             if (updatedUser.getRole() != null) {
                 user.setRole(updatedUser.getRole());

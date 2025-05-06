@@ -16,7 +16,7 @@ import AppointmentDetailsPage from "./pages/appointment/AppointmentDetailsPage";
 import AppointmentDetailsCustomerPage from "./pages/appointment/AppointmentDetailsCustomerPage";
 import ClientProfilePage from './pages/profile/ClientProfilePage'; 
 import ProviderProfilePage from './pages/profile/ProviderProfilePage';
-import SettingsPage from './pages/settings/SettingsPage'; // Add this import
+import SettingsPage from './pages/components/SettingsPage'; // Add this import
 
 function App() {
   const { personalInfo, loading } = usePersonalInfo();

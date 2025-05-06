@@ -11,20 +11,20 @@ import AddPortfolioPage from "./pages/portfolio/AddPortfolioPage";
 import EditPortfolioPage from "./pages/portfolio/EditPortfolioPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import ProfilePageCustomer from "./pages/profile/ProfilePageCustomer";
-import ProviderPortfolioPage from "./pages/portfolio/ProviderPortfolioPage"; // ✅ Imported
+import ProviderPortfolioPage from "./pages/portfolio/ProviderPortfolioPage";
 import AppointmentDetailsPage from "./pages/appointment/AppointmentDetailsPage";
 import AppointmentDetailsCustomerPage from "./pages/appointment/AppointmentDetailsCustomerPage";
 import ClientProfilePage from './pages/profile/ClientProfilePage'; 
-import ProviderProfilePage from './pages/profile/ProviderProfilePage'; 
-
+import ProviderProfilePage from './pages/profile/ProviderProfilePage';
+import SettingsPage from './component/SettingsPage'; // Add this import
 
 function App() {
-  const { personalInfo, loading } = usePersonalInfo(); // ✅ Use loading
+  const { personalInfo, loading } = usePersonalInfo();
 
   // PrivateRoute logic
   const PrivateRoute = ({ children }) => {
     if (loading) {
-      return <div>Loading...</div>; // Optional: You can show a spinner instead
+      return <div>Loading...</div>;
     }
   
     return personalInfo && personalInfo.userId ? children : <Navigate to="/" />;
@@ -86,7 +86,7 @@ function App() {
             </PrivateRoute>
           }
         />
-                <Route
+        <Route
           path="/profile-customer"
           element={
             <PrivateRoute>
@@ -102,45 +102,48 @@ function App() {
             </PrivateRoute>
           }
         />
-
-<Route
-    path="/appointments/:userID"
-    element={
-      <PrivateRoute>
-        <AppointmentDetailsPage />
-      </PrivateRoute>
-    }
-  />
-
-<Route
-  path="/appointments-customer/:userID"
-  element={
-    <PrivateRoute>
-      <AppointmentDetailsCustomerPage />
-    </PrivateRoute>
-  }
-/>
-
-<Route
-  path="/client-profile/:userId"
-  element={
-    <PrivateRoute>
-      <ClientProfilePage />
-    </PrivateRoute>
-  }
-/>
-
-<Route
-  path="/provider-profile/:providerId"
-  element={
-    <PrivateRoute>
-      <ProviderProfilePage />
-    </PrivateRoute>
-  }
-/>
-
+        <Route
+          path="/appointments/:userID"
+          element={
+            <PrivateRoute>
+              <AppointmentDetailsPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/appointments-customer/:userID"
+          element={
+            <PrivateRoute>
+              <AppointmentDetailsCustomerPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/client-profile/:userId"
+          element={
+            <PrivateRoute>
+              <ClientProfilePage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/provider-profile/:providerId"
+          element={
+            <PrivateRoute>
+              <ProviderProfilePage />
+            </PrivateRoute>
+          }
+        />
+        {/* Add the Settings route */}
+        <Route
+          path="/settings/:userId"
+          element={
+            <PrivateRoute>
+              <SettingsPage />
+            </PrivateRoute>
+          }
+        />
       </Routes>
-
     </Router>
   );
 }

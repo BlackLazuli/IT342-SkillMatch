@@ -30,7 +30,8 @@ import {
   CheckCircle,
   Notes,
   Event,
-  Schedule
+  Schedule,
+  WorkOutline
 } from "@mui/icons-material";
 import { DateTimePicker } from "@mui/x-date-pickers";
 
@@ -329,8 +330,27 @@ const AppointmentDetailsCustomerPage = () => {
                   </Stack>
 
                   <Divider sx={{ my: 2 }} />
+                  
 
                   <Stack spacing={2}>
+
+                        {/* Add Service Name Here */}
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <WorkOutline color="action" sx={{ mr: 1 }} />
+      <Typography variant="body1">
+        <strong>Service:</strong> {appointment.serviceName  || 'N/A'}
+      </Typography>
+    </Box>
+
+      {/* Pricing Information - Add if available */}
+  {appointment.servicePricing && (
+    <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
+      <AttachMoney color="action" sx={{ mr: 1 }} />
+      <Typography variant="body1">
+        <strong>Price:</strong> {appointment.servicePricing}
+      </Typography>
+    </Box>
+  )}
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Person color="action" sx={{ mr: 1 }} />
                       <Typography variant="body1">

@@ -1,7 +1,6 @@
 package edu.cit.skillmatch.dto;
 
 import edu.cit.skillmatch.entity.AppointmentStatus;
-
 import java.time.LocalDateTime;
 
 public class AppointmentDTO {
@@ -14,12 +13,23 @@ public class AppointmentDTO {
     private AppointmentStatus status;
     private String notes;
     private LocalDateTime createdAt;
-    private Long portfolioId; // Add portfolioId field
-
     
+    // Portfolio fields
+    private Long portfolioId;
+    private String portfolioTitle;
+    
+    // Provider fields
+    private Long providerId;
     private String providerFirstName;
     private String providerLastName;
-    private Long providerId;  
+    private String providerProfilePicture;
+    
+    // Service fields
+    private Long serviceId;
+    private String serviceName;
+    private String serviceDescription;
+    private String servicePricing;
+    private String serviceDuration;
 
     // Getters and Setters
     public Long getId() {
@@ -102,7 +112,22 @@ public class AppointmentDTO {
         this.portfolioId = portfolioId;
     }
 
-    
+    public String getPortfolioTitle() {
+        return portfolioTitle;
+    }
+
+    public void setPortfolioTitle(String portfolioTitle) {
+        this.portfolioTitle = portfolioTitle;
+    }
+
+    public Long getProviderId() {
+        return providerId;
+    }
+
+    public void setProviderId(Long providerId) {
+        this.providerId = providerId;
+    }
+
     public String getProviderFirstName() {
         return providerFirstName;
     }
@@ -119,13 +144,51 @@ public class AppointmentDTO {
         this.providerLastName = providerLastName;
     }
 
-    public Long getProviderId() {
-        return providerId;
+    public String getProviderProfilePicture() {
+        return providerProfilePicture;
     }
 
-    public void setProviderId(Long providerId) {
-        this.providerId = providerId;
+    public void setProviderProfilePicture(String providerProfilePicture) {
+        this.providerProfilePicture = providerProfilePicture;
     }
 
+    public Long getServiceId() {
+        return serviceId;
+    }
 
+    public void setServiceId(Long serviceId) {
+        this.serviceId = serviceId;
+    }
+
+    public String getServiceName() {
+        return serviceName;
+    }
+
+    public void setServiceName(String serviceName) {
+        this.serviceName = serviceName;
+    }
+
+    public String getServiceDescription() {
+        return serviceDescription;
+    }
+
+    public void setServiceDescription(String serviceDescription) {
+        this.serviceDescription = serviceDescription;
+    }
+
+    public String getServicePricing() {
+        return servicePricing;
+    }
+
+    public void setServicePricing(String servicePricing) {
+        this.servicePricing = servicePricing;
+    }
+
+    public String getServiceDuration() {
+        return serviceDuration;
+    }
+
+    public void setServiceDuration(String serviceDuration) {
+        this.serviceDuration = serviceDuration;
+    }
 }

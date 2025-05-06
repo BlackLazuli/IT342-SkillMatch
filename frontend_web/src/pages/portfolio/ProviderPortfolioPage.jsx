@@ -626,7 +626,6 @@ const isAvailableDay = (selectedDateTime, availableDays) => {
       {/* Service Selection Dropdown */}
       <TextField
   select
-  label="Select Service"
   fullWidth
   value={selectedService?.id || ''}
   onChange={(e) => {

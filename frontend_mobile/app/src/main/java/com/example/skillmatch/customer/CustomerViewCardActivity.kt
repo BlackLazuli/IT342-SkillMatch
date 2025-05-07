@@ -1,6 +1,7 @@
 package com.example.skillmatch.customer
 
 
+import android.content.ContentValues.TAG
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -36,6 +37,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class CustomerViewCardActivity : AppCompatActivity(), OnMapReadyCallback {
 
@@ -249,6 +253,9 @@ class CustomerViewCardActivity : AppCompatActivity(), OnMapReadyCallback {
             Log.e(TAG, "Cannot load comments: Portfolio ID is null")
             noCommentsText.visibility = View.VISIBLE
             commentsRecyclerView.visibility = View.GONE
+            // Set rating to 0 when no portfolio ID
+            ratingBar.rating = 0f
+            ratingText.text = "0.0"
             return
         }
         
@@ -270,15 +277,26 @@ class CustomerViewCardActivity : AppCompatActivity(), OnMapReadyCallback {
                         val comments = commentsResponse.body()!!
                         
                         if (comments.isNotEmpty()) {
+                            // Calculate average rating from comments
+                            val averageRating = comments.map { it.rating }.average().toFloat()
+                            ratingBar.rating = averageRating
+                            ratingText.text = String.format("%.1f", averageRating)
+                            
                             commentAdapter.updateComments(comments)
                             noCommentsText.visibility = View.GONE
                             commentsRecyclerView.visibility = View.VISIBLE
                         } else {
+                            // No comments, set rating to 0
+                            ratingBar.rating = 0f
+                            ratingText.text = "0.0"
                             noCommentsText.visibility = View.VISIBLE
                             commentsRecyclerView.visibility = View.GONE
                         }
                     } else {
                         Log.e(TAG, "Failed to load comments: ${commentsResponse.code()} - ${commentsResponse.errorBody()?.string()}")
+                        // Set rating to 0 on error
+                        ratingBar.rating = 0f
+                        ratingText.text = "0.0"
                         noCommentsText.visibility = View.VISIBLE
                         commentsRecyclerView.visibility = View.GONE
                     }
@@ -286,6 +304,9 @@ class CustomerViewCardActivity : AppCompatActivity(), OnMapReadyCallback {
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading comments", e)
                 withContext(Dispatchers.Main) {
+                    // Set rating to 0 on error
+                    ratingBar.rating = 0f
+                    ratingText.text = "0.0"
                     noCommentsText.visibility = View.VISIBLE
                     commentsRecyclerView.visibility = View.GONE
                 }
@@ -373,88 +394,129 @@ class CustomerViewCardActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun displayProfessionalData(professional: Professional, portfolio: Portfolio?) {
-        // Display basic info
-        professionalNameText.text = professional.getFullName()
+    private fun displayProfessionalData(professional: Professional, portfolio: Portfolio) {
+        // Set professional name
+        professionalNameText.text = "${professional.firstName} ${professional.lastName}"
+        
+        // Set occupation
         occupationText.text = professional.occupation
-
-        // Display rating
+        
+        // Set rating
         val rating = professional.rating?.toFloat() ?: 0f
         ratingBar.rating = rating
         ratingText.text = String.format("%.1f", rating)
-
-        // Display bio
+        
+        // Set bio
         bioText.text = professional.bio ?: "No bio available"
-
-        // Display profile picture if available
-        professional.profilePicture?.let { profilePicBase64 ->
+        
+        // Set availability
+        val daysText = formatDaysOfWeek(portfolio.daysAvailable)
+        availableDaysText.text = daysText
+        
+        // Format time display
+        if (portfolio.startTime != null && portfolio.endTime != null) {
+            val formattedStartTime = formatTo12HourTime(portfolio.startTime)
+            val formattedEndTime = formatTo12HourTime(portfolio.endTime)
+            availableTimeText.text = "$formattedStartTime - $formattedEndTime"
+        } else if (!portfolio.time.isNullOrEmpty()) {
+            availableTimeText.text = portfolio.time
+        } else {
+            availableTimeText.text = "Not specified"
+        }
+        
+        // Set location text
+        if (professional.location != null) {
+            locationText.text = professional.location.address ?: "Location not specified"
+            
+            // Update map with professional's location
+            val lat = professional.location.latitude
+            val lng = professional.location.longitude
+            if (lat != null && lng != null) {
+                professionalLocation = LatLng(lat, lng)
+                professionalLocation?.let { location ->
+                    updateMapLocation(location)
+                }
+            }
+        } else {
+            locationText.text = "Location not specified"
+        }
+        
+        // Set profile image if available
+        if (!professional.profilePicture.isNullOrEmpty()) {
             try {
-                val imageBytes = Base64.decode(profilePicBase64, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                val decodedBytes = Base64.decode(professional.profilePicture, Base64.DEFAULT)
+                val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
                 profileImage.setImageBitmap(bitmap)
             } catch (e: Exception) {
-                Log.e(TAG, "Error loading profile image", e)
+                Log.e(TAG, "Error decoding profile picture", e)
             }
         }
-
-        // Display location
-        locationText.text = professional.location?.address.orEmpty().ifEmpty { "Location not specified" }
         
-        // Update map with professional's location
-        professional.location?.let { location ->
-            // Since latitude and longitude are non-nullable Double in the Location class,
-            // we can use them directly without conversion
-            val lat = location.latitude
-            val lng = location.longitude
-            
-            Log.d(TAG, "Professional location found: $lat, $lng")
-            professionalLocation = LatLng(lat, lng)
-            
-            // Update map if it's already initialized
-            googleMap?.let { map ->
-                updateMapLocation(professionalLocation!!)
-            }
-        } ?: run {
-            Log.d(TAG, "Professional location is null")
-            // Set a default location (e.g., Manila, Philippines)
-            professionalLocation = LatLng(14.5995, 120.9842)
-            googleMap?.let { map ->
-                updateMapLocation(professionalLocation!!)
-            }
-        }
-
-        // Display services from portfolio if available
-        if (portfolio != null && !portfolio.servicesOffered.isNullOrEmpty()) {
-            Log.d(TAG, "Displaying ${portfolio.servicesOffered.size} services from portfolio")
-            displayPortfolioServices(portfolio.servicesOffered)
-            
-            // Get availability info directly from portfolio
-            val daysAvailable = portfolio.daysAvailable
-            val time = portfolio.time
-            
-            // Display availability
-            val daysText = if (daysAvailable.isNotEmpty()) {
-                daysAvailable.joinToString(", ")
-            } else {
-                professional.availableDays.joinToString(", ").ifEmpty { "Not specified" }
-            }
-            
-            val hoursText = if (!time.isNullOrEmpty()) {
-                time
-            } else {
-                professional.availableHours ?: "Not specified"
-            }
-            availableDaysText.text = daysText
-            availableTimeText.text = hoursText
+        // Remove or comment out these lines that override the time display
+        // Set available days
+        if (professional.availableDays.isNotEmpty()) {
+            availableDaysText.text = professional.availableDays.joinToString(", ")
         } else {
-            // No portfolio services, display professional's availability
-            Log.d(TAG, "No portfolio services available, using professional data")
-            availableDaysText.text = professional.availableDays.joinToString(", ").ifEmpty { "Not specified" }
-            availableTimeText.text = professional.availableHours.ifEmpty { "Not specified" }
-            
-            // Display empty services message
-            val emptyList = listOf<Service>()
-            displayPortfolioServices(emptyList)
+            availableDaysText.text = "Not specified"
         }
+        
+        // Remove or comment out these lines that override the time display
+        // Set available hours
+        // if (professional.availableHours.isNotEmpty()) {
+        //     availableTimeText.text = professional.availableHours
+        // } else {
+        //     availableTimeText.text = "Not specified"
+        // }
+        
+        // Display services
+        displayPortfolioServices(portfolio.servicesOffered ?: emptyList())
+    }
+    
+
+}
+
+// Add helper method to format time to 12-hour format with AM/PM
+private fun formatTo12HourTime(timeString: String): String {
+    try {
+        // Parse the time string (assuming it's in HH:mm or HH:mm:ss format)
+        val time = if (timeString.contains(":")) {
+            if (timeString.count { it == ':' } > 1) {
+                // Format is HH:mm:ss
+                LocalTime.parse(timeString.trim(), DateTimeFormatter.ofPattern("HH:mm:ss"))
+            } else {
+                // Format is HH:mm
+                LocalTime.parse(timeString.trim(), DateTimeFormatter.ofPattern("HH:mm"))
+            }
+        } else {
+            LocalTime.parse(timeString.trim())
+        }
+        
+        // Format to 12-hour format with AM/PM
+        return time.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))
+    } catch (e: Exception) {
+        Log.e(TAG, "Error formatting time: $timeString", e)
+        return timeString // Return original if parsing fails
     }
 }
+
+// Helper method to format days of week
+private fun formatDaysOfWeek(days: List<String>): String {
+    if (days.isEmpty()) return "Not specified"
+    
+    // Sort days in correct order (Monday first)
+    val sortedDays = days.sortedBy { 
+        when (it.trim().uppercase()) {
+            "MONDAY" -> 1
+            "TUESDAY" -> 2
+            "WEDNESDAY" -> 3
+            "THURSDAY" -> 4
+            "FRIDAY" -> 5
+            "SATURDAY" -> 6
+            "SUNDAY" -> 7
+            else -> 8
+        }
+    }
+    
+    return sortedDays.joinToString(", ")
+}
+

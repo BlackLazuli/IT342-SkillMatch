@@ -5,18 +5,11 @@ import android.app.TimePickerDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
-import com.example.skillmatch.models.AppointmentRequest
-import com.example.skillmatch.models.Portfolio
-import com.example.skillmatch.models.PortfolioReference
-import com.example.skillmatch.models.UserReference
+import com.example.skillmatch.models.*
 import com.example.skillmatch.utils.SessionManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -29,6 +22,7 @@ import java.util.Calendar
 import java.util.Locale
 import kotlin.collections.get
 import kotlin.collections.set
+import java.time.LocalTime
 
 class SetAppointmentActivity : AppCompatActivity() {
 
@@ -46,11 +40,23 @@ class SetAppointmentActivity : AppCompatActivity() {
     private lateinit var availableDaysText: TextView
     private lateinit var availableTimeText: TextView
     
+    // New UI elements for service selection
+    private lateinit var serviceSpinner: Spinner
+    private lateinit var serviceDetailsText: TextView
+    private lateinit var servicePriceText: TextView
+    
     private lateinit var sessionManager: SessionManager
     private var professionalId: Long = 0
     private var selectedDate: Calendar = Calendar.getInstance()
     private var selectedTimeSlot: String? = null
     private var portfolio: Portfolio? = null
+    
+    // List to store services and the selected service
+    private var services: List<Service> = emptyList()
+    private var selectedService: Service? = null
+    
+    // Add these with other view declarations
+    private lateinit var ratingBar: RatingBar
     
     companion object {
         private const val TAG = "SetAppointment"
@@ -96,6 +102,7 @@ class SetAppointmentActivity : AppCompatActivity() {
         professionalNameText = findViewById(R.id.professionalNameText)
         professionalRoleText = findViewById(R.id.professionalRoleText)
         ratingText = findViewById(R.id.ratingText)
+        ratingBar = findViewById(R.id.ratingBar)
         selectedDateText = findViewById(R.id.selectedDateText)
         monthYearText = findViewById(R.id.monthYearText)
         notesEditText = findViewById(R.id.notesEditText)
@@ -104,88 +111,290 @@ class SetAppointmentActivity : AppCompatActivity() {
         editTimeButton = findViewById(R.id.editTimeButton)
         selectedTimeText = findViewById(R.id.selectedTimeText)
         
+        // Initialize service selection views
+        serviceSpinner = findViewById(R.id.serviceSpinner)
+        serviceDetailsText = findViewById(R.id.serviceDetailsText)
+        servicePriceText = findViewById(R.id.servicePriceText)
+        
         // Find availability TextViews in the professional info card
         val availabilityContainer = findViewById<View>(R.id.availabilityContainer)
-        availableDaysText = availabilityContainer.findViewById(R.id.availableDaysText)
-        availableTimeText = availabilityContainer.findViewById(R.id.availableTimeText)
+        if (availabilityContainer != null) {
+            availableDaysText = availabilityContainer.findViewById(R.id.availableDaysText)
+            availableTimeText = availabilityContainer.findViewById(R.id.availableTimeText)
+        }
+    }
+    
+    private fun setupListeners() {
+        // Back button click listener
+        backButton.setOnClickListener {
+            finish()
+        }
+        
+        // Edit date button click listener
+        editDateButton.setOnClickListener {
+            showDatePicker()
+        }
+        
+        // Edit time button click listener
+        editTimeButton.setOnClickListener {
+            showTimePicker()
+        }
+        
+        // Set appointment button click listener
+        setAppointmentButton.setOnClickListener {
+            if (validateAppointmentData()) {
+                bookAppointment()
+            }
+        }
+        
+        // Service spinner selection listener
+        serviceSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (services.isNotEmpty() && position < services.size) {
+                    selectedService = services[position]
+                    updateServiceDetails()
+                }
+            }
+            
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                selectedService = null
+                serviceDetailsText.visibility = View.GONE
+                servicePriceText.visibility = View.GONE
+            }
+        }
     }
     
     private fun fetchPortfolioData() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val token = sessionManager.getAuthToken()
-                if (token.isNullOrEmpty()) {
-                    Log.e(TAG, "Token is missing or empty")
-                    withContext(Dispatchers.Main) {
-                        // Continue with appointment setup even without portfolio
-                        availableDaysText.text = "Not specified"
-                        availableTimeText.text = "Not specified"
-                    }
-                    return@launch
-                }
+                val response = ApiClient.apiService.getPortfolio(
+                    "Bearer ${sessionManager.getAuthToken()}",
+                    professionalId.toString()
+                )
                 
-                val response = ApiClient.apiService.getPortfolio("Bearer $token", professionalId.toString())
-                if (response.isSuccessful && response.body() != null) {
-                    portfolio = response.body()
-                    withContext(Dispatchers.Main) {
-                        displayPortfolioData(portfolio!!)
-                    }
-                } else {
-                    Log.e(TAG, "Failed to fetch portfolio: ${response.code()} - ${response.errorBody()?.string()}")
-                    withContext(Dispatchers.Main) {
-                        // Continue with appointment setup even without portfolio
-                        availableDaysText.text = "Not specified"
-                        availableTimeText.text = "Not specified"
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        portfolio = response.body()
+                        portfolio?.let {
+                            // Update UI with portfolio data
+                            updatePortfolioUI(it)
+                            
+                            // Fetch services for this portfolio
+                            it.id?.let { portfolioId -> 
+                                fetchServices(portfolioId)
+                                // Also fetch comments to calculate overall rating
+                                fetchCommentsAndUpdateRating(portfolioId)
+                            }
+                        }
+                    } else {
+                        Toast.makeText(
+                            this@SetAppointmentActivity,
+                            "Failed to load professional data",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Error fetching portfolio", e)
+                Log.e(TAG, "Error fetching portfolio data", e)
                 withContext(Dispatchers.Main) {
-                    // Continue with appointment setup even without portfolio
-                    availableDaysText.text = "Not specified"
-                    availableTimeText.text = "Not specified"
+                    Toast.makeText(
+                        this@SetAppointmentActivity,
+                        "Error: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
     }
     
-    private fun displayPortfolioData(portfolio: Portfolio) {
-        portfolio?.let { portfolio ->
-            // Update available days
-            val daysAvailable = portfolio.daysAvailable
-            if (daysAvailable.isNotEmpty()) {
-                val formattedDays = daysAvailable.joinToString(", ") { it.capitalize(Locale.ROOT) }
-                availableDaysText.text = formattedDays
-            }
-            
-            // Update available time
-            if (!portfolio.time.isNullOrEmpty()) {
-                availableTimeText.text = portfolio.time
+    private fun fetchServices(portfolioId: Long) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Instead of calling a non-existent services endpoint,
+                // we'll get the portfolio and extract services from it
+                val token = sessionManager.getAuthToken() ?: ""
+                val formattedToken = if (token.startsWith("Bearer ", ignoreCase = true)) {
+                    token
+                } else {
+                    "Bearer $token"
+                }
+                
+                // Get the portfolio which should include services
+                val response = ApiClient.apiService.getPortfolio(
+                    formattedToken,
+                    portfolioId.toString()
+                )
+                
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful && response.body() != null) {
+                        val portfolio = response.body()!!
+                        // Extract services from the portfolio
+                        services = portfolio.servicesOffered ?: emptyList()
+                        setupServiceSpinner()
+                    } else {
+                        Log.e(TAG, "Failed to load portfolio: ${response.code()} - ${response.errorBody()?.string()}")
+                        setupEmptyServiceSpinner()
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching portfolio data", e)
+                withContext(Dispatchers.Main) {
+                    setupEmptyServiceSpinner()
+                }
             }
         }
     }
     
-    private fun setupListeners() {
-        // Back button
-        backButton.setOnClickListener {
-            finish()
-        }
-        
-        // Edit date button
-        editDateButton.setOnClickListener {
-            showDatePicker()
-        }
-        
-        // Edit time button
-        editTimeButton.setOnClickListener {
-            showTimePicker()
-        }
-        
-        // Set appointment button
-        setAppointmentButton.setOnClickListener {
-            bookAppointment()
+    private fun fetchCommentsAndUpdateRating(portfolioId: Long) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val token = sessionManager.getAuthToken()
+                if (token.isNullOrEmpty()) {
+                    Log.e(TAG, "Token is missing or empty")
+                    return@launch
+                }
+                
+                val commentsResponse = ApiClient.apiService.getCommentsByPortfolio(
+                    "Bearer $token",
+                    portfolioId.toString()
+                )
+                
+                withContext(Dispatchers.Main) {
+                    if (commentsResponse.isSuccessful && commentsResponse.body() != null) {
+                        val comments = commentsResponse.body()!!
+                        
+                        if (comments.isNotEmpty()) {
+                            // Calculate average rating from comments
+                            val averageRating = comments.map { it.rating }.average().toFloat()
+                            ratingBar.rating = averageRating
+                            ratingText.text = String.format("%.1f", averageRating)
+                        } else {
+                            // No comments, set rating to 0
+                            ratingBar.rating = 0f
+                            ratingText.text = "0.0"
+                        }
+                    } else {
+                        // Set rating to 0 on error
+                        ratingBar.rating = 0f
+                        ratingText.text = "0.0"
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching comments", e)
+                withContext(Dispatchers.Main) {
+                    // Set rating to 0 on error
+                    ratingBar.rating = 0f
+                    ratingText.text = "0.0"
+                }
+            }
         }
     }
+    
+    // Add a helper method to handle the empty services case
+    private fun setupEmptyServiceSpinner() {
+        val noServices = listOf("No services available")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, noServices)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        serviceSpinner.adapter = adapter
+        serviceSpinner.isEnabled = false
+        
+        // Hide service details
+        serviceDetailsText.visibility = View.GONE
+        servicePriceText.visibility = View.GONE
+    }
+    
+    private fun setupServiceSpinner() {
+        if (services.isEmpty()) {
+            // If no services, show a message
+            val noServices = listOf("No services available")
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, noServices)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            serviceSpinner.adapter = adapter
+            serviceSpinner.isEnabled = false
+        } else {
+            // Create adapter with service names
+            val serviceNames = services.map { it.name }
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, serviceNames)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            serviceSpinner.adapter = adapter
+            serviceSpinner.isEnabled = true
+            
+            // Select first service by default
+            if (services.isNotEmpty()) {
+                selectedService = services[0]
+                updateServiceDetails()
+            }
+        }
+    }
+    
+    private fun updateServiceDetails() {
+        selectedService?.let { service ->
+            // Show service details
+            if (!service.description.isNullOrEmpty()) {
+                serviceDetailsText.text = service.description
+                serviceDetailsText.visibility = View.VISIBLE
+            } else {
+                serviceDetailsText.visibility = View.GONE
+            }
+            
+            // Show service price
+            if (!service.pricing.isNullOrEmpty()) {
+                servicePriceText.text = "₱${service.pricing}"
+                servicePriceText.visibility = View.VISIBLE
+            } else {
+                servicePriceText.visibility = View.GONE
+            }
+        }
+    }
+    
+    private fun updatePortfolioUI(portfolio: Portfolio) {
+        // Update availability information if available
+        val availableDays = portfolio.daysAvailable?.joinToString(", ") ?: "Not specified"
+        val availableHours = if (!portfolio.startTime.isNullOrEmpty() && !portfolio.endTime.isNullOrEmpty()) {
+            // Format to 12-hour format with AM/PM
+            val formattedStart = formatTo12HourTime(portfolio.startTime)
+            val formattedEnd = formatTo12HourTime(portfolio.endTime)
+            "$formattedStart - $formattedEnd"
+        } else if (!portfolio.time.isNullOrEmpty()) {
+            // Try to format the time string if it contains a range separator
+            if (portfolio.time.contains("-")) {
+                try {
+                    val times = portfolio.time.split("-")
+                    if (times.size == 2) {
+                        val formattedStart = formatTo12HourTime(times[0].trim())
+                        val formattedEnd = formatTo12HourTime(times[1].trim())
+                        "$formattedStart - $formattedEnd"
+                    } else {
+                        portfolio.time
+                    }
+                } catch (e: Exception) {
+                    portfolio.time
+                }
+            } else {
+                portfolio.time
+            }
+        } else {
+            "Not specified"
+        }
+        
+        availableDaysText.text = availableDays
+        availableTimeText.text = availableHours
+    }
+
+    // Add a helper method to format time to 12-hour format with AM/PM
+    private fun formatTo12HourTime(timeString: String): String {
+        return try {
+            val time = if (timeString.count { it == ':' } > 1) {
+                java.time.LocalTime.parse(timeString.trim(), java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
+            } else {
+                java.time.LocalTime.parse(timeString.trim(), java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+            }
+            time.format(java.time.format.DateTimeFormatter.ofPattern("h:mm a", java.util.Locale.US))
+        } catch (e: Exception) {
+            timeString // Return original if parsing fails
+        }
+    }
+    
     private fun showTimePicker() {
         // Get current hour and minute from selectedDate
         val hour = selectedDate.get(Calendar.HOUR_OF_DAY)
@@ -208,6 +417,7 @@ class SetAppointmentActivity : AppCompatActivity() {
     }
 
     private fun updateTimeDisplay() {
+        // Use "h:mm a" pattern to ensure 12-hour format with AM/PM indicator
         val timeFormat = SimpleDateFormat("h:mm a", Locale.getDefault())
         selectedTimeText.text = timeFormat.format(selectedDate.time)
     }
@@ -265,89 +475,89 @@ class SetAppointmentActivity : AppCompatActivity() {
         monthYearText.text = monthYearFormat.format(selectedDate.time)
     }
     
-    /**
-     * Formats the selected date and time into ISO format for the appointment
-     * @return String in format "yyyy-MM-dd'T'HH:mm:ss"
-     */
-    private fun formatDateTimeForAppointment(): String {
-        // Create a formatter for ISO date-time format
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
+    private fun validateAppointmentData(): Boolean {
+        // Check if time is selected
+        if (selectedDate.get(Calendar.HOUR_OF_DAY) == 0 && selectedDate.get(Calendar.MINUTE) == 0) {
+            Toast.makeText(this, "Please select a time for the appointment", Toast.LENGTH_SHORT).show()
+            return false
+        }
         
-        // Convert Calendar to LocalDateTime
-        val year = selectedDate.get(Calendar.YEAR)
-        val month = selectedDate.get(Calendar.MONTH) + 1 // Calendar months are 0-based
-        val day = selectedDate.get(Calendar.DAY_OF_MONTH)
-        val hour = selectedDate.get(Calendar.HOUR_OF_DAY)
-        val minute = selectedDate.get(Calendar.MINUTE)
+        // Check if service is selected (if services are available)
+        if (services.isNotEmpty() && selectedService == null) {
+            Toast.makeText(this, "Please select a service", Toast.LENGTH_SHORT).show()
+            return false
+        }
         
-        // Create LocalDateTime and format it
-        val localDateTime = LocalDateTime.of(year, month, day, hour, minute)
-        return localDateTime.format(formatter)
+        return true
     }
     
     private fun bookAppointment() {
-        if (portfolio == null) {
-            Toast.makeText(this, "Cannot book appointment: Professional's portfolio not found", Toast.LENGTH_LONG).show()
-            Log.e(TAG, "Attempted to book appointment but portfolio is null")
-            return
-        }
-        
-        val userId = sessionManager.getUserId()?.toLong() ?: 0L
-        if (userId == 0L) {
+        // Get the current user ID from session
+        val userId = sessionManager.getUserId()?.toLong() ?: run {
             Toast.makeText(this, "User ID not found. Please log in again.", Toast.LENGTH_SHORT).show()
             return
         }
         
-        // Format the date and time for the appointment
-        val dateTime = formatDateTimeForAppointment()
+        // Format the selected date and time
+        val dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME
+        val appointmentDateTime = LocalDateTime.of(
+            selectedDate.get(Calendar.YEAR),
+            selectedDate.get(Calendar.MONTH) + 1,
+            selectedDate.get(Calendar.DAY_OF_MONTH),
+            selectedDate.get(Calendar.HOUR_OF_DAY),
+            selectedDate.get(Calendar.MINUTE)
+        )
+        val formattedDateTime = appointmentDateTime.format(dateTimeFormatter)
         
-        // Get portfolio ID and ensure it's a non-nullable Long
-        val portfolioId = portfolio?.id ?: 0L
-        
-        // Create the appointment request with proper structure
+        // Create the appointment request
         val appointmentRequest = AppointmentRequest(
-            user = UserReference(id = userId),
-            portfolio = PortfolioReference(id = portfolioId),
-            role = "CUSTOMER", // Assuming the role is CUSTOMER when booking
-            appointmentTime = dateTime,
-            status = "SCHEDULED", // Explicitly set status
-            notes = notesEditText.text.toString().trim()
+            user = UserReference(userId),
+            portfolio = PortfolioReference(portfolio?.id ?: professionalId),
+            service = selectedService?.let { ServiceReference(it.id ?: 0L) },  // Add null safety with default value
+            role = "CUSTOMER",
+            appointmentTime = formattedDateTime,
+            notes = notesEditText.text.toString()
         )
         
-        // Show loading state
-        setAppointmentButton.isEnabled = false
-        setAppointmentButton.text = "Booking..."
+        // Show loading indicator
+        val progressDialog = android.app.ProgressDialog(this).apply {
+            setMessage("Booking appointment...")
+            setCancelable(false)
+            show()
+        }
         
-        // Make the API call
+        // Make API call to book appointment
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                Log.d(TAG, "Sending appointment request: $appointmentRequest")
                 val response = ApiClient.apiService.bookAppointment(appointmentRequest)
                 
                 withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
+                    
                     if (response.isSuccessful) {
-                        Toast.makeText(this@SetAppointmentActivity, "Appointment booked successfully!", Toast.LENGTH_SHORT).show()
-                        finish() // Go back to previous screen
+                        Toast.makeText(
+                            this@SetAppointmentActivity,
+                            "Appointment booked successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        finish()
                     } else {
-                        val errorCode = response.code()
-                        val errorBody = response.errorBody()?.string() ?: ""
-                        val errorMessage = when (errorCode) {
-                            404 -> "Professional's portfolio not found. Please try again later."
-                            400 -> "Invalid appointment details. Please check and try again."
-                            else -> "Failed to book appointment: Error $errorCode"
-                        }
-                        Log.e(TAG, "Appointment booking failed: $errorCode - $errorBody")
-                        Toast.makeText(this@SetAppointmentActivity, errorMessage, Toast.LENGTH_LONG).show()
-                        setAppointmentButton.isEnabled = true
-                        setAppointmentButton.text = "Set Appointment"
+                        Toast.makeText(
+                            this@SetAppointmentActivity,
+                            "Failed to book appointment: ${response.code()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error booking appointment", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@SetAppointmentActivity, "Network error: ${e.message}", Toast.LENGTH_SHORT).show()
-                    setAppointmentButton.isEnabled = true
-                    setAppointmentButton.text = "Set Appointment"
+                    progressDialog.dismiss()
+                    Toast.makeText(
+                        this@SetAppointmentActivity,
+                        "Error: ${e.message}",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }

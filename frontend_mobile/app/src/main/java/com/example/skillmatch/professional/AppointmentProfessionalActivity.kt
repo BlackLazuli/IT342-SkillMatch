@@ -68,7 +68,8 @@ class AppointmentProfessionalActivity : AppCompatActivity(), AppointmentAdapter.
         
         findViewById<View>(R.id.settingsNavButton).setOnClickListener {
             // Navigate to settings
-            Toast.makeText(this, "Settings feature coming soon", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, ProfessionalSettingsActivity::class.java)
+            startActivity(intent)
         }
         
         findViewById<View>(R.id.profileButton).setOnClickListener {

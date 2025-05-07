@@ -1,5 +1,6 @@
 package com.example.skillmatch.professional
 
+import android.app.TimePickerDialog
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +8,7 @@ import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +24,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 class EditPortfolioActivity : AppCompatActivity() {
@@ -36,7 +40,8 @@ class EditPortfolioActivity : AppCompatActivity() {
     private lateinit var saveButton: Button
     private lateinit var addServiceButton: Button
     private lateinit var workExperienceInput: EditText
-    private lateinit var availabilityTimeInput: EditText
+    private lateinit var startTimeInput: TextView
+    private lateinit var endTimeInput: TextView
     
     // Day checkboxes
     private lateinit var checkboxMonday: CheckBox
@@ -46,6 +51,11 @@ class EditPortfolioActivity : AppCompatActivity() {
     private lateinit var checkboxFriday: CheckBox
     private lateinit var checkboxSaturday: CheckBox
     private lateinit var checkboxSunday: CheckBox
+    
+    // Time formatter
+    private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+    private var selectedStartTime: LocalTime = LocalTime.of(9, 0) // Default to 9:00 AM
+    private var selectedEndTime: LocalTime = LocalTime.of(17, 0) // Default to 5:00 PM
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -60,7 +70,8 @@ class EditPortfolioActivity : AppCompatActivity() {
         saveButton = findViewById(R.id.saveButton)
         addServiceButton = findViewById(R.id.addServiceButton)
         workExperienceInput = findViewById(R.id.workExperienceInput)
-        availabilityTimeInput = findViewById(R.id.availabilityTimeInput)
+        startTimeInput = findViewById(R.id.startTimeInput)
+        endTimeInput = findViewById(R.id.endTimeInput)
         
         // Initialize day checkboxes
         checkboxMonday = findViewById(R.id.checkboxMonday)
@@ -87,6 +98,9 @@ class EditPortfolioActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@EditPortfolioActivity)
             adapter = serviceAdapter
         }
+        
+        // Set initial time displays
+        updateTimeDisplays()
     }
 
     private fun setupListeners() {
@@ -105,6 +119,49 @@ class EditPortfolioActivity : AppCompatActivity() {
         addServiceButton.setOnClickListener {
             showServiceDialog(null)
         }
+        
+        // Time picker dialogs for availability times
+        startTimeInput.setOnClickListener {
+            showStartTimePickerDialog()
+        }
+        
+        endTimeInput.setOnClickListener {
+            showEndTimePickerDialog()
+        }
+    }
+    
+    private fun showStartTimePickerDialog() {
+        val timePickerDialog = TimePickerDialog(
+            this,
+            { _, hourOfDay, minute ->
+                selectedStartTime = LocalTime.of(hourOfDay, minute)
+                updateTimeDisplays()
+            },
+            selectedStartTime.hour,
+            selectedStartTime.minute,
+            true // 24-hour format
+        )
+        timePickerDialog.show()
+    }
+    
+    private fun showEndTimePickerDialog() {
+        val timePickerDialog = TimePickerDialog(
+            this,
+            { _, hourOfDay, minute ->
+                selectedEndTime = LocalTime.of(hourOfDay, minute)
+                updateTimeDisplays()
+            },
+            selectedEndTime.hour,
+            selectedEndTime.minute,
+            true // 24-hour format
+        )
+        timePickerDialog.show()
+    }
+    
+    private fun updateTimeDisplays() {
+        // Format times in 12-hour format with AM/PM
+        startTimeInput.text = selectedStartTime.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))
+        endTimeInput.text = selectedEndTime.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))
     }
 
     private fun fetchPortfolioData() {
@@ -136,8 +193,34 @@ class EditPortfolioActivity : AppCompatActivity() {
                                 setAvailableDays(days)
                             }
                             
-                            portfolio.time?.let { time ->
-                                availabilityTimeInput.setText(time)
+                            // Parse start and end times from portfolio
+                            try {
+                                // Check for startTime and endTime first (new format)
+                                if (portfolio.startTime != null) {
+                                    selectedStartTime = LocalTime.parse(portfolio.startTime.trim(), timeFormatter)
+                                }
+                                
+                                if (portfolio.endTime != null) {
+                                    selectedEndTime = LocalTime.parse(portfolio.endTime.trim(), timeFormatter)
+                                }
+                                // For backward compatibility, check time field
+                                else if (portfolio.time != null) {
+                                    // Check if time contains a range separator
+                                    if (portfolio.time.contains("-")) {
+                                        val times = portfolio.time.split("-")
+                                        if (times.size == 2) {
+                                            selectedStartTime = LocalTime.parse(times[0].trim(), timeFormatter)
+                                            selectedEndTime = LocalTime.parse(times[1].trim(), timeFormatter)
+                                        }
+                                    } else {
+                                        // For backward compatibility with old format
+                                        selectedStartTime = LocalTime.parse(portfolio.time.trim(), timeFormatter)
+                                    }
+                                }
+                                updateTimeDisplays()
+                            } catch (e: Exception) {
+                                Log.e("EditPortfolio", "Error parsing time", e)
+                                // Keep default times if parsing fails
                             }
                         } else {
                             // No portfolio found, create a new one
@@ -222,27 +305,35 @@ class EditPortfolioActivity : AppCompatActivity() {
         servicesRecyclerView.adapter?.notifyDataSetChanged()
     }
 
+    // When saving the portfolio, ensure the time is included
     private fun savePortfolio() {
+        // Get work experience
+        val workExperience = workExperienceInput.text.toString()
+        
+        // Get selected days
+        val selectedDays = getSelectedDays()
+        
+        // Format start and end times
+        val startTimeStr = selectedStartTime.format(timeFormatter)
+        val endTimeStr = selectedEndTime.format(timeFormatter)
+        
+        // For backward compatibility, also set the time field
+        val availabilityTime = "$startTimeStr - $endTimeStr"
+        
+        // Create portfolio object
+        val portfolio = Portfolio(
+            id = portfolioId,
+            workExperience = workExperience,
+            servicesOffered = services,
+            daysAvailable = selectedDays,
+            startTime = startTimeStr,
+            endTime = endTimeStr,
+            time = availabilityTime  // For backward compatibility
+        )
+        
+        // Save the portfolio
         val userId = sessionManager.getUserId()
         if (userId != null) {
-            // Get work experience
-            val workExperience = workExperienceInput.text.toString()
-            
-            // Get selected days
-            val selectedDays = getSelectedDays()
-            
-            // Get availability time
-            val availabilityTime = availabilityTimeInput.text.toString()
-            
-            // Create portfolio object
-            val portfolio = Portfolio(
-                id = portfolioId,
-                workExperience = workExperience,
-                servicesOffered = services,
-                daysAvailable = selectedDays,
-                time = availabilityTime
-            )
-            
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     // Add authentication token

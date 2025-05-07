@@ -249,18 +249,63 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-            <!-- Availability Time Input -->
-            <EditText
-                android:id="@+id/availabilityTimeInput"
+            <!-- Availability Time Range Selection - Replacing the single EditText -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Available Hours"
+                android:textColor="#333333"
+                android:textSize="16sp"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="horizontal"
                 android:layout_marginBottom="24dp"
-                android:background="@drawable/rounded_edittext"
-                android:hint="Input time of availability (e.g., 9:00 AM - 5:00 PM)"
-                android:inputType="text"
-                android:padding="12dp"
-                android:textColor="#333333"
-                android:textSize="14sp" />
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="From:"
+                    android:textColor="#333333"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/startTimeInput"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_edittext"
+                    android:padding="12dp"
+                    android:minWidth="80dp"
+                    android:gravity="center"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="To:"
+                    android:textColor="#333333"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/endTimeInput"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/rounded_edittext"
+                    android:padding="12dp"
+                    android:minWidth="80dp"
+                    android:gravity="center"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

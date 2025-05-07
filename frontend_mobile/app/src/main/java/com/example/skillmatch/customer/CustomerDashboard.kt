@@ -179,7 +179,8 @@ class CustomerDashboard : AppCompatActivity() {
 
         settingsNavButton.setOnClickListener {
             // Navigate to settings screen
-            Toast.makeText(this, "Settings feature coming soon", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, CustomerSettingsActivity::class.java)
+            startActivity(intent)
         }
 
         profileButton.setOnClickListener {
@@ -348,37 +349,79 @@ class CustomerDashboard : AppCompatActivity() {
 
                        // Get days and time from portfolio if available
                        val portfolioDaysAvailable = portfolio?.daysAvailable ?: emptyList()
+                       val portfolioStartTime = portfolio?.startTime
+                       val portfolioEndTime = portfolio?.endTime
                        val portfolioTime = portfolio?.time
 
-                       Log.d(TAG, "User ${user.id} portfolio days: ${portfolioDaysAvailable.size}, time: $portfolioTime")
+                       Log.d(TAG, "User ${user.id} portfolio days: ${portfolioDaysAvailable.size}, startTime: $portfolioStartTime, endTime: $portfolioEndTime, time: $portfolioTime")
 
                        // Use portfolio data for days and hours if available, otherwise use user data
                        val finalAvailableDays = when {
                            portfolioDaysAvailable.isNotEmpty() -> {
                                Log.d(TAG, "Using portfolio days for user ${user.id}: $portfolioDaysAvailable")
-                               portfolioDaysAvailable
+                               formatDaysOfWeekCompact(portfolioDaysAvailable)
                            }
                            availableDays.isNotEmpty() -> {
                                Log.d(TAG, "Using user days for user ${user.id}: $availableDays")
-                               availableDays
+                               formatDaysOfWeekCompact(availableDays)
                            }
                            else -> {
                                Log.d(TAG, "No available days found for user ${user.id}")
-                               emptyList()
+                               "Not specified"
                            }
                        }
 
                        val finalAvailableHours = when {
+                           // First check for startTime and endTime (new format)
+                           portfolioStartTime != null && portfolioEndTime != null -> {
+                               val formattedStartTime = formatTo12HourTime(portfolioStartTime)
+                               val formattedEndTime = formatTo12HourTime(portfolioEndTime)
+                               val timeRange = "$formattedStartTime - $formattedEndTime"
+                               Log.d(TAG, "Using portfolio startTime-endTime for user ${user.id}: $timeRange")
+                               timeRange
+                           }
+                           // For backward compatibility, check time field
                            !portfolioTime.isNullOrEmpty() -> {
-                               Log.d(TAG, "Using portfolio time for user ${user.id}: $portfolioTime")
-                               portfolioTime
+                               // Try to format the time string if it contains a range separator
+                               if (portfolioTime.contains("-")) {
+                                   try {
+                                       val times = portfolioTime.split("-")
+                                       if (times.size == 2) {
+                                           val formattedStartTime = formatTo12HourTime(times[0].trim())
+                                           val formattedEndTime = formatTo12HourTime(times[1].trim())
+                                           "$formattedStartTime - $formattedEndTime"
+                                       } else {
+                                           portfolioTime
+                                       }
+                                   } catch (e: Exception) {
+                                       Log.e(TAG, "Error formatting time range", e)
+                                       portfolioTime
+                                   }
+                               } else {
+                                   portfolioTime
+                               }
                            }
                            availableHours.isNotEmpty() -> {
-                               Log.d(TAG, "Using user hours for user ${user.id}: $availableHours")
-                               availableHours
+                               // Try to format the time string if it contains a range separator
+                               if (availableHours.contains("-")) {
+                                   try {
+                                       val times = availableHours.split("-")
+                                       if (times.size == 2) {
+                                           val formattedStartTime = formatTo12HourTime(times[0].trim())
+                                           val formattedEndTime = formatTo12HourTime(times[1].trim())
+                                           "$formattedStartTime - $formattedEndTime"
+                                       } else {
+                                           availableHours
+                                       }
+                                   } catch (e: Exception) {
+                                       Log.e(TAG, "Error formatting time range", e)
+                                       availableHours
+                                   }
+                               } else {
+                                   availableHours
+                               }
                            }
                            else -> {
-                               Log.d(TAG, "No available hours found for user ${user.id}")
                                ""
                            }
                        }
@@ -394,7 +437,7 @@ class CustomerDashboard : AppCompatActivity() {
                            rating = user.rating,
                            profilePicture = user.profilePicture,
                            location = user.location,
-                           availableDays = finalAvailableDays,
+                           availableDays = finalAvailableDays.split(", "),
                            availableHours = finalAvailableHours
                        )
                    }
@@ -438,30 +481,55 @@ class CustomerDashboard : AppCompatActivity() {
        }
    }
 
-    // Helper function to extract occupation from bio
-    private fun extractOccupationFromBio(bio: String): String {
-        // Simple extraction - look for common occupation indicators
-        val occupationIndicators = listOf(
-            "I am a ", "I'm a ", "I work as a ", "I'm working as a ",
-            "I am an ", "I'm an ", "I work as an ", "I'm working as an "
-        )
-        
-        for (indicator in occupationIndicators) {
-            val index = bio.indexOf(indicator, ignoreCase = true)
-            if (index >= 0) {
-                val start = index + indicator.length
-                val end = bio.indexOf(".", start).takeIf { it > 0 } 
-                    ?: bio.indexOf(",", start).takeIf { it > 0 }
-                    ?: bio.indexOf("\n", start).takeIf { it > 0 }
-                    ?: minOf(start + 20, bio.length)
-                
-                if (end > start) {
-                    return bio.substring(start, end).trim()
+    // Add this helper method to format time to 12-hour format with AM/PM
+    private fun formatTo12HourTime(timeString: String): String {
+        try {
+            // Parse the time string (handling both HH:mm and HH:mm:ss formats)
+            val time = if (timeString.contains(":")) {
+                if (timeString.count { it == ':' } > 1) {
+                    // Format is HH:mm:ss
+                    java.time.LocalTime.parse(timeString.trim(), java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
+                } else {
+                    // Format is HH:mm
+                    java.time.LocalTime.parse(timeString.trim(), java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
                 }
+            } else {
+                java.time.LocalTime.parse(timeString.trim())
+            }
+            
+            // Format to 12-hour format with AM/PM
+            return time.format(java.time.format.DateTimeFormatter.ofPattern("h:mm a", java.util.Locale.US))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error formatting time: $timeString", e)
+            return timeString // Return original if parsing fails
+        }
+    }
+    
+    // Add this helper method to format days of week in a compact way
+    private fun formatDaysOfWeekCompact(days: List<String>): String {
+        if (days.isEmpty()) return "Not specified"
+        
+        // Sort days in correct order (Monday first)
+        val sortedDays = days.sortedBy { 
+            when (it.trim().uppercase()) {
+                "MONDAY" -> 1
+                "TUESDAY" -> 2
+                "WEDNESDAY" -> 3
+                "THURSDAY" -> 4
+                "FRIDAY" -> 5
+                "SATURDAY" -> 6
+                "SUNDAY" -> 7
+                else -> 8
             }
         }
         
-        return "Professional" // Default if no occupation found
+        return sortedDays.joinToString(", ")
+    }
+    
+    // Add this helper method to extract occupation from bio
+    private fun extractOccupationFromBio(bio: String): String {
+        // Simple implementation - you can enhance this based on your needs
+        return if (bio.length > 20) bio.substring(0, 20) + "..." else bio
     }
 
     // Calculate distance between two points using Haversine formula
@@ -502,5 +570,84 @@ class CustomerDashboard : AppCompatActivity() {
         super.onResume()
         // Reload professionals when returning to this screen
         loadProfessionals()
+    }
+}
+
+/**
+ * Formats a list of days into a compact, readable format
+ */
+private fun formatDaysOfWeekCompact(days: List<String>): String {
+    if (days.isEmpty()) return "Not specified"
+    
+    // Map of full day names to their abbreviated forms and their order in the week
+    val dayMap = mapOf(
+        "monday" to Pair("Mon", 1),
+        "tuesday" to Pair("Tue", 2),
+        "wednesday" to Pair("Wed", 3),
+        "thursday" to Pair("Thu", 4),
+        "friday" to Pair("Fri", 5),
+        "saturday" to Pair("Sat", 6),
+        "sunday" to Pair("Sun", 7)
+    )
+    
+    // Convert days to their abbreviated forms and sort them by day order
+    val sortedDays = days.mapNotNull { day ->
+        dayMap[day.trim().lowercase()]
+    }.sortedBy { it.second }
+    
+    if (sortedDays.isEmpty()) return "Not specified"
+    
+    // Check for common patterns
+    val weekdays = listOf(1, 2, 3, 4, 5)
+    val weekend = listOf(6, 7)
+    
+    val weekdaysPresent = weekdays.all { dayNum -> sortedDays.any { it.second == dayNum } }
+    val weekendPresent = weekend.all { dayNum -> sortedDays.any { it.second == dayNum } }
+    
+    return when {
+        // All days
+        sortedDays.size == 7 -> "All days"
+        
+        // Weekdays + weekend
+        weekdaysPresent && weekendPresent -> "All days"
+        
+        // Just weekdays
+        weekdaysPresent && sortedDays.size == 5 -> "Weekdays"
+        
+        // Just weekend
+        weekendPresent && sortedDays.size == 2 -> "Weekend"
+        
+        // Check for consecutive days to use ranges
+        else -> {
+            val ranges = mutableListOf<Pair<String, String>>()
+            var rangeStart = sortedDays.first()
+            var prevDay = sortedDays.first()
+            
+            for (i in 1 until sortedDays.size) {
+                val currentDay = sortedDays[i]
+                if (currentDay.second != prevDay.second + 1) {
+                    // End of a range
+                    if (rangeStart.second != prevDay.second) {
+                        ranges.add(Pair(rangeStart.first, prevDay.first))
+                    } else {
+                        ranges.add(Pair(rangeStart.first, rangeStart.first))
+                    }
+                    rangeStart = currentDay
+                }
+                prevDay = currentDay
+            }
+            
+            // Add the last range
+            if (rangeStart.second != prevDay.second) {
+                ranges.add(Pair(rangeStart.first, prevDay.first))
+            } else {
+                ranges.add(Pair(rangeStart.first, rangeStart.first))
+            }
+            
+            // Format the ranges
+            ranges.joinToString(", ") { (start, end) ->
+                if (start == end) start else "$start-$end"
+            }
+        }
     }
 }

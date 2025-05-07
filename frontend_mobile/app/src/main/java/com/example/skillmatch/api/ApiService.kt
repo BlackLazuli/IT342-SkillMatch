@@ -11,10 +11,15 @@ import com.example.skillmatch.models.SignupResponse
 import com.example.skillmatch.models.User
 import com.example.skillmatch.models.Location
 import com.example.skillmatch.models.Portfolio
+import com.example.skillmatch.models.Service
 
 import retrofit2.Response
 import retrofit2.Call
 import retrofit2.http.*
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import android.graphics.BitmapFactory
+import android.util.Base64
 
 interface ApiService {
     @POST("auth/login")
@@ -70,10 +75,11 @@ interface ApiService {
     ): Response<Portfolio>
 
     // Add these methods for profile picture operations
-    @PUT("users/{userId}/uploadProfilePictureBase64")
-    suspend fun uploadProfilePictureBase64(
-        @Path("userId") userId: String,
-        @Body base64Image: String
+    @Multipart
+    @PUT("users/{id}/uploadProfilePicture")
+    suspend fun uploadProfilePicture(
+        @Path("id") userId: String,
+        @Part file: MultipartBody.Part
     ): Response<User>
 
     // Simple method to get user with profile picture
@@ -141,4 +147,18 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("appointmentId") appointmentId: Long
     ): Response<AppointmentResponse>
+    
+    // Add the missing endpoint for getting services by portfolio
+    @GET("services/portfolio/{portfolioId}")
+    suspend fun getServicesByPortfolio(
+        @Header("Authorization") token: String,
+        @Path("portfolioId") portfolioId: String
+    ): Response<List<Service>>
+
+    @GET("portfolios/portfolio/{portfolioId}")
+    suspend fun getPortfolioById(
+        @Header("Authorization") token: String,
+        @Path("portfolioId") portfolioId: Long
+    ): Response<Portfolio>
+
 }

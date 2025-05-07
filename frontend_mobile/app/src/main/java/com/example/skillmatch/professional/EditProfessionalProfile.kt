@@ -22,6 +22,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.models.Location
@@ -39,7 +40,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.Locale
 
 class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
@@ -274,14 +281,20 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
                 PICK_IMAGE_REQUEST -> {
                     try {
                         selectedImageUri = data?.data
-                        val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedImageUri)
-                        profileImage.setImageBitmap(bitmap)
-                        
-                        // Convert bitmap to base64
-                        val outputStream = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-                        val imageBytes = outputStream.toByteArray()
-                        profileImageBase64 = Base64.encodeToString(imageBytes, Base64.DEFAULT)
+                        val file = selectedImageUri?.let { uri ->
+                            val filePathColumn = arrayOf(MediaStore.Images.Media.DATA)
+                            val cursor = contentResolver.query(uri, filePathColumn, null, null, null)
+                            cursor?.moveToFirst()
+                            val columnIndex = cursor?.getColumnIndex(filePathColumn[0]) ?: -1
+                            val picturePath = if (columnIndex != -1) cursor?.getString(columnIndex) else null
+                            cursor?.close()
+                            picturePath?.let { File(it) }
+                        }
+                        if (file != null) {
+                            uploadProfilePictureFile(file)
+                        } else {
+                            Toast.makeText(this, "Error selecting image", Toast.LENGTH_SHORT).show()
+                        }
                     } catch (e: Exception) {
                         Log.e("EditProfile", "Error picking image", e)
                         Toast.makeText(this, "Error selecting image", Toast.LENGTH_SHORT).show()
@@ -290,17 +303,46 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
                 TAKE_PHOTO_REQUEST -> {
                     try {
                         val bitmap = data?.extras?.get("data") as Bitmap
-                        profileImage.setImageBitmap(bitmap)
-                        
-                        // Convert bitmap to base64
-                        val outputStream = ByteArrayOutputStream()
-                        bitmap.compress(Bitmap.CompressFormat.JPEG, 70, outputStream)
-                        val imageBytes = outputStream.toByteArray()
-                        profileImageBase64 = Base64.encodeToString(imageBytes, Base64.DEFAULT)
+                        // Save bitmap to file
+                        val file = File(cacheDir, "profile_temp.jpg")
+                        val outputStream = FileOutputStream(file)
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
+                        outputStream.flush()
+                        outputStream.close()
+                        uploadProfilePictureFile(file)
                     } catch (e: Exception) {
                         Log.e("EditProfile", "Error taking photo", e)
                         Toast.makeText(this, "Error capturing photo", Toast.LENGTH_SHORT).show()
                     }
+                }
+            }
+        }
+    }
+    
+    private fun uploadProfilePictureFile(file: File) {
+        val userId = sessionManager.getUserId() ?: return
+        val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+        val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val response = ApiClient.apiService.uploadProfilePicture(userId, body)
+                withContext(Dispatchers.Main) {
+                    if (response.isSuccessful) {
+                        val user = response.body()
+                        user?.profilePicture?.let { url ->
+                            Glide.with(this@EditProfessionalProfile)
+                                .load(url)
+                                .placeholder(R.drawable.user)
+                                .into(profileImage)
+                        }
+                        Toast.makeText(this@EditProfessionalProfile, "Profile picture updated!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this@EditProfessionalProfile, "Failed to upload profile picture", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(this@EditProfessionalProfile, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -336,13 +378,20 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
                         }
                         
                         // Load profile image if available
-                        currentUser?.profilePicture?.let { imageBase64 ->
-                            try {
-                                val imageBytes = Base64.decode(imageBase64, Base64.DEFAULT)
-                                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                                profileImage.setImageBitmap(bitmap)
-                            } catch (e: Exception) {
-                                Log.e("EditProfile", "Error loading profile image", e)
+                        currentUser?.profilePicture?.let { profilePic ->
+                            if (profilePic.startsWith("http")) {
+                                Glide.with(this@EditProfessionalProfile)
+                                    .load(profilePic)
+                                    .placeholder(R.drawable.user)
+                                    .into(profileImage)
+                            } else {
+                                try {
+                                    val imageBytes = Base64.decode(profilePic, Base64.DEFAULT)
+                                    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                                    profileImage.setImageBitmap(bitmap)
+                                } catch (e: Exception) {
+                                    Log.e("EditProfile", "Error loading profile image", e)
+                                }
                             }
                         }
                         

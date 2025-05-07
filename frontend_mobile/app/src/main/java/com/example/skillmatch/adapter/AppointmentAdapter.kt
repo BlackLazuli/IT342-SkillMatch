@@ -80,8 +80,10 @@ class AppointmentAdapter(
             holder.providerNameText.text = "With: ${appointment.userFirstName ?: ""} ${appointment.userLastName ?: ""}"
         } else {
             // For customers, show the professional's name if available, otherwise fetch it
-            if (appointment.providerFirstName != null && appointment.providerLastName != null) {
-                holder.providerNameText.text = "With: ${appointment.providerFirstName} ${appointment.providerLastName}"
+            if (!appointment.providerFirstName.isNullOrBlank() || !appointment.providerLastName.isNullOrBlank()) {
+                val firstName = appointment.providerFirstName ?: ""
+                val lastName = appointment.providerLastName ?: ""
+                holder.providerNameText.text = "With: $firstName $lastName"
             } else if (appointment.portfolioId != null) {
                 // If provider name is not available but we have portfolioId, fetch the info
                 fetchProfessionalInfo(appointment.portfolioId, holder.providerNameText)
@@ -118,34 +120,27 @@ class AppointmentAdapter(
     }
 
     private fun fetchProfessionalInfo(portfolioId: Long, textView: TextView) {
-        // Check if we already have this portfolio in cache
-        if (portfolioCache.containsKey(portfolioId)) {
-            updateProviderNameText(portfolioCache[portfolioId], portfolioId, textView)
-            return
-        }
-        
-        // Fetch all portfolios and find the one we need
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.getAllPortfolios()
-                
+                val sessionManager = SessionManager(textView.context)
+                val token = sessionManager.getToken()
+                if (token.isNullOrEmpty()) {
+                    withContext(Dispatchers.Main) {
+                        textView.text = "With: Professional #$portfolioId"
+                    }
+                    return@launch
+                }
+                val response = ApiClient.apiService.getPortfolioById("Bearer $token", portfolioId)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
-                        val portfolios = response.body()
-                        // Find the portfolio with matching ID
-                        val portfolio = portfolios?.find { it.id == portfolioId }
-                        // Cache the result
-                        portfolioCache[portfolioId] = portfolio
-                        // Update the UI
+                        val portfolio = response.body()
                         updateProviderNameText(portfolio, portfolioId, textView)
                     } else {
-                        // If API call fails, show portfolio ID
                         textView.text = "With: Professional #$portfolioId"
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    // If exception occurs, show portfolio ID
                     textView.text = "With: Professional #$portfolioId"
                 }
             }
@@ -153,9 +148,10 @@ class AppointmentAdapter(
     }
     
     private fun updateProviderNameText(portfolio: Portfolio?, portfolioId: Long, textView: TextView) {
-        if (portfolio?.user != null) {
-            val firstName = portfolio.user.firstName ?: ""
-            val lastName = portfolio.user.lastName ?: ""
+        val user = portfolio?.user
+        val firstName = user?.firstName ?: ""
+        val lastName = user?.lastName ?: ""
+        if (firstName.isNotBlank() || lastName.isNotBlank()) {
             textView.text = "With: $firstName $lastName"
         } else {
             textView.text = "With: Professional #$portfolioId"

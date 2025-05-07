@@ -41,7 +41,6 @@ class ProfessionalProfileActivity : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var backButton: ImageButton
     private lateinit var portfolioCard: CardView
     private lateinit var appointmentsCard: CardView
-    private lateinit var commentsCard: CardView
     private lateinit var homeButton: ImageButton
     private lateinit var messagesButton: ImageButton
     private lateinit var settingsNavButton: ImageButton
@@ -85,7 +84,6 @@ class ProfessionalProfileActivity : AppCompatActivity(), OnMapReadyCallback {
         backButton = findViewById(R.id.backButton)
         portfolioCard = findViewById(R.id.portfolioCard)
         appointmentsCard = findViewById(R.id.appointmentsCard)
-        commentsCard = findViewById(R.id.commentsCard)
         homeButton = findViewById(R.id.homeButton)
         messagesButton = findViewById(R.id.messagesButton)
         settingsNavButton = findViewById(R.id.settingsNavButton)
@@ -118,11 +116,7 @@ class ProfessionalProfileActivity : AppCompatActivity(), OnMapReadyCallback {
             Toast.makeText(this, "Appointments feature coming soon", Toast.LENGTH_SHORT).show()
         }
 
-        // Comments card click listener
-        commentsCard.setOnClickListener {
-            // Navigate to comments and ratings screen
-            Toast.makeText(this, "Comments and Ratings feature coming soon", Toast.LENGTH_SHORT).show()
-        }
+
 
         // Bottom navigation buttons
         homeButton.setOnClickListener {
@@ -141,7 +135,8 @@ class ProfessionalProfileActivity : AppCompatActivity(), OnMapReadyCallback {
 
         settingsNavButton.setOnClickListener {
             // Navigate to settings screen
-            Toast.makeText(this, "Settings button clicked", Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, ProfessionalSettingsActivity::class.java)
+            startActivity(intent)
         }
 
         profileButton.setOnClickListener {

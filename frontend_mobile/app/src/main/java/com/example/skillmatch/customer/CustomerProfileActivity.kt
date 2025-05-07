@@ -121,36 +121,38 @@ class CustomerProfileActivity : AppCompatActivity(), OnMapReadyCallback {
 
         // Payment History card click listener
         paymentHistoryCard.setOnClickListener {
-            // Navigate to payment history screen
-            Toast.makeText(this, "Payment History feature coming soon", Toast.LENGTH_SHORT).show()
+            // Navigate to settings screen
+            val intent = Intent(this, CustomerSettingsActivity::class.java)
+            startActivity(intent)
         }
 
         // Bottom navigation buttons
         homeButton.setOnClickListener {
             // Navigate to home screen (CustomerDashboard)
- val intent = Intent(this, CustomerDashboard::class.java)
- intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
- startActivity(intent)
-}
+            val intent = Intent(this, CustomerDashboard::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(intent)
+        }
 
-calendarButton.setOnClickListener {
- // Navigate to appointments screen
-/* val intent = Intent(this, CustomerAppointments::class.java)
- startActivity(intent)*/
-}
+        calendarButton.setOnClickListener {
+            // Navigate to appointments screen
+            val intent = Intent(this, AppointmentActivity::class.java)
+            startActivity(intent)
+        }
 
-settingsNavButton.setOnClickListener {
- // Navigate to settings screen
- Toast.makeText(this, "Settings feature coming soon", Toast.LENGTH_SHORT).show()
-}
+        settingsNavButton.setOnClickListener {
+            // Navigate to settings screen
+            val intent = Intent(this, CustomerSettingsActivity::class.java)
+            startActivity(intent)
+        }
 
-profileButton.setOnClickListener {
- // Already on profile screen
- Toast.makeText(this, "Already on Profile screen", Toast.LENGTH_SHORT).show()
-}
-}
+        profileButton.setOnClickListener {
+            // Already on profile screen
+            Toast.makeText(this, "Already on Profile screen", Toast.LENGTH_SHORT).show()
+        }
+    }
 
-private fun loadUserProfile() {
+    private fun loadUserProfile() {
 val userId = sessionManager.getUserId()
 
 if (userId.isNullOrEmpty()) {

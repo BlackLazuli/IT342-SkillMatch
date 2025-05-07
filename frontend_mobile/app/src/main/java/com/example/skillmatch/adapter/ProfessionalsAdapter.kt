@@ -18,6 +18,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 import com.example.skillmatch.utils.SessionManager
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 class ProfessionalsAdapter(
     private var professionals: List<Professional>,
@@ -96,15 +99,50 @@ class ProfessionalsAdapter(
     
                         // Get availability info directly from portfolio
                         val daysAvailable = portfolio.daysAvailable
+                        val startTime = portfolio.startTime
+                        val endTime = portfolio.endTime
                         val time = portfolio.time
-    
-                        if (daysAvailable.isNotEmpty() || !time.isNullOrEmpty()) {
-                            // Display days in a compact format
-                            val daysText = formatDaysOfWeek(daysAvailable)
-                            holder.scheduleText.text = daysText
-                            holder.hoursText.text = time ?: "Not specified"
+
+                        // Display days in a compact format
+                        val daysText = formatDaysOfWeek(daysAvailable)
+                        holder.scheduleText.text = daysText
+                        
+                        // First check for startTime and endTime (new format)
+                        if (startTime != null && endTime != null) {
+                            val formattedStartTime = formatTo12HourTime(startTime)
+                            val formattedEndTime = formatTo12HourTime(endTime)
+                            holder.hoursText.text = "$formattedStartTime - $formattedEndTime"
+                            Log.d(TAG, "Using startTime-endTime for professional $professionalId: $formattedStartTime - $formattedEndTime")
+                        } else if (!time.isNullOrEmpty()) {
+                            // For backward compatibility, use time field
+                            // Try to format the time string if it contains a range separator
+                            if (time.contains("-")) {
+                                try {
+                                    val times = time.split("-")
+                                    if (times.size == 2) {
+                                        val formattedStartTime = formatTo12HourTime(times[0].trim())
+                                        val formattedEndTime = formatTo12HourTime(times[1].trim())
+                                        holder.hoursText.text = "$formattedStartTime - $formattedEndTime"
+                                    } else {
+                                        holder.hoursText.text = time
+                                    }
+                                } catch (e: Exception) {
+                                    Log.e(TAG, "Error formatting time range", e)
+                                    holder.hoursText.text = time
+                                }
+                            } else {
+                                holder.hoursText.text = time
+                            }
+                            Log.d(TAG, "Using time for professional $professionalId: ${holder.hoursText.text}")
                         } else {
-                            setDefaultAvailability(holder, professionals[holder.adapterPosition])
+                            // If no time information is available
+                            holder.hoursText.text = "Not specified"
+                            Log.d(TAG, "No time information for professional $professionalId")
+                        }
+
+                        // Fetch comments to calculate overall rating
+                        portfolio.id?.let { portfolioId ->
+                            fetchCommentsAndUpdateRating(portfolioId, holder)
                         }
                     } else {
                         // Handle 404 error specifically
@@ -122,6 +160,73 @@ class ProfessionalsAdapter(
                     setDefaultAvailability(holder, professionals[holder.adapterPosition])
                 }
             }
+        }
+    }
+
+    private fun fetchCommentsAndUpdateRating(portfolioId: Long, holder: ProfessionalViewHolder) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val sessionManager = SessionManager(holder.itemView.context)
+                val token = sessionManager.getToken()
+                
+                if (token.isNullOrEmpty()) {
+                    Log.e(TAG, "Token is missing or empty")
+                    return@launch
+                }
+                
+                val commentsResponse = ApiClient.apiService.getCommentsByPortfolio(
+                    "Bearer $token",
+                    portfolioId.toString()
+                )
+                
+                withContext(Dispatchers.Main) {
+                    if (commentsResponse.isSuccessful && commentsResponse.body() != null) {
+                        val comments = commentsResponse.body()!!
+                        
+                        if (comments.isNotEmpty()) {
+                            // Calculate average rating from comments
+                            val averageRating = comments.map { it.rating }.average().toFloat()
+                            holder.ratingBar.rating = averageRating
+                            holder.ratingText.text = String.format("%.1f", averageRating)
+                        } else {
+                            // No comments, set rating to 0
+                            holder.ratingBar.rating = 0f
+                            holder.ratingText.text = "0.0"
+                        }
+                    } else {
+                        // Set rating to 0 on error
+                        holder.ratingBar.rating = 0f
+                        holder.ratingText.text = "0.0"
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error fetching comments", e)
+                withContext(Dispatchers.Main) {
+                    // Set rating to 0 on error
+                    holder.ratingBar.rating = 0f
+                    holder.ratingText.text = "0.0"
+                }
+            }
+        }
+    }
+
+    // Add a helper method to format time to 12-hour format with AM/PM
+    private fun formatTo12HourTime(timeString: String): String {
+        try {
+            // Parse the time string (handling both HH:mm and HH:mm:ss formats)
+            val time = if (timeString.count { it == ':' } > 1) {
+                // Format is HH:mm:ss
+                LocalTime.parse(timeString.trim(), DateTimeFormatter.ofPattern("HH:mm:ss"))
+            } else {
+                // Format is HH:mm
+                LocalTime.parse(timeString.trim(), DateTimeFormatter.ofPattern("HH:mm"))
+            }
+            
+            // Format to 12-hour format with AM/PM
+            return time.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))
+        } catch (e: Exception) {
+            Log.e(TAG, "Error formatting time: $timeString", e)
+            return timeString // Return original if parsing fails
         }
     }
 

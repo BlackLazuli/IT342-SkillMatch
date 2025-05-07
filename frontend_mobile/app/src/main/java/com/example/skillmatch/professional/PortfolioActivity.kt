@@ -18,14 +18,15 @@ import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.models.CommentResponse
 import com.example.skillmatch.models.Portfolio
+import com.example.skillmatch.models.Service
 import com.example.skillmatch.utils.SessionManager
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -106,8 +107,8 @@ class PortfolioActivity : AppCompatActivity() {
         }
 
         settingsNavButton.setOnClickListener {
-            // Navigate to settings screen
-            // Intent to settings activity
+            val intent = Intent(this, ProfessionalSettingsActivity::class.java)
+            startActivity(intent)
         }
 
         profileButton.setOnClickListener {
@@ -279,116 +280,197 @@ class PortfolioActivity : AppCompatActivity() {
     }
 
     private fun displayPortfolioData(portfolio: Portfolio) {
-        // Display work experience
-        workExperienceText.text = portfolio.workExperience ?: "No work experience added"
+        // Set work experience
+        workExperienceText.text = portfolio.workExperience ?: "No work experience added yet"
+        
+        // Set availability days
+        // Display availability
+        val daysText = formatDaysOfWeek(portfolio.daysAvailable)
+        availableDaysText.text = daysText
+        
+        // Format time display
+        if (portfolio.startTime != null && portfolio.endTime != null) {
+            val formattedStartTime = formatTo12HourTime(portfolio.startTime)
+            val formattedEndTime = formatTo12HourTime(portfolio.endTime)
+            availableTimeText.text = "$formattedStartTime - $formattedEndTime"
+        } else if (!portfolio.time.isNullOrEmpty()) {
+            availableTimeText.text = portfolio.time
+        } else {
+            availableTimeText.text = "Not specified"
+        }
+        
+        // Update services
+        updateServicesUI(portfolio.servicesOffered)
+        
+        // Update availability days
+        if (portfolio.daysAvailable.isNotEmpty()) {
+            availableDaysText.text = portfolio.daysAvailable.joinToString(", ")
+        } else {
+            availableDaysText.text = "Not specified"
+        }
+        
+        // Update availability time with better null/empty checking and logging
+        // First check for startTime and endTime (new format)
+        if (portfolio.startTime != null && portfolio.endTime != null) {
+            val formattedStartTime = formatTo12HourTime(portfolio.startTime)
+            val formattedEndTime = formatTo12HourTime(portfolio.endTime)
+            availableTimeText.text = "$formattedStartTime - $formattedEndTime"
+            Log.d("Portfolio", "Setting time text to: $formattedStartTime - $formattedEndTime")
+        }
+        // For backward compatibility, check time field
+        else if (portfolio.time != null && portfolio.time.isNotEmpty()) {
+            // Try to format the time string if it contains a range separator
+            if (portfolio.time.contains("-")) {
+                try {
+                    val times = portfolio.time.split("-")
+                    if (times.size == 2) {
+                        val formattedStartTime = formatTo12HourTime(times[0].trim())
+                        val formattedEndTime = formatTo12HourTime(times[1].trim())
+                        availableTimeText.text = "$formattedStartTime - $formattedEndTime"
+                    } else {
+                        availableTimeText.text = portfolio.time
+                    }
+                } catch (e: Exception) {
+                    Log.e("Portfolio", "Error formatting time range", e)
+                    availableTimeText.text = portfolio.time
+                }
+            } else {
+                availableTimeText.text = portfolio.time
+            }
+            Log.d("Portfolio", "Setting time text to: ${availableTimeText.text}")
+        } else {
+            availableTimeText.text = "Not specified"
+            Log.d("Portfolio", "Time value is null or empty")
+        }
+    }
 
-        // Clear existing services and pricing
+    private fun updateServicesUI(services: List<Service>?) {
+        // Clear existing views
         servicesContainer.removeAllViews()
-
-        // Display services
-        if (portfolio.servicesOffered.isNullOrEmpty()) {
+        
+        if (services.isNullOrEmpty()) {
+            // Add a message when no services are available
             val noServicesText = TextView(this).apply {
-                text = "No services added yet"
+                text = "No services available"
                 textSize = 14f
                 setTextColor(resources.getColor(android.R.color.darker_gray, theme))
                 setPadding(16, 16, 16, 16)
             }
             servicesContainer.addView(noServicesText)
-        } else {
-            // Display each service in its own container
-            portfolio.servicesOffered.forEach { service ->
-                // Create a card for each service
-                val serviceCard = androidx.cardview.widget.CardView(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    ).apply {
-                        setMargins(0, 0, 0, 16) // Add bottom margin
-                    }
-                    radius = resources.getDimension(R.dimen.card_corner_radius) ?: 8f
-                    cardElevation = 2f
+            return
+        }
+        
+        // Display each service in its own container
+        services.forEach { service ->
+            // Create a card for each service
+            val serviceCard = androidx.cardview.widget.CardView(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    setMargins(0, 0, 0, 16) // Add bottom margin
                 }
-                
-                // Create container for service content
-                val serviceContent = LinearLayout(this).apply {
-                    layoutParams = LinearLayout.LayoutParams(
-                        LinearLayout.LayoutParams.MATCH_PARENT,
-                        LinearLayout.LayoutParams.WRAP_CONTENT
-                    )
-                    orientation = LinearLayout.VERTICAL
-                    setPadding(16, 16, 16, 16)
-                    setBackgroundColor(resources.getColor(R.color.colorPrimary, theme))
-                }
-                
-                // Add service name
-                val serviceNameText = TextView(this).apply {
-                    text = service.name
-                    textSize = 16f
+                radius = resources.getDimension(R.dimen.card_corner_radius) ?: 8f
+                cardElevation = 2f
+            }
+            
+            // Create container for service content
+            val serviceContent = LinearLayout(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT
+                )
+                orientation = LinearLayout.VERTICAL
+                setPadding(16, 16, 16, 16)
+                setBackgroundColor(resources.getColor(R.color.colorPrimary, theme))
+            }
+            
+            // Add service name
+            val serviceNameText = TextView(this).apply {
+                text = service.name
+                textSize = 16f
+                setTextColor(resources.getColor(android.R.color.white, theme))
+                setPadding(0, 0, 0, 8)
+            }
+            serviceContent.addView(serviceNameText)
+            
+            // Add service description if available
+            if (!service.description.isNullOrEmpty()) {
+                val descriptionText = TextView(this).apply {
+                    text = service.description
+                    textSize = 14f
                     setTextColor(resources.getColor(android.R.color.white, theme))
                     setPadding(0, 0, 0, 8)
                 }
-                serviceContent.addView(serviceNameText)
-                
-                // Add service description if available
-                if (!service.description.isNullOrEmpty()) {
-                    val descriptionText = TextView(this).apply {
-                        text = service.description
-                        textSize = 14f
-                        setTextColor(resources.getColor(android.R.color.darker_gray, theme))
-                        setPadding(0, 0, 0, 8)
-                    }
-                    serviceContent.addView(descriptionText)
-                }
-                
-                // Add service pricing if available
-                if (!service.pricing.isNullOrEmpty()) {
-                    val pricingText = TextView(this).apply {
-                        text = "Price: ₱${service.pricing}"
-                        textSize = 14f
-                        setTextColor(resources.getColor(android.R.color.black, theme))
-                        setPadding(0, 8, 0, 0)
-                    }
-                    serviceContent.addView(pricingText)
-                }
-                
-                // Add the content to the card
-                serviceCard.addView(serviceContent)
-                
-                // Add the card to the services container
-                servicesContainer.addView(serviceCard)
+                serviceContent.addView(descriptionText)
             }
+            
+            // Add service pricing if available
+            if (!service.pricing.isNullOrEmpty()) {
+                val pricingText = TextView(this).apply {
+                    text = "Price: ₱${service.pricing}"
+                    textSize = 14f
+                    setTextColor(resources.getColor(android.R.color.white, theme))
+                    setPadding(0, 8, 0, 0)
+                }
+                serviceContent.addView(pricingText)
+            }
+            
+            // Add the content to the card
+            serviceCard.addView(serviceContent)
+            
+            // Add the card to the services container
+            servicesContainer.addView(serviceCard)
         }
-    
-        // Display availability information from portfolio
-        val daysText = if (portfolio.daysAvailable.isNotEmpty()) {
-            formatDaysOfWeek(portfolio.daysAvailable)
-        } else {
-            "Not specified"
+    }
+
+    // Remove this method as it's not needed
+    private fun updateCommentsUI(comments: List<CommentResponse>?) {
+    // This method is redundant since we have the displayComments method
+    // that is called directly after fetching comments
+    }
+
+    // Add helper method to format time to 12-hour format with AM/PM
+    private fun formatTo12HourTime(timeString: String): String {
+        try {
+            // Parse the time string (assuming it's in HH:mm or HH:mm:ss format)
+            val time = if (timeString.contains(":")) {
+                if (timeString.count { it == ':' } > 1) {
+                    // Format is HH:mm:ss
+                    LocalTime.parse(timeString.trim(), DateTimeFormatter.ofPattern("HH:mm:ss"))
+                } else {
+                    // Format is HH:mm
+                    LocalTime.parse(timeString.trim(), DateTimeFormatter.ofPattern("HH:mm"))
+                }
+            } else {
+                LocalTime.parse(timeString.trim())
+            }
+            
+            // Format to 12-hour format with AM/PM
+            return time.format(DateTimeFormatter.ofPattern("h:mm a", Locale.US))
+        } catch (e: Exception) {
+            Log.e("PortfolioActivity", "Error formatting time: $timeString", e)
+            return timeString // Return original if parsing fails
         }
-        availableDaysText.text = daysText
-        
-        availableTimeText.text = portfolio.time ?: "Not specified"
     }
 
     private fun formatDaysOfWeek(days: List<String>): String {
         if (days.isEmpty()) return "Not specified"
-    
-        // Sort days in correct order
-        val orderedDays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-        val sortedDays = days.sortedBy { orderedDays.indexOf(it) }
-    
-        // If all weekdays are present, show "Weekdays"
-        val weekdays = listOf("Monday", "Tuesday", "Wednesday", "Thursday", "Friday")
-        if (sortedDays.containsAll(weekdays) && sortedDays.size == 5) {
-            return "Weekdays"
+        
+        // Sort days in correct order (Monday first)
+        val sortedDays = days.sortedBy { 
+            when (it.trim().uppercase()) {
+                "MONDAY" -> 1
+                "TUESDAY" -> 2
+                "WEDNESDAY" -> 3
+                "THURSDAY" -> 4
+                "FRIDAY" -> 5
+                "SATURDAY" -> 6
+                "SUNDAY" -> 7
+                else -> 8
+            }
         }
-    
-        // If all days are present, show "All days"
-        if (sortedDays.size == 7) {
-            return "All days"
-        }
-    
-        // Otherwise, show comma-separated list
+        
         return sortedDays.joinToString(", ")
     }
 

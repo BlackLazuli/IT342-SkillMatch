@@ -51,6 +51,9 @@
         <activity android:name=".customer.CustomerProfileActivity" android:exported="false" />
         <activity android:name=".customer.CustomerDashboard" android:exported="true" />
         <activity android:name=".customer.CustomerViewCardActivity" android:exported="false"/>
+        <activity
+    android:name=".customer.CustomerSettingsActivity"
+    android:exported="false" />
 
 
         <activity android:name=".professional.EditPortfolioActivity" android:exported="false" />
@@ -67,5 +70,8 @@
             <activity
     android:name=".professional.AppointmentProfessionalActivity"
     android:exported="false" />
+    <activity 
+        android:name=".professional.ProfessionalSettingsActivity" 
+        android:exported="false" />
 </application>
 </manifest>

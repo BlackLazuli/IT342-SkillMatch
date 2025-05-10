@@ -381,9 +381,15 @@ class EditCustomerProfile : AppCompatActivity(), OnMapReadyCallback {
                         
                         // Load profile image if available
                         currentUser?.profilePicture?.let { profilePic ->
+                            val backendBaseUrl = "http://3.107.23.86:8080"
                             if (profilePic.startsWith("http")) {
                                 Glide.with(this@EditCustomerProfile)
                                     .load(profilePic)
+                                    .placeholder(R.drawable.user)
+                                    .into(profileImage)
+                            } else if (profilePic.startsWith("/uploads")) {
+                                Glide.with(this@EditCustomerProfile)
+                                    .load(backendBaseUrl + profilePic)
                                     .placeholder(R.drawable.user)
                                     .into(profileImage)
                             } else {

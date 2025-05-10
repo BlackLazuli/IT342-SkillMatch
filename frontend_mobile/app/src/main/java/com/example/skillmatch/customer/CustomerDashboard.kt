@@ -4,8 +4,10 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.location.Location
 import android.os.Bundle
+import android.util.Base64
 import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
@@ -16,6 +18,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
 import com.example.skillmatch.R
 import com.example.skillmatch.adapter.ProfessionalsAdapter
 import com.example.skillmatch.api.ApiClient
@@ -426,6 +429,7 @@ class CustomerDashboard : AppCompatActivity() {
                            }
                        }
 
+                       Log.d(TAG, "User: ${user.firstName} ${user.lastName}, ProfilePicture: ${user.profilePicture}")
                        Professional(
                            id = user.id?.toLong() ?: 0L,
                            firstName = user.firstName ?: "",

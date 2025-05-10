@@ -14,6 +14,7 @@ import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.models.CommentResponse
@@ -237,13 +238,27 @@ class PortfolioActivity : AppCompatActivity() {
             }
             
             // Set author profile picture if available
-            if (!comment.profilePicture.isNullOrEmpty()) {
-                try {
-                    val decodedBytes = Base64.decode(comment.profilePicture, Base64.DEFAULT)
-                    val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-                    authorImage.setImageBitmap(bitmap)
-                } catch (e: Exception) {
-                    Log.e("Portfolio", "Error decoding profile picture", e)
+            val backendBaseUrl = "http://3.107.23.86:8080"
+            val profilePic = comment.profilePicture
+            if (!profilePic.isNullOrEmpty()) {
+                if (profilePic.startsWith("http")) {
+                    Glide.with(this)
+                        .load(profilePic)
+                        .placeholder(R.drawable.user)
+                        .into(authorImage)
+                } else if (profilePic.startsWith("/uploads")) {
+                    Glide.with(this)
+                        .load(backendBaseUrl + profilePic)
+                        .placeholder(R.drawable.user)
+                        .into(authorImage)
+                } else {
+                    try {
+                        val decodedBytes = Base64.decode(profilePic, Base64.DEFAULT)
+                        val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                        authorImage.setImageBitmap(bitmap)
+                    } catch (e: Exception) {
+                        Log.e("Portfolio", "Error decoding profile picture", e)
+                    }
                 }
             }
             
@@ -267,14 +282,27 @@ class PortfolioActivity : AppCompatActivity() {
         }
     }
 
-    private fun displayProfilePicture(profilePictureBase64: String?) {
-        profilePictureBase64?.let {
-            try {
-                val imageBytes = Base64.decode(it, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                profileImage.setImageBitmap(bitmap)
-            } catch (e: Exception) {
-                Log.e("Portfolio", "Error loading profile image", e)
+    private fun displayProfilePicture(profilePic: String?) {
+        profilePic?.let {
+            val backendBaseUrl = "http://3.107.23.86:8080"
+            if (profilePic.startsWith("http")) {
+                Glide.with(this)
+                    .load(profilePic)
+                    .placeholder(R.drawable.user)
+                    .into(profileImage)
+            } else if (profilePic.startsWith("/uploads")) {
+                Glide.with(this)
+                    .load(backendBaseUrl + profilePic)
+                    .placeholder(R.drawable.user)
+                    .into(profileImage)
+            } else {
+                try {
+                    val imageBytes = Base64.decode(profilePic, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    profileImage.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    Log.e("Portfolio", "Error loading profile image", e)
+                }
             }
         }
     }

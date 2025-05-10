@@ -396,23 +396,30 @@ class SetAppointmentActivity : AppCompatActivity() {
     }
     
     private fun showTimePicker() {
-        // Get current hour and minute from selectedDate
+        val startTime = portfolio?.startTime
+        val endTime = portfolio?.endTime
+        val start = startTime?.let { LocalTime.parse(it) }
+        val end = endTime?.let { LocalTime.parse(it) }
+
         val hour = selectedDate.get(Calendar.HOUR_OF_DAY)
         val minute = selectedDate.get(Calendar.MINUTE)
 
-        // Create TimePickerDialog
         val timePickerDialog = TimePickerDialog(
             this,
             { _, hourOfDay, minuteOfHour ->
+                val pickedTime = LocalTime.of(hourOfDay, minuteOfHour)
+                if (start != null && end != null && (pickedTime.isBefore(start) || pickedTime.isAfter(end))) {
+                    Toast.makeText(this, "Please select a time between ${formatTo12HourTime(start.toString())} and ${formatTo12HourTime(end.toString())}", Toast.LENGTH_SHORT).show()
+                    return@TimePickerDialog
+                }
                 selectedDate.set(Calendar.HOUR_OF_DAY, hourOfDay)
                 selectedDate.set(Calendar.MINUTE, minuteOfHour)
                 updateTimeDisplay()
             },
             hour,
             minute,
-            false // 12-hour format
+            false
         )
-
         timePickerDialog.show()
     }
 
@@ -428,41 +435,31 @@ class SetAppointmentActivity : AppCompatActivity() {
                 selectedDate.set(Calendar.YEAR, year)
                 selectedDate.set(Calendar.MONTH, month)
                 selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-                updateDateDisplay()
-                
-                // Validate selected date against professional's availability
-                portfolio?.let { portfolio ->
-                    val daysAvailable = portfolio.daysAvailable
-                    
-                    // If "Everyday" is in the list, any day is valid
-                    if (daysAvailable.any { it.equals("Everyday", ignoreCase = true) }) {
-                        // All days are available, no validation needed
-                        return@let
-                    }
-                    
-                    val dayOfWeek = selectedDate.get(Calendar.DAY_OF_WEEK)
-                    val dayName = when (dayOfWeek) {
-                        Calendar.MONDAY -> "monday"
-                        Calendar.TUESDAY -> "tuesday"
-                        Calendar.WEDNESDAY -> "wednesday"
-                        Calendar.THURSDAY -> "thursday"
-                        Calendar.FRIDAY -> "friday"
-                        Calendar.SATURDAY -> "saturday"
-                        Calendar.SUNDAY -> "sunday"
-                        else -> ""
-                    }
-                    
-                    if (daysAvailable.isNotEmpty() && !daysAvailable.map { it.lowercase() }.contains(dayName)) {
-                        Toast.makeText(this, "Warning: Professional is not available on ${dayName.capitalize(Locale.ROOT)}", Toast.LENGTH_SHORT).show()
-                    }
+
+                // Restrict to available days
+                val dayOfWeek = selectedDate.get(Calendar.DAY_OF_WEEK)
+                val dayName = when (dayOfWeek) {
+                    Calendar.SUNDAY -> "Sunday"
+                    Calendar.MONDAY -> "Monday"
+                    Calendar.TUESDAY -> "Tuesday"
+                    Calendar.WEDNESDAY -> "Wednesday"
+                    Calendar.THURSDAY -> "Thursday"
+                    Calendar.FRIDAY -> "Friday"
+                    Calendar.SATURDAY -> "Saturday"
+                    else -> ""
                 }
+                val availableDays = portfolio?.daysAvailable?.map { it.trim().capitalize() } ?: emptyList()
+                if (!availableDays.contains(dayName)) {
+                    Toast.makeText(this, "Professional is not available on $dayName", Toast.LENGTH_SHORT).show()
+                    return@DatePickerDialog // Do not update date
+                }
+
+                updateDateDisplay()
             },
             selectedDate.get(Calendar.YEAR),
             selectedDate.get(Calendar.MONTH),
             selectedDate.get(Calendar.DAY_OF_MONTH)
         )
-        
-        // Set minimum date to today to prevent booking in the past
         datePickerDialog.datePicker.minDate = System.currentTimeMillis()
         datePickerDialog.show()
     }
@@ -487,7 +484,36 @@ class SetAppointmentActivity : AppCompatActivity() {
             Toast.makeText(this, "Please select a service", Toast.LENGTH_SHORT).show()
             return false
         }
-        
+
+        // Restrict to available days
+        val dayOfWeek = selectedDate.get(Calendar.DAY_OF_WEEK)
+        val dayName = when (dayOfWeek) {
+            Calendar.SUNDAY -> "Sunday"
+            Calendar.MONDAY -> "Monday"
+            Calendar.TUESDAY -> "Tuesday"
+            Calendar.WEDNESDAY -> "Wednesday"
+            Calendar.THURSDAY -> "Thursday"
+            Calendar.FRIDAY -> "Friday"
+            Calendar.SATURDAY -> "Saturday"
+            else -> ""
+        }
+        val availableDays = portfolio?.daysAvailable?.map { it.trim().capitalize() } ?: emptyList()
+        if (!availableDays.contains(dayName)) {
+            Toast.makeText(this, "Professional is not available on $dayName", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        // Restrict to available time
+        val startTime = portfolio?.startTime
+        val endTime = portfolio?.endTime
+        val start = startTime?.let { LocalTime.parse(it) }
+        val end = endTime?.let { LocalTime.parse(it) }
+        val pickedTime = LocalTime.of(selectedDate.get(Calendar.HOUR_OF_DAY), selectedDate.get(Calendar.MINUTE))
+        if (start != null && end != null && (pickedTime.isBefore(start) || pickedTime.isAfter(end))) {
+            Toast.makeText(this, "Please select a time between ${formatTo12HourTime(start.toString())} and ${formatTo12HourTime(end.toString())}", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
         return true
     }
     

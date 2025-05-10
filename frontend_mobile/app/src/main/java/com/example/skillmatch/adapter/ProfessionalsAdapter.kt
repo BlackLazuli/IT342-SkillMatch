@@ -70,6 +70,46 @@ class ProfessionalsAdapter(
         // Fetch portfolio data to get services with availability info
         fetchPortfolioData(professional.id, holder)
 
+        // Set profile image if available
+        holder.profileImage?.let { imageView ->
+            val backendBaseUrl = "http://3.107.23.86:8080"
+            val profilePic = professional.profilePicture
+            Log.d(TAG, "Loading image for ${professional.firstName} ${professional.lastName}: $profilePic")
+            if (!profilePic.isNullOrEmpty()) {
+                // Make the imageView visible and hide the initial circle
+                imageView.visibility = View.VISIBLE
+                holder.initialCircle.visibility = View.INVISIBLE
+                
+                if (profilePic.startsWith("http")) {
+                    Glide.with(imageView)
+                        .load(profilePic)
+                        .placeholder(R.drawable.user)
+                        .into(imageView)
+                } else if (profilePic.startsWith("/uploads")) {
+                    Glide.with(imageView)
+                        .load(backendBaseUrl + profilePic)
+                        .placeholder(R.drawable.user)
+                        .into(imageView)
+                } else {
+                    try {
+                        val decodedBytes = android.util.Base64.decode(profilePic, android.util.Base64.DEFAULT)
+                        val bitmap = android.graphics.BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                        imageView.setImageBitmap(bitmap)
+                    } catch (e: Exception) {
+                        Log.e(TAG, "Error decoding profile picture", e)
+                        imageView.setImageResource(R.drawable.user)
+                        // If there's an error, show the initial circle again
+                        imageView.visibility = View.INVISIBLE
+                        holder.initialCircle.visibility = View.VISIBLE
+                    }
+                }
+            } else {
+                // If no profile picture, ensure the initial circle is visible
+                imageView.visibility = View.INVISIBLE
+                holder.initialCircle.visibility = View.VISIBLE
+            }
+        }
+
         // Set click listener
         holder.itemView.setOnClickListener {
             onProfessionalClicked(professional)

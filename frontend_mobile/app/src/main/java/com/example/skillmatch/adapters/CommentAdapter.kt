@@ -9,13 +9,19 @@ import android.view.ViewGroup
 import android.widget.RatingBar
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.skillmatch.R
+import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.models.CommentResponse
 import de.hdodenhof.circleimageview.CircleImageView
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CommentAdapter(
     private var comments: List<CommentResponse>
@@ -47,7 +53,6 @@ class CommentAdapter(
         private val commentMessageText: TextView = itemView.findViewById(R.id.commentMessageText)
 
         fun bind(comment: CommentResponse) {
-            // Set author name and comment message
             authorNameText.text = comment.authorName
             commentMessageText.text = comment.message
             commentRatingBar.rating = comment.rating.toFloat()
@@ -62,15 +67,33 @@ class CommentAdapter(
                 Log.e("CommentAdapter", "Error parsing date", e)
             }
             
-            // Set author profile picture if available
+            val backendBaseUrl = "http://3.107.23.86:8080"
+
+            // If profilePicture is present, use it
             if (!comment.profilePicture.isNullOrEmpty()) {
-                try {
-                    val decodedBytes = Base64.decode(comment.profilePicture, Base64.DEFAULT)
-                    val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-                    authorImage.setImageBitmap(bitmap)
-                } catch (e: Exception) {
-                    Log.e("CommentAdapter", "Error decoding profile picture", e)
+                val profilePic = comment.profilePicture
+                if (profilePic.startsWith("http")) {
+                    Glide.with(itemView)
+                        .load("http://3.107.23.86:8080" + profilePic)
+                        .placeholder(R.drawable.user)
+                        .into(authorImage)
+                } else if (profilePic.startsWith("/uploads")) {
+                    Glide.with(itemView)
+                        .load("http://3.107.23.86:8080" + profilePic)
+                        .placeholder(R.drawable.user)
+                        .into(authorImage)
+                } else {
+                    try {
+                        val decodedBytes = Base64.decode(profilePic, Base64.DEFAULT)
+                        val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                        authorImage.setImageBitmap(bitmap)
+                    } catch (e: Exception) {
+                        Log.e("CommentAdapter", "Error decoding profile picture", e)
+                    }
                 }
+            } else {
+                // Fetch user by ID and get their profile picture
+                fetchUserProfilePicture(comment.authorId)
             }
         }
         
@@ -91,6 +114,46 @@ class CommentAdapter(
                 } catch (e2: Exception) {
                     Log.e("CommentAdapter", "Error formatting date", e2)
                     return timestamp
+                }
+            }
+        }
+
+        private fun fetchUserProfilePicture(userId: Long) {
+            // Use your API client to fetch the user by ID
+            // This is a coroutine example; adapt as needed for your setup
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val response = ApiClient.apiService.getUserProfile(userId.toString())
+                    if (response.isSuccessful && response.body() != null) {
+                        val user = response.body()!!
+                        val profilePic = user.profilePicture
+                        withContext(Dispatchers.Main) {
+                            val backendBaseUrl = "http://3.107.23.86:8080"
+                            if (!profilePic.isNullOrEmpty()) {
+                                if (profilePic.startsWith("http")) {
+                                    Glide.with(itemView)
+                                        .load("http://3.107.23.86:8080" + profilePic)
+                                        .placeholder(R.drawable.user)
+                                        .into(authorImage)
+                                } else if (profilePic.startsWith("/uploads")) {
+                                    Glide.with(itemView)
+                                        .load("http://3.107.23.86:8080" + profilePic)
+                                        .placeholder(R.drawable.user)
+                                        .into(authorImage)
+                                } else {
+                                    try {
+                                        val decodedBytes = Base64.decode(profilePic, Base64.DEFAULT)
+                                        val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                                        authorImage.setImageBitmap(bitmap)
+                                    } catch (e: Exception) {
+                                        Log.e("CommentAdapter", "Error decoding profile picture", e)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("CommentAdapter", "Error fetching user profile", e)
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.example.skillmatch.adapters
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -86,7 +87,7 @@ class AppointmentAdapter(
                 holder.providerNameText.text = "With: $firstName $lastName"
             } else if (appointment.portfolioId != null) {
                 // If provider name is not available but we have portfolioId, fetch the info
-                fetchProfessionalInfo(appointment.portfolioId, holder.providerNameText)
+fetchProfessionalInfo(appointment.portfolioId.toString(), holder.providerNameText)
             } else {
                 // Fallback to showing just the ID
                 holder.providerNameText.text = "With: Professional (ID: ${appointment.portfolioId})"
@@ -119,42 +120,49 @@ class AppointmentAdapter(
         }
     }
 
-    private fun fetchProfessionalInfo(portfolioId: Long, textView: TextView) {
+    private fun fetchProfessionalInfo(userId: String, textView: TextView) {
         CoroutineScope(Dispatchers.IO).launch {
             try {
                 val sessionManager = SessionManager(textView.context)
                 val token = sessionManager.getToken()
                 if (token.isNullOrEmpty()) {
                     withContext(Dispatchers.Main) {
-                        textView.text = "With: Professional #$portfolioId"
+                        textView.text = "With: Professional #$userId"
                     }
                     return@launch
                 }
-                val response = ApiClient.apiService.getPortfolioById("Bearer $token", portfolioId)
+                val response = ApiClient.apiService.getPortfolio("Bearer $token", userId)
                 withContext(Dispatchers.Main) {
                     if (response.isSuccessful) {
                         val portfolio = response.body()
-                        updateProviderNameText(portfolio, portfolioId, textView)
+                        updateProviderNameText(portfolio, userId, textView)
                     } else {
-                        textView.text = "With: Professional #$portfolioId"
+                        textView.text = "With: Professional #$userId"
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
-                    textView.text = "With: Professional #$portfolioId"
+                    textView.text = "With: Professional #$userId"
                 }
             }
         }
     }
     
-    private fun updateProviderNameText(portfolio: Portfolio?, portfolioId: Long, textView: TextView) {
+    private fun updateProviderNameText(portfolio: Portfolio?, userId: String, textView: TextView) {
         val user = portfolio?.user
-        val firstName = user?.firstName ?: ""
-        val lastName = user?.lastName ?: ""
+        val firstName = user?.firstName?.trim() ?: ""
+        val lastName = user?.lastName?.trim() ?: ""
+        
         if (firstName.isNotBlank() || lastName.isNotBlank()) {
             textView.text = "With: $firstName $lastName"
         } else {
-            textView.text = "With: Professional #$portfolioId"
+            // If no name is available, show the professional's occupation if available
+            val occupation = user?.occupation?.trim()
+            if (!occupation.isNullOrBlank()) {
+                textView.text = "With: $occupation"
+            } else {
+                textView.text = "With: Professional #$userId"
+            }
         }
     }
 

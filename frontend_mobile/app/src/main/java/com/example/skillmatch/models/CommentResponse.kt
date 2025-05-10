@@ -7,6 +7,7 @@ data class CommentResponse(
     val message: String,
     val timestamp: String,
     val rating: Int,
-    val authorName: String,
+    val authorId: Long,
+    val authorName: String?,
     val profilePicture: String?
 )

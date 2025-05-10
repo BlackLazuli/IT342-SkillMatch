@@ -17,6 +17,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.skillmatch.R
 import com.example.skillmatch.adapters.CommentAdapter
 import com.example.skillmatch.api.ApiClient
@@ -443,12 +444,26 @@ class CustomerViewCardActivity : AppCompatActivity(), OnMapReadyCallback {
         
         // Set profile image if available
         if (!professional.profilePicture.isNullOrEmpty()) {
-            try {
-                val decodedBytes = Base64.decode(professional.profilePicture, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
-                profileImage.setImageBitmap(bitmap)
-            } catch (e: Exception) {
-                Log.e(TAG, "Error decoding profile picture", e)
+            val backendBaseUrl = "http://3.107.23.86:8080"
+            val profilePic = professional.profilePicture
+            if (profilePic.startsWith("http")) {
+                Glide.with(this)
+                    .load(profilePic)
+                    .placeholder(R.drawable.user)
+                    .into(profileImage)
+            } else if (profilePic.startsWith("/uploads")) {
+                Glide.with(this)
+                    .load(backendBaseUrl + profilePic)
+                    .placeholder(R.drawable.user)
+                    .into(profileImage)
+            } else {
+                try {
+                    val decodedBytes = Base64.decode(profilePic, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+                    profileImage.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Error decoding profile picture", e)
+                }
             }
         }
         

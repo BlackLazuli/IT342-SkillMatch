@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.bumptech.glide.Glide
 import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
 import com.example.skillmatch.models.User
@@ -188,14 +189,26 @@ class ProfessionalProfileActivity : AppCompatActivity(), OnMapReadyCallback {
         emailText.text = user.email
 
         // Load profile image if available
-        user.profilePicture?.let { imageBase64 ->
-            try {
-                val imageBytes = Base64.decode(imageBase64, Base64.DEFAULT)
-                val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                profileImage.setImageBitmap(bitmap)
-            } catch (e: Exception) {
-                // If there's an error loading the image, just use the default
-                Log.e("ProfileActivity", "Error loading profile image", e)
+        user.profilePicture?.let { profilePic ->
+            val backendBaseUrl = "http://3.107.23.86:8080"
+            if (profilePic.startsWith("http")) {
+                Glide.with(this)
+                    .load(profilePic)
+                    .placeholder(R.drawable.user)
+                    .into(profileImage)
+            } else if (profilePic.startsWith("/uploads")) {
+                Glide.with(this)
+                    .load(backendBaseUrl + profilePic)
+                    .placeholder(R.drawable.user)
+                    .into(profileImage)
+            } else {
+                try {
+                    val imageBytes = Base64.decode(profilePic, Base64.DEFAULT)
+                    val bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                    profileImage.setImageBitmap(bitmap)
+                } catch (e: Exception) {
+                    Log.e("ProfileActivity", "Error loading profile image", e)
+                }
             }
         }
 

@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
 import com.example.skillmatch.R
 import com.example.skillmatch.api.ApiClient
+import com.example.skillmatch.customer.EditCustomerProfile
 import com.example.skillmatch.models.Location
 import com.example.skillmatch.models.User
 import com.example.skillmatch.professional.EditPortfolioActivity
@@ -318,30 +319,108 @@ class EditProfessionalProfile : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-    
+
     private fun uploadProfilePictureFile(file: File) {
         val userId = sessionManager.getUserId() ?: return
-        val requestFile = file.asRequestBody("image/jpeg".toMediaTypeOrNull())
+
+        // Get authentication token
+        val token = sessionManager.getAuthToken()
+        if (token.isNullOrEmpty()) {
+            Toast.makeText(this, "Authentication error. Please log in again.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        // Determine the media type based on file extension
+        val mediaType = when {
+            file.name.endsWith(".jpg", ignoreCase = true) -> "image/jpeg"
+            file.name.endsWith(".jpeg", ignoreCase = true) -> "image/jpeg"
+            file.name.endsWith(".png", ignoreCase = true) -> "image/png"
+            else -> "image/*" // Fallback to generic image type
+        }
+
+        val requestFile = file.asRequestBody(mediaType.toMediaTypeOrNull())
         val body = MultipartBody.Part.createFormData("file", file.name, requestFile)
+
+        // Show loading indicator
+        val progressDialog = ProgressDialog(this)
+        progressDialog.setMessage("Uploading profile picture...")
+        progressDialog.setCancelable(false)
+        progressDialog.show()
+
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val response = ApiClient.apiService.uploadProfilePicture(userId, body)
+                // Ensure token is properly formatted with "Bearer " prefix
+                val authToken = if (token.startsWith("Bearer ", ignoreCase = true)) {
+                    token
+                } else {
+                    "Bearer $token"
+                }
+
+                // Log token for debugging (remove in production)
+                Log.d("EditProfile", "Using auth token: $authToken")
+
+                val response = ApiClient.apiService.uploadProfilePicture(
+                    userId = userId,
+                    file = body,
+                    token = authToken
+                )
+
                 withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
                     if (response.isSuccessful) {
                         val user = response.body()
-                        user?.profilePicture?.let { url ->
+                        user?.profilePicture?.let { profilePicUrl ->
+                            // Handle the profile picture URL which could be a relative path
+                            val backendBaseUrl = "http://3.107.23.86:8080"
+                            val imageUrl = when {
+                                profilePicUrl.startsWith("http") -> profilePicUrl
+                                profilePicUrl.startsWith("/uploads") -> "$backendBaseUrl$profilePicUrl"
+                                else -> profilePicUrl
+                            }
+
+                            // Load the image with Glide
                             Glide.with(this@EditProfessionalProfile)
-                                .load(url)
+                                .load(imageUrl)
                                 .placeholder(R.drawable.user)
+                                .error(R.drawable.user)
                                 .into(profileImage)
+
+                            Toast.makeText(this@EditProfessionalProfile, "Profile picture updated successfully!", Toast.LENGTH_SHORT).show()
+                        } ?: run {
+                            Toast.makeText(this@EditProfessionalProfile, "Profile picture updated but URL is empty", Toast.LENGTH_SHORT).show()
                         }
-                        Toast.makeText(this@EditProfessionalProfile, "Profile picture updated!", Toast.LENGTH_SHORT).show()
                     } else {
-                        Toast.makeText(this@EditProfessionalProfile, "Failed to upload profile picture", Toast.LENGTH_SHORT).show()
+                        val errorCode = response.code()
+                        val errorBody = response.errorBody()?.string() ?: "Unknown error"
+                        Log.e("EditProfile", "Error uploading profile picture: $errorBody (Code: $errorCode)")
+
+                        when (errorCode) {
+                            401 -> {
+                                Toast.makeText(this@EditProfessionalProfile,
+                                    "Authentication failed. Please log in again.",
+                                    Toast.LENGTH_LONG).show()
+                                // Optionally, redirect to login screen
+                            }
+                            403 -> {
+                                Log.e("EditProfile", "Permission denied with token: $authToken")
+                                Toast.makeText(this@EditProfessionalProfile,
+                                    "Permission denied. Please log in again.",
+                                    Toast.LENGTH_LONG).show()
+                                // Optionally, redirect to login screen
+                            }
+                            413 -> Toast.makeText(this@EditProfessionalProfile,
+                                "File too large. Please choose a smaller image.",
+                                Toast.LENGTH_LONG).show()
+                            else -> Toast.makeText(this@EditProfessionalProfile,
+                                "Failed to upload profile picture (Error $errorCode)",
+                                Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
+                    progressDialog.dismiss()
+                    Log.e("EditProfile", "Exception uploading profile picture", e)
                     Toast.makeText(this@EditProfessionalProfile, "Error: ${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }

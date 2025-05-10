@@ -79,7 +79,8 @@ interface ApiService {
     @PUT("users/{id}/uploadProfilePicture")
     suspend fun uploadProfilePicture(
         @Path("id") userId: String,
-        @Part file: MultipartBody.Part
+        @Part file: MultipartBody.Part,
+        @Header("Authorization") token: String
     ): Response<User>
 
     // Simple method to get user with profile picture
